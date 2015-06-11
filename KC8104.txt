@@ -1,0 +1,240 @@
+//KERC8104 JOB (KER),'KER06',CLASS=G,MSGCLASS=X,MSGLEVEL=(1,1)          
+//STEP1 EXEC YCOBBAT,MBR=K11C8104                                       
+//COB.SYSIN DD *                                                        
+PROCESS TEST(NONE,SYM)                                                  
+      *================================================================*
+       IDENTIFICATION          DIVISION.                                
+       PROGRAM-ID.             KC6003.                                  
+       ENVIRONMENT             DIVISION.                                
+       CONFIGURATION           SECTION.                                 
+       INPUT-OUTPUT            SECTION.                                 
+      *========================================*                        
+       FILE-CONTROL.                                                    
+           SELECT  FILE-IN   ASSIGN  TO  FILEIN.                        
+           SELECT  FILE-OUT  ASSIGN  TO  FILEOUT.                       
+       DATA                    DIVISION.                                
+       FILE                    SECTION.                                 
+       FD  FILE-IN         RECORDING MODE      IS      F                
+                           LABEL   RECORD      IS      STANDARD         
+                           BLOCK   CONTAINS   100      RECORDS          
+                           RECORD  CONTAINS   126      CHARACTERS.      
+       01  REC-IN.                                                      
+           02  IN-JOSA-YMD               PIC 9(8).                      
+           02  IN-JEUNGBEON              PIC 9(7).                      
+           02  IN-BOJONG                 PIC 9(4).                      
+           02  IN-BOJONG-T               PIC 9(4).                      
+           02  IN-JT                     PIC 9(1).                      
+           02  IN-BSMG                   PIC 9(2).                      
+           02  IN-0-9                    PIC 9(2).                      
+           02  IN-NABGI                  PIC 9(2).                      
+           02  IN-MANGI                  PIC 9(2).                      
+           02  IN-NABBANG                PIC 9(1).                      
+           02  IN-PINAI                  PIC 9(2).                      
+           02  IN-PISEX                  PIC 9(1).                      
+           02  IN-GYENAI                 PIC 9(2).                      
+           02  IN-GYESEX                 PIC 9(1).                      
+           02  IN-BOGEUM                 PIC S9(7)    COMP-3.           
+           02  IN-BOLYO                  PIC S9(9)    COMP-3.           
+           02  IN-GYE-YMD                PIC 9(8).                      
+           02  IN-JIGB-YMD               PIC 9(8).                      
+           02  IN-SAGO-YMD               PIC 9(8).                      
+           02  IN-LNAB-YM                PIC 9(6).                      
+           02  IN-LNAB-HWOISU           PIC 9(3).                       
+           02  IN-GNGWA-YM              PIC 9(4).                       
+           02  IN-GNGWA-YM-RE        REDEFINES   IN-GNGWA-YM.           
+               03  IN-GNGWA-YY          PIC 9(2).                       
+               03  IN-GNGWA-MM          PIC 9(2).                       
+           02  IN-MIGNGWA-MM            PIC 9(2).                       
+           02  IN-CODE                  PIC 9(1).                       
+           02  IN-JIGBS                 PIC S9(9)    COMP-3.            
+           02  IN-VT-KEY.                                               
+               03  IN-VT-BOJONG         PIC 9(4).                       
+               03  IN-VT-GUBUN          PIC 9(1).                       
+               03  IN-VT-PINAI          PIC 9(2).                       
+               03  IN-VT-NABGI          PIC 9(2).                       
+               03  IN-VT-MANGI          PIC 9(2).                       
+               03  IN-VT-NABBANG        PIC 9(1).                       
+               03  IN-VT-GYEONGGWA      PIC 9(2).                       
+           02  IN-VT-SEX                PIC 9(1).                       
+           02  IN-VT-TABLE.                                             
+               03  IN-VT                PIC S9(7)    COMP-3.            
+               03  IN-VT1               PIC S9(7)    COMP-3.            
+               03  IN-VT-PB             PIC S9(7)    COMP-3.            
+               03  IN-ALPHA             PIC S9(5)    COMP-3.            
+           02  IN-IYUL                  PIC S9(5)    COMP-3.            
+
+       FD  FILE-OUT        RECORDING MODE      IS      F                
+                           LABEL   RECORD      IS      STANDARD         
+                           BLOCK   CONTAINS   100      RECORDS          
+                           RECORD  CONTAINS   171      CHARACTERS.      
+       01  REC-OUT.                                                     
+         02 OUT-ITEM       PIC X(126).                                  
+         02 OUT-PURE-YY    PIC S9(9).                                   
+         02 OUT-PURE-MM    PIC S9(9).                                   
+         02 OUT-HAIYAG-YY  PIC S9(9).                                   
+         02 OUT-HAIYAG-MM  PIC S9(9).                                   
+         02 OUT-PB         PIC S9(9).                                   
+                                                                        
+      *--------------------------------*                                
+       WORKING-STORAGE         SECTION.                                 
+      *--------------------------------*                                
+       01  BOJONG-REC.                                                  
+           COPY    KBBOJ88 SUPPRESS.                                    
+       01  WORK-REC.                                                    
+          02  CNT-IN                PIC 9(7).                           
+          02  CNT-OUT               PIC 9(7).                           
+          02  IYUL                  PIC 9(2)V9(6).                      
+          02  V-ALPHA               PIC 9(7).                           
+          02  I                     PIC 9(3).                           
+          02  J                     PIC 9(3).                           
+          02  K                     PIC 9(3).                           
+          02  IN-JIGUB-YUL          PIC 999V999.                        
+          02  TOTAL-JUNBIGUM        PIC 9(12).                          
+          02  KEEPCODE              PIC 9(1).                           
+          02  MANGI                 PIC 9(2).
+          02  HS                    PIC 9(3).
+          02  COD                   PIC 9(1).
+          02  GUBUN                 PIC 9(1).
+          02  S-HOISU               PIC 9(3).
+          02  MG-MM                 PIC 9(2).
+          02  NG                    PIC 9(2).
+          02  NB                    PIC 9(2).
+          02  SA                    PIC 9(7).
+          02  GWA                   PIC 9(4).
+          02  PB                    PIC 9(9)V9(7).
+          02  WT-Y                  PIC S9(9)V9(7).
+          02  VT-M                  PIC S9(9)V9(7).
+          02  WT-M                  PIC S9(9)V9(7).
+          02  WK-ILJA               PIC S9(3).
+          02  PURE.                                                     
+              03  PURE-YY           PIC S9(9).                          
+              03  PURE-MM           PIC S9(9).                          
+          02  HAIYAG.                                                   
+              03  HAIYAG-YY         PIC S9(9).                          
+              03  HAIYAG-MM         PIC S9(9).                          
+          02  MS                    PIC S9(6).                          
+          02  MS1                   PIC S9(6).                          
+          02  MS2                   PIC S9(6).                          
+          02  SEON-HWOISU           PIC  9(6).                          
+          02  MIGNGWA-MM            PIC  9(6).                          
+       01  REC-SWITCH.                                                  
+           02  FILE-EOF-SWITCH         PIC X(3)  VALUE  'NO '.          
+               88  FILE-EOF                      VALUE  'YES'.          
+       77  SS              PIC 9(04)   VALUE    100.                    
+       EJECT                                                            
+      *=================================*                               
+       PROCEDURE               DIVISION.                                
+      *=================================*                               
+           OPEN       INPUT     FILE-IN                                 
+                      OUTPUT    FILE-OUT.                               
+           INITIALIZE WORK-REC.                                         
+           MOVE  ZERO  TO OUT-PURE-YY     OUT-PURE-MM    OUT-PB         
+                          OUT-HAIYAG-YY   OUT-HAIYAG-MM.                
+           MOVE  1     TO IN-JIGUB-YUL.                                 
+           PERFORM    110-READ-FILEIN.                                  
+           PERFORM    100-PG-CONTROL       UNTIL  FILE-EOF.             
+           DISPLAY    '  *======================================*'.     
+           DISPLAY    '  *   FILE-IN   TOTAL  =  '  CNT-IN.             
+           DISPLAY    '  *   FILE-OUT  TOTAL  =  '  CNT-OUT.            
+           DISPLAY    '  *'                                             
+           DISPLAY    '  *   JUNBIGUM  TOTAL  =  '  TOTAL-JUNBIGUM.     
+           DISPLAY    '  *======================================*'.     
+           CLOSE      FILE-IN  FILE-OUT.                                
+           STOP RUN.                                                    
+                                                                        
+      *-----------------*                                               
+       100-PG-CONTROL.                                                  
+      *-----------------*                                               
+           PERFORM     120-COMPUTE-WRITE  THRU  120-DATA-EXIT.
+           PERFORM     110-READ-FILEIN.
+
+      *-----------------*                                               
+       110-READ-FILEIN.                                                 
+      *-----------------*                                               
+           READ    FILE-IN    END   MOVE  'YES'  TO  FILE-EOF-SWITCH.   
+           IF  NOT  FILE-EOF                                            
+                        MOVE  IN-BOJONG     TO  WK-BOJONG               
+                        MOVE  IN-BOJONG-T   TO  WK-BOJONG-T             
+                        ADD      1    TO  CNT-IN.                       
+      *---------------------*                                           
+       120-COMPUTE-WRITE.                                               
+      *----------------------*                                          
+           IF  IN-NABBANG =  8 OR 9      MOVE   12          TO   NB     
+           ELSE                          MOVE   IN-NABBANG  TO   NB.    
+
+           COMPUTE  VT-M  ROUNDED = (IN-VT1 - IN-VT) / 12.              
+           COMPUTE  OUT-PURE-MM ROUNDED =  IN-BOGEUM * IN-GNGWA-MM      
+                                        *  VT-M *  IN-JIGUB-YUL / SS.   
+           COMPUTE  OUT-PURE-YY ROUNDED =  IN-VT *  IN-BOGEUM           
+                                                 *  IN-JIGUB-YUL / SS.  
+
+           IF  OUT-PURE-YY + OUT-PURE-MM  < ZERO                        
+                     MOVE     ZERO     TO  OUT-PURE-YY                  
+                                           OUT-PURE-MM.                 
+                                                                        
+           IF   NB-BOJ   COMPUTE    PB    ROUNDED = IN-VT-PB / NB       
+           ELSE          COMPUTE    PB    ROUNDED = IN-VT-PB / 12.      
+                                                                        
+           COMPUTE  OUT-PB ROUNDED  =  IN-BOGEUM  *  PB                 
+                                   *  MIGNGWA-MM / SS.                  
+                                                                        
+           MOVE  IN-GNGWA-YY   TO  GWA.                                 
+           IF  IN-BSMG  >  1                                            
+             IF  IN-BOJONG-T < 9000                                     
+                  DISPLAY 'CHECK KEEPCOD = ' IN-JEUNGBEON ' ' IN-BSMG   
+                           ' BOJONG = ' IN-BOJONG  ' ' IN-BOJONG-T.     
+           IF  IN-BSMG  = 2  OR 7 OR 8                                  
+                IF  IN-GNGWA-YM > 0300                                  
+                     IF  IN-NABGI > 7  MOVE     7       TO  NG          
+                     ELSE              MOVE  IN-NABGI   TO  NG          
+                ELSE IF  IN-NABGI > 10 MOVE    10       TO  NG          
+                     ELSE              MOVE  IN-NABGI   TO  NG          
+           ELSE                                                         
+                IF  IN-NABGI >  7      MOVE     7       TO  NG          
+                ELSE                   MOVE  IN-NABGI   TO  NG.         
+                                                                        
+           IF   NG  >  GWA                                              
+              IF   IN-VT-NABBANG = 9      MOVE  ZERO       TO  SA       
+              ELSE                        MOVE  IN-ALPHA   TO  SA       
+           ELSE                           MOVE  ZERO       TO  SA.      
+           IF   IN-NABBANG = 8 OR 9                                     
+              IF   IN-VT-NABGI < 2     MOVE  ZERO       TO  SA          
+                                       MOVE  1          TO  NG.         
+
+           IF (GEONGANG-LIFE OR JANGHAK ) AND                           
+                 (IN-VT-GUBUN = 1)                                      
+                      DISPLAY  ' BOJONG : ' IN-BOJONG                   
+                               '   ALPHA : ' SA                         
+           ELSE                                                         
+                      MOVE  ZERO       TO  SA.                          
+           COMPUTE WT-Y ROUNDED =  IN-VT - (NG - GWA) * SA / NG.        
+           COMPUTE  OUT-HAIYAG-YY  ROUNDED = WT-Y * IN-BOGEUM           
+                                                 * IN-JIGUB-YUL / SS.   
+           COMPUTE WT-M ROUNDED = (IN-VT1 - IN-VT + SA / NG) / 12.      
+           COMPUTE  OUT-HAIYAG-MM  ROUNDED = WT-M * IN-BOGEUM           
+                                    * IN-GNGWA-MM  * IN-JIGUB-YUL / SS. 
+
+           IF  OUT-HAIYAG-YY + OUT-HAIYAG-MM  < ZERO                    
+                     MOVE     ZERO       TO  OUT-HAIYAG-YY              
+                                             OUT-HAIYAG-MM.             
+      *    IF  IN-BSMG = 1 OR 3                                         
+      *         DISPLAY ' IN-JEUNGBEON ' IN-JEUNGBEON                   
+      *         DISPLAY ' IN-VT ' IN-VT                                 
+      *                     '   IN-VT1 ' IN-VT1                         
+      *                     '  IN-GNG-YM ' IN-GNGWA-YM                  
+      *         DISPLAY '   VT-M ' VT-M                                 
+      *                     '   WT-M ' WT-M.                            
+      *         DISPLAY ' OUT-PURE-YY ' OUT-PURE-YY                     
+      *                 ' OUT-PURE-MM ' OUT-PURE-MM                     
+      *         DISPLAY ' OUT-HAI-YY ' OUT-HAIYAG-YY                    
+      *                 ' OUT-HAI-MM ' OUT-HAIYAG-MM.                   
+      *    IF IN-BSMG = 1 OR 3                                          
+                ADD    OUT-HAIYAG-YY    OUT-HAIYAG-MM                   
+                                  TO      TOTAL-JUNBIGUM.               
+           MOVE   REC-IN          TO      OUT-ITEM.                     
+      *    IF IN-BSMG = 1 OR 3                                          
+                  WRITE  REC-OUT                                        
+                  ADD    1        TO      CNT-OUT.                      
+           MOVE  ZERO  TO OUT-PURE-YY     OUT-PURE-MM    OUT-PB         
+                          OUT-HAIYAG-YY   OUT-HAIYAG-MM.                
+       120-DATA-EXIT.    EXIT.                                          

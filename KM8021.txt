@@ -1,0 +1,89 @@
+//KERM8021 JOB (KER),'KER00',CLASS=K,MSGCLASS=X,MSGLEVEL=(1,1)          
+//STEP1 EXEC YCOBBAT,MBR=K11M8021                                       
+//COB.SYSIN DD *                                                        
+      *--------------------------------*                                
+      *-  퇴직위험보험료　산출     --*                                
+      *--------------------------------*                                
+       IDENTIFICATION          DIVISION.                                
+       PROGRAM-ID.             K11M8021.                                
+      *REMARKS.                DEATH  RATE & PR.                        
+       ENVIRONMENT             DIVISION.                                
+       DATA                    DIVISION.                                
+      *--------------------------------*                                
+       WORKING-STORAGE         SECTION.                                 
+      *--------------------------------*                                
+       01  WBA.                                                         
+           02    XX            PIC S9(3).                               
+           02    V             PIC 9V9(7).                              
+           02    VV            PIC 9V9(7).                              
+           02    QXX           PIC S9V9(8).                             
+           02    T-QXX         PIC S9V9(5).                             
+           02    SVT           PIC S9(9)V9(1).                          
+           02    SS            PIC S9(7)V9(1).                          
+           02    II            PIC 9(3).                                
+           02    JJ            PIC 9(3).                                
+      *------- ( DEATH  RATE   ) ------*                                
+           COPY       K11B9027.                                         
+       01  G-H-JAEHAE-1.                                                
+           02  FILLER          PIC X(7)    VALUE   '0000841'.           
+           02  FILLER          PIC X(7)    VALUE   '0000300'.           
+       01  G-H-JAEHA-1      REDEFINES   G-H-JAEHAE-1.                   
+           02  G-H-JAEH-1      OCCURS  2.                               
+               03  G-H-J       PIC 9V9(6).                              
+       01  TOIJIK-YUL-1.
+           02 FILLER  PIC X(30)  VALUE '015633013108012706012664011019'.
+           02 FILLER  PIC X(24)  VALUE '010419009191008499009250'.
+       01  TOIJIK-YUL-1-RE  REDEFINES    TOIJIK-YUL-1.
+          02  TOIJIK-YUL    OCCURS  9   TIMES.
+              03  T-QX                   PIC  9V9(5).
+      *------------------------*                                        
+       LINKAGE         SECTION.                                         
+      *------------------------*                                        
+       01  RISK-REC.                                                    
+           03  BOJONG          PIC 9(4).                                
+           03  X               PIC 9(2).                                
+           03  MG              PIC 9(2).                                
+           03  GY              PIC 9(2).                                
+           03  SEX             PIC 9(1).                                
+           03  IYUL            PIC 9V9(3).                              
+           03  VTT             PIC S9(7)        COMP-3.                 
+           03  GI-P            PIC S9(7)        COMP-3.                 
+         02  PR                PIC S9(7)V9(2)   COMP-3.                 
+         02  OQX               PIC S9V9(5)      COMP-3.                 
+      *------------------------------------------------*                
+       PROCEDURE       DIVISION    USING   RISK-REC.                    
+      *------------------------------------------------*                
+           MOVE     ZERO       TO      WBA    PR  OQX.                  
+           COMPUTE  V     ROUNDED  =  1  /  (1  +  IYUL).               
+           COMPUTE  VV    ROUNDED  =  V  **  0.5.                       
+           COMPUTE  SVT   ROUNDED  =  VTT *  VV.                        
+           COMPUTE  XX    =    X   +   GY.                              
+           IF   XX <  1            MOVE   111   TO  XX.                 
+           IF  BOJONG < 8000     PERFORM   B-600                        
+           ELSE                  PERFORM   B-805.                       
+           GOBACK.                                                      
+       B-805.                                                           
+           IF  SEX = 2    COMPUTE   XX  =  25  +  GY                    
+           ELSE           COMPUTE   XX  =  35  +  GY.                   
+           COMPUTE  II =  GY - 1.                                       
+           IF  (BOJONG > 8059 AND BOJONG < 8066)                        
+               COMPUTE  T-QXX  ROUNDED  =  T-QX(II) * 0.85    ELSE      
+           IF  (BOJONG > 8065 AND BOJONG < 8072)                        
+               COMPUTE  T-QXX  ROUNDED  =  T-QX(II) * 1       ELSE      
+               COMPUTE  T-QXX  ROUNDED  =  T-QX(II) * 1.25.             
+           COMPUTE  PR  ROUNDED =  (GI-P - SVT) * T-QXX * VV.           
+       B-600.                                                           
+           PERFORM        QX-RTN.                                       
+           IF  GY  <  3                                                 
+             COMPUTE  SS    ROUNDED  =   GY  *  100000  /  MG           
+             COMPUTE  PR    ROUNDED  =                                  
+                            ((QXX - G-H-J(SEX)) * (SS - SVT)            
+                     +  G-H-J(SEX) * (100000 - SVT)) * VV               
+           ELSE                                                         
+             COMPUTE PR ROUNDED =  QXX * (100000 - SVT) * VV.           
+      *-------*                                                         
+       QX-RTN.                                                          
+      *-------*                                                         
+           IF  BOJONG < 8000 MOVE   1    TO    II                       
+           ELSE              MOVE   3    TO    II.                      
+           MOVE   DEATH-T(II XX SEX)     TO    QXX.                     

@@ -1,0 +1,160 @@
+//KERC7116 JOB (KER),'KER01',CLASS=G,MSGCLASS=X,MSGLEVEL=(1,1)          
+//STEP1 EXEC YCOBBAT,MBR=KC7116                                         
+//COB.SYSIN DD *                                                        
+PROCESS TEST(STMT,SYM)                                                  
+      *=================================*                               
+       IDENTIFICATION          DIVISION.                                
+      *=================================*                               
+       PROGRAM-ID.             KC7116.                                  
+      *=================================*                               
+       ENVIRONMENT             DIVISION.                                
+      *=================================*                               
+       CONFIGURATION           SECTION.                                 
+       INPUT-OUTPUT            SECTION.                                 
+      *---------------------------------*                               
+       FILE-CONTROL.                                                    
+           SELECT   FILE-IN  ASSIGN  TO  FILEIN.                        
+           SELECT   FILE-OUT ASSIGN  TO  FILEOUT.                       
+      *=================================*                               
+       DATA                    DIVISION.                                
+      *=================================*                               
+       FILE                    SECTION.                                 
+      *---------------------------------*                               
+       FD   FILE-IN    RECORDING   MODE        IS  F                    
+                       LABEL       RECORD          STANDARD             
+                       BLOCK       CONTAINS   100  RECORDS              
+                       RECORD      CONTAINS   160  CHARACTERS.          
+       01  REC-IN.        COPY  KB9019.                                 
+                                                                        
+       FD  FILE-OUT      RECORDING   MODE    IS  F                      
+                       LABEL       RECORD      STANDARD                 
+                       BLOCK       CONTAINS   100  RECORDS              
+                       RECORD      CONTAINS   160  CHARACTERS.          
+       01  REC-OUT     PIC X(160).                                      
+       EJECT                                                            
+      *=================================*                               
+       WORKING-STORAGE          SECTION.                                
+      *=================================*                               
+       01  CH-REC.                                                      
+           02  CH-KEY               PIC X(16).                          
+           02  CH-GEONSU            PIC S9(7)       COMP-3.             
+           02  CH-BOGEUM            PIC S9(9)       COMP-3.             
+           02  CH-YEON-RESERVE.                                         
+             03  CH-VT-YY           PIC S9(13)      COMP-3.             
+             03  CH-WT-YY           PIC S9(13)      COMP-3.             
+           02  CH-RESERVE-YM.                                           
+             03  CH-VT-YYMM         PIC S9(13)      COMP-3.             
+             03  CH-WT-YYMM         PIC S9(13)      COMP-3.             
+           02  CH-GITA.                                                 
+             03  CH-MIG             PIC S9(13)      COMP-3.             
+             03  CH-MIJIGB          PIC S9(13)      COMP-3.             
+             03  CH-SUNJIGB         PIC S9(13)      COMP-3.             
+           02  CH-IJA               PIC S9(13)      COMP-3.             
+           02  CH-SEON-IJA          PIC S9(13)      COMP-3.             
+           02  CH-BAIDANG-SEG.                                          
+             03  CH-HWAGBAI         OCCURS  3.                          
+                 04  CH-HG-BAE      PIC S9(11)      COMP-3.             
+             03  CH-SACHABAI        OCCURS  3.                          
+                 04  CH-SH-BAE      PIC S9(11)      COMP-3.             
+             03  CH-ICHABAI         OCCURS  3.                          
+                 04  CH-IH-BAE      PIC S9(11)      COMP-3.             
+             03  CH-JANGGIBAI       OCCURS  3.                          
+                 04  CH-JG-BAE      PIC S9(11)      COMP-3.             
+       01  SV-KEY.                                                      
+           02  FILLER               PIC X(6).                           
+           02  SV-BSMG              PIC 9(2).                           
+           02  FILLER               PIC X(8).                           
+       01  WORK-SPACE.                                                  
+           02  CNT-IN               PIC 9(10).                          
+           02  CNT-ADD              PIC 9(10).                          
+           02  CNT-OUT              PIC 9(10).                          
+           02  I                    PIC 9(2).                           
+           02  J                    PIC 9(2).                           
+       01  REC-SWITCH.                                                  
+           02  FILE-EOF-SWITCH     PIC X(3)   VALUE  'NO '.             
+               88  FILE-EOF                   VALUE  'YES'.             
+           02  FIRST-DATA-SWITCH   PIC X(3)   VALUE  'YES'.             
+               88  FIRST-DATA                 VALUE  'YES'.             
+       EJECT                                                            
+      *=================================*                               
+       PROCEDURE               DIVISION.                                
+      *=================================*                               
+           OPEN    INPUT    FILE-IN         OUTPUT      FILE-OUT.       
+           MOVE    ZERO     TO  WORK-SPACE  SV-KEY.                     
+           PERFORM          050-WK-CLEAR.                               
+           PERFORM          110-READ-SELECT.                            
+           PERFORM          100-PG-CONTROL     UNTIL    FILE-EOF.       
+           PERFORM          130-MOVE-WRITE.                             
+           DISPLAY  '*************************************'.            
+           DISPLAY  ' THE NUMBER OF INPUT   ===> ' CNT-IN.              
+           DISPLAY  ' THE NUMBER OF COMPUTE  ==> ' CNT-ADD.             
+           DISPLAY  ' THE NUMBER OF OUTPUT  ===> ' CNT-OUT.             
+           DISPLAY  '*************************************'.            
+           CLOSE     FILE-IN     FILE-OUT.                              
+           STOP      RUN.                                               
+                                                                        
+      *-------------*                                                   
+       050-WK-CLEAR.                                                    
+      *-------------*                                                   
+           MOVE  ZERO  TO   CH-GEONSU     CH-BOGEUM     CH-VT-YY        
+                            CH-WT-YY      CH-VT-YYMM    CH-WT-YYMM      
+                            CH-MIG        CH-MIJIGB     CH-SUNJIGB      
+                            CH-IJA                      CH-SEON-IJA     
+                            CH-HG-BAE(1)  CH-HG-BAE(2)  CH-HG-BAE(3)    
+                            CH-SH-BAE(1)  CH-SH-BAE(2)  CH-SH-BAE(3)    
+                            CH-IH-BAE(1)  CH-IH-BAE(2)  CH-IH-BAE(3)    
+                            CH-JG-BAE(1)  CH-JG-BAE(2)  CH-JG-BAE(3).   
+      *---------------*                                                 
+       100-PG-CONTROL.                                                  
+      *---------------*                                                 
+           IF  K5-KEY = SV-KEY   NEXT              SENTENCE             
+           ELSE                  PERFORM           130-MOVE-WRITE       
+                                 PERFORM           050-WK-CLEAR         
+                                 MOVE  K5-KEY  TO  SV-KEY.              
+           PERFORM       120-ADD-COMPUTE.                               
+           PERFORM       110-READ-SELECT.                               
+      *----------------*                                                
+       110-READ-SELECT.                                                 
+      *----------------*                                                
+           READ   FILE-IN    END   MOVE  'YES'  TO   FILE-EOF-SWITCH.   
+           IF  NOT   FILE-EOF                                           
+                 ADD    1        TO   CNT-IN.                           
+           IF  FIRST-DATA                                               
+                 MOVE   K5-KEY   TO   SV-KEY                            
+                 MOVE   'NO '    TO   FIRST-DATA-SWITCH.                
+      *-----------------*                                               
+       120-ADD-COMPUTE.                                                 
+      *-----------------*                                               
+           ADD     1                 TO    CNT-ADD.                     
+           ADD     K5-GEONSU         TO    CH-GEONSU.                   
+           ADD     K5-BOGEUM         TO    CH-BOGEUM.                   
+      *    ADD     K5-GONGCHING      TO    CH-GONGCHING.                
+      *    ADD     K5-BOLYO          TO    CH-BOLYO.                    
+           ADD     K5-VT-YY          TO    CH-VT-YY.                    
+           ADD     K5-WT-YY          TO    CH-WT-YY.                    
+           ADD     K5-VT-YYMM        TO    CH-VT-YYMM.                  
+           ADD     K5-WT-YYMM        TO    CH-WT-YYMM.                  
+           ADD     K5-MIG            TO    CH-MIG.                      
+           ADD     K5-MIJIGB         TO    CH-MIJIGB.                   
+           ADD     K5-SUNJIGB        TO    CH-SUNJIGB.                  
+           ADD     K5-IJA            TO    CH-IJA.                      
+           ADD     K5-SEON-IJA       TO    CH-SEON-IJA.                 
+           ADD     K5-HG-BAE(1)      TO    CH-HG-BAE(1).                
+           ADD     K5-HG-BAE(2)      TO    CH-HG-BAE(2).                
+           ADD     K5-HG-BAE(3)      TO    CH-HG-BAE(3).                
+           ADD     K5-SH-BAE(1)      TO    CH-SH-BAE(1).                
+           ADD     K5-SH-BAE(2)      TO    CH-SH-BAE(2).                
+           ADD     K5-SH-BAE(3)      TO    CH-SH-BAE(3).                
+           ADD     K5-IH-BAE(1)      TO    CH-IH-BAE(1).                
+           ADD     K5-IH-BAE(2)      TO    CH-IH-BAE(2).                
+           ADD     K5-IH-BAE(3)      TO    CH-IH-BAE(3).                
+           ADD     K5-JG-BAE(1)      TO    CH-JG-BAE(1).                
+           ADD     K5-JG-BAE(2)      TO    CH-JG-BAE(2).                
+           ADD     K5-JG-BAE(3)      TO    CH-JG-BAE(3).                
+                                                                        
+      *---------------*                                                 
+       130-MOVE-WRITE.                                                  
+      *---------------*                                                 
+           MOVE      SV-KEY          TO     CH-KEY.                     
+           WRITE     REC-OUT         FROM   CH-REC.                     
+           ADD       1               TO     CNT-OUT.                    

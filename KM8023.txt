@@ -1,0 +1,229 @@
+//KERM8023 JOB (KER),'KER00',CLASS=G,MSGCLASS=X,MSGLEVEL=(1,1)          
+//STEP1 EXEC YCOBBAT,MBR=K00M8023                                       
+//COB.SYSIN DD *                                                        
+      *===============================*                                 
+       IDENTIFICATION        DIVISION.                                  
+       PROGRAM-ID.           K00M8023.                                  
+       ENVIRONMENT           DIVISION.                                  
+       DATA                  DIVISION.                                  
+       WORKING-STORAGE       SECTION.                                   
+      *==============================*                                  
+       01  REC-WORK.                                                    
+         02  WK-NABIB-YMD               PIC 9(8).                       
+         02  WK-NABIB-YMD-RE         REDEFINES    WK-NABIB-YMD.         
+             03  WK-NABIB-YY             PIC 9(4).                      
+             03  WK-NABIB-MM             PIC 9(2).                      
+             03  WK-NABIB-DD             PIC 9(2).                      
+         02  WK-JIGB-YMD                PIC 9(8).                       
+         02  WK-JIGB-YMD-RE          REDEFINES    WK-JIGB-YMD.          
+             03  WK-JIGB-YY              PIC 9(4).                      
+             03  WK-JIGB-MM              PIC 9(2).                      
+             03  WK-JIGB-DD              PIC 9(2).                      
+         02  WK-NEXT-YMD                PIC 9(8).                       
+         02  WK-NEXT-YMD-RE          REDEFINES    WK-NEXT-YMD.          
+             03  WK-NEXT-YY              PIC 9(4).                      
+             03  WK-NEXT-MM              PIC 9(2).                      
+             03  WK-NEXT-DD              PIC 9(2).                      
+         02  WK-YEAREND-YMD             PIC 9(8).                       
+         02  WK-YEAREND-YMD-RE       REDEFINES    WK-YEAREND-YMD.       
+             03  WK-YEAREND-YY           PIC 9(4).                      
+             03  WK-YEAREND-MM           PIC 9(2).                      
+             03  WK-YEAREND-DD           PIC 9(2).                      
+         02  WK-FROM-DATE                PIC 9(8).                      
+         02  WK-FROM-DATE-RE          REDEFINES    WK-FROM-DATE.        
+             03  WK-FROM-YY              PIC 9(4).                      
+             03  WK-FROM-MM              PIC 9(2).                      
+             03  WK-FROM-DD              PIC 9(2).                      
+         02  WK-TO-DATE                  PIC 9(8).                      
+         02  WK-TO-DATE-RE            REDEFINES    WK-TO-DATE.          
+             03  WK-TO-YY                PIC 9(4).                      
+             03  WK-TO-MM                PIC 9(2).                      
+             03  WK-TO-DD                PIC 9(2).                      
+         02  WK-START-YMD               PIC 9(8).                       
+         02  WK-START-YMD-RE         REDEFINES    WK-START-YMD.         
+             03  WK-START-YY             PIC 9(4).                      
+             03  WK-START-MM             PIC 9(2).                      
+             03  WK-START-DD             PIC 9(2).                      
+                                                                        
+         02  C                           PIC 9(1).                      
+         02  H                           PIC 9(1).                      
+         02  YM-SW                       PIC 9(1).                      
+         02  IJA                         PIC 9V9(4).                    
+         02  WK-1YEAR                    PIC S9(5).                     
+         02  GIGAN-IYUL                  PIC S9(4)V9(9).                
+         02  WONRI-GM                    PIC 9(9)V9(7).                 
+         02  WON-GM                      PIC 9(9)V9(7).                 
+         02  YUN-YEAR-CHECK              PIC 9(4).                      
+             88  YUN-YEAR89       VALUE  1980  1984  1988               
+                                         1992  1996  2000.              
+       01  REC-GIGAN.                                                   
+           02  FROM-DATE.                                               
+               03  FROM-YY               PIC 9(4).                      
+               03  FROM-MM               PIC 9(2).                      
+               03  FROM-DD               PIC 9(2).                      
+           02  TO-DATE.                                                 
+               03  TO-YY                 PIC 9(4).                      
+               03  TO-MM                 PIC 9(2).                      
+               03  TO-DD                 PIC 9(2).                      
+           02  TAB-GIGAN                 PIC S9(5).                     
+           02  TAB-SW                    PIC 9(1).                      
+       01  TA-IYUL-CHANGE.                                              
+           03  FILL PIC X(23) VALUE '19891117-19930126-01000'.          
+           03  FILL PIC X(23) VALUE '19930126-19930326-00900'.          
+           03  FILL PIC X(23) VALUE '19930326-19950101-00850'.          
+           03  FILL PIC X(23) VALUE '19950101-19990101-00900'.          
+           03  FILL PIC X(23) VALUE '19990101-19990201-00870'.          
+000201     03  FILL PIC X(23) VALUE '19990201-19990401-00830'.          
+  .        03  FILL PIC X(23) VALUE '19990401-19990501-00790'.          
+  .        03  FILL PIC X(23) VALUE '19990501-99999999-00710'.          
+       01  TA-IYUL-RE             REDEFINES    TA-IYUL-CHANGE.          
+000201     03  TA-IYUL-YMD-OC     OCCURS   8   TIMES.                   
+               04  TA-F-YMD              PIC  9(8).                     
+               04  FILLER                 PIC  X(1).                    
+               04  TA-T-YMD              PIC  9(8).                     
+               04  FILLER                 PIC  X(1).                    
+               04  TA-IYUL                PIC  9V9(4).                  
+      *================================*                                
+       LINKAGE                 SECTION.                                 
+      *================================*                                
+       01  REC-7600.                                                    
+                         COPY  K00B9028.                                
+       EJECT                                                            
+      *========================================================*        
+       PROCEDURE               DIVISION     USING    REC-7600.          
+      *========================================================*        
+      *+++++++++*                                                       
+       000-BODY.                                                        
+      *+++++++++*                                                       
+           MOVE    ZERO   TO   KI-IJA     REC-WORK     REC-GIGAN.       
+           IF KI-BSMG = 3      PERFORM        200-MANGI-YMD             
+           ELSE                PERFORM        200-SILHYO-YMD.           
+           PERFORM        090-YMD-MAKE.                                 
+           PERFORM        091-IYUL-SEARCH.                              
+           PERFORM        100-IJA-CONTROL.                              
+           GOBACK.                                                      
+      *------------*                                                    
+       090-YMD-MAKE.                                                    
+      *------------*                                                    
+           MOVE      WK-START-YMD       TO   WK-YEAREND-YMD.            
+           ADD       1                  TO   WK-YEAREND-YY.             
+           MOVE      WK-YEAREND-YY      TO   YUN-YEAR-CHECK.            
+           IF  WK-YEAREND-MM  = 2  AND  WK-YEAREND-DD = 29              
+              IF   YUN-YEAR89           MOVE    29  TO  WK-YEAREND-DD   
+              ELSE                      MOVE    28  TO  WK-YEAREND-DD.  
+           MOVE      WK-START-YMD       TO   FROM-DATE.                 
+           MOVE      WK-YEAREND-YMD     TO   TO-DATE.                   
+           MOVE      1                  TO   TAB-SW.                    
+           PERFORM   300-GIGAN-COMPUTE.                                 
+           MOVE      TAB-GIGAN          TO   WK-1YEAR.                  
+      *----------------*                                                
+       091-IYUL-SEARCH.                                                 
+      *----------------*                                                
+           MOVE       ZERO     TO     C.                                
+           PERFORM    091-1-SEARCH.                                     
+      *------------*                                                    
+       091-1-SEARCH.                                                    
+      *------------*                                                    
+           ADD         1       TO     C.                                
+           IF  WK-START-YMD > TA-T-YMD(C)   GO   TO  091-1-SEARCH.      
+           IF  KI-GYE-YMD  <  19950201                                  
+                      MOVE     TA-IYUL(C)      TO       IJA             
+           ELSE       ADD      KI-IYUL  0.01   GIVING   IJA.            
+      *---------------*                                                 
+       100-IJA-CONTROL.                                                 
+      *---------------*                                                 
+           MOVE        KI-JUNBI-GM          TO   WON-GM.                
+           MOVE        WK-START-YMD         TO   WK-FROM-DATE.          
+           IF    WK-YEAREND-YMD > KI-JIGB-YMD                           
+                       MOVE       KI-JIGB-YMD     TO   WK-TO-DATE       
+                       PERFORM    400-SIMPLE-BURI                       
+           ELSE        MOVE       WK-YEAREND-YMD  TO   WK-TO-DATE       
+                       MOVE       1               TO   YM-SW            
+                       PERFORM    400-SIMPLE-BURI                       
+                       MOVE       KI-JIGB-YMD     TO   WK-JIGB-YMD      
+                       PERFORM    500-COMPOUND-BURI.                    
+                                                                        
+           COMPUTE  KI-IJA  ROUNDED = WONRI-GM - KI-JUNBI-GM.           
+      *-------------*                                                   
+       200-MANGI-YMD.                                                   
+      *-------------*                                                   
+           COMPUTE WK-START-YY =  KI-GYE-YY + KI-MANGI.                 
+           MOVE    KI-GYE-MM                   TO  WK-START-MM.         
+           MOVE    KI-GYE-DD                   TO  WK-START-DD.         
+                                                                        
+           MOVE    WK-START-YY                 TO  YUN-YEAR-CHECK.      
+           IF  WK-START-MM  = 2  AND  WK-START-DD = 29                  
+              IF   YUN-YEAR89      MOVE    29  TO  WK-START-DD          
+              ELSE                 MOVE    28  TO  WK-START-DD.         
+      *----------------*                                                
+       200-SILHYO-YMD.                                                  
+      *----------------*                                                
+           MOVE      KI-LNAB-YY      TO   WK-START-YY.                  
+           COMPUTE   WK-START-MM  =  KI-LNAB-MM + 3.                    
+           IF   WK-START-MM > 12                                        
+                     COMPUTE   WK-START-MM   =   WK-START-MM  - 12      
+                     COMPUTE   WK-START-YY   =   WK-START-YY  + 1.      
+           MOVE      01                  TO   WK-START-DD.              
+      *------------------*                                              
+       300-GIGAN-COMPUTE.                                               
+      *------------------*                                              
+           CALL  'K11M8009' USING     REC-GIGAN.                        
+           MOVE   TAB-SW       TO     KI-CODE.                          
+      *----------------*                                                
+       400-SIMPLE-BURI.                                                 
+      *----------------*                                                
+           MOVE      ZERO     TO        C     GIGAN-IYUL.               
+           PERFORM   800-IYUL-SH  THRU  899-EXIT.                       
+                                                                        
+           COMPUTE   WONRI-GM   ROUNDED    =  WON-GM * (1 + GIGAN-IYUL  
+                                           /  WK-1YEAR).                
+      *-----------------*                                               
+       500-COMPOUND-BURI.                                               
+      *-----------------*                                               
+           MOVE       WK-YEAREND-YMD  TO   WK-NEXT-YMD  WK-NABIB-YMD.   
+           ADD        1                TO   WK-NEXT-YY.                 
+           MOVE       WK-NEXT-YY       TO   YUN-YEAR-CHECK.             
+           IF   KI-GYE-MM  = 2                                          
+              IF   KI-GYE-DD  = 29                                      
+                 IF   YUN-YEAR89       MOVE    29  TO  WK-NEXT-DD       
+                 ELSE                  MOVE    28  TO  WK-NEXT-DD.      
+           MOVE       WK-NABIB-YMD    TO   FROM-DATE  WK-FROM-DATE.     
+           MOVE       WK-NEXT-YMD     TO   TO-DATE.                     
+           PERFORM    300-GIGAN-COMPUTE.                                
+           MOVE       TAB-GIGAN        TO   WK-1YEAR.                   
+           MOVE       1                TO   YM-SW.                      
+           IF    WK-JIGB-YMD  <   WK-NEXT-YMD                           
+                      MOVE    WK-JIGB-YMD  TO   WK-YEAREND-YMD          
+                      MOVE    KI-JIGB-YMD  TO   WK-JIGB-YMD             
+           ELSE                                                         
+                IF  KI-JIGB-YMD > WK-NEXT-YMD                           
+                      MOVE    WK-NEXT-YMD  TO   WK-YEAREND-YMD          
+                ELSE  MOVE    KI-JIGB-YMD  TO   WK-YEAREND-YMD.         
+           MOVE       WONRI-GM              TO   WON-GM.                
+           MOVE       WK-YEAREND-YMD       TO   WK-TO-DATE.             
+           PERFORM    400-SIMPLE-BURI.                                  
+           IF    WK-JIGB-YMD  >  WK-YEAREND-YMD                         
+                      GO          TO      500-COMPOUND-BURI.            
+      *------------*                                                    
+       800-IYUL-SH.                                                     
+      *------------*                                                    
+           ADD       1         TO    C.                                 
+           IF    WK-FROM-DATE  >  TA-T-YMD (C)                          
+                     GO        TO    800-IYUL-SH.                       
+           IF    WK-TO-DATE    >  TA-T-YMD (C)                          
+                     MOVE  WK-FROM-DATE    TO   FROM-DATE               
+                     MOVE  TA-T-YMD (C)   TO   TO-DATE                  
+           ELSE      MOVE  WK-FROM-DATE    TO   FROM-DATE               
+                     MOVE  WK-TO-DATE      TO   TO-DATE.                
+           PERFORM   300-GIGAN-COMPUTE.                                 
+           IF  KI-GYE-YMD < 19950201                                    
+                     MOVE  TA-IYUL(C)      TO      IJA                  
+           ELSE      ADD   KI-IYUL  0.01  GIVING   IJA.                 
+           COMPUTE   GIGAN-IYUL  ROUNDED    =  GIGAN-IYUL               
+                                            +  TAB-GIGAN  * IJA.        
+           IF  NOT WK-TO-DATE > TA-T-YMD (C)    GO   TO   899-EXIT.     
+           MOVE    TA-T-YMD (C) TO   WK-FROM-DATE.                      
+           GO                    TO   800-IYUL-SH.                      
+      *--------*                                                        
+       899-EXIT.    EXIT.                                               
+      *--------*                                                        

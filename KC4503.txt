@@ -1,0 +1,256 @@
+//KERC4503 JOB (KER),'KER00',CLASS=G,MSGCLASS=X,MSGLEVEL=(1,1)
+//STEP1 EXEC YCOBBAT,MBR=K11C4503
+//COB.SYSIN DD *
+      *=================================*
+       IDENTIFICATION          DIVISION.
+       PROGRAM-ID.             K11C4503.
+       ENVIRONMENT             DIVISION.
+       CONFIGURATION           SECTION.
+       INPUT-OUTPUT            SECTION.
+       FILE-CONTROL.
+           SELECT   FILE-IN    ASSIGN  TO  FILEIN.
+           SELECT   FILE-OUT   ASSIGN  TO  FILEOUT.
+      *=================================*
+       DATA                    DIVISION.
+       FILE                    SECTION.
+       FD  FILE-IN             RECORDING  MODE      IS   F
+                               LABEL      RECORD         STANDARD
+                               BLOCK      CONTAINS  100  RECORDS
+                               RECORD     CONTAINS  134  CHARACTERS.
+       01  REC-IN              PIC X(134).
+       FD  FILE-OUT            RECORDING       MODE    IS  F
+                               LABEL   RECORD      STANDARD
+                               BLOCK   CONTAINS   100  RECORDS
+                               RECORD  CONTAINS   202  CHARACTERS.
+       01  REC-OUT        PIC X(202).
+      *================================*
+       WORKING-STORAGE         SECTION.
+       01  REC-KS.    COPY K11B9303   SUPPRESS.
+       01  WBA.
+               COPY     KBBOJ88.
+          02  NAB              PIC 9(2).
+          02  WK-IL            PIC S9(6).
+          02  CNT-IN           PIC 9(7).
+          02  CNT-OUT          PIC 9(7).
+          02  GUBUN-A-P        PIC S9(12).
+          02  GUBUN-B-P        PIC S9(12).
+          02  GUBUN-C-P        PIC S9(12).
+          02  GUBUN-D-P        PIC S9(12).
+          02  GUBUN-E-P        PIC S9(12).
+          02  GUBUN-F-P        PIC S9(12).
+          02  GUBUN-G-P        PIC S9(12).
+          02  GUBUN-H-P        PIC S9(12).
+          02  GUBUN-I-P        PIC S9(12).
+          02  GUBUN-J-P        PIC S9(12).
+          02  GUBUN-K-P        PIC S9(12).
+          02  GUBUN-L-P        PIC S9(12).
+          02  GUBUN-M-P        PIC S9(12).
+          02  GUBUN-O-P        PIC S9(12).
+          02  GUBUN-P-P        PIC S9(12).
+          02  GUBUN-Q-P        PIC S9(12).
+          02  GUBUN-R-P        PIC S9(12).
+          02  GUBUN-S-P        PIC S9(12).
+          02  GUBUN-T-P        PIC S9(12).
+          02  GUBUN-X-P        PIC S9(12).
+          02  GUBUN-TOT-P      PIC S9(14).
+       01  REC-LINK.                                                    
+          02  LNK-GYE-DATE            PIC 9(8).
+          02  LNK-JIGB-DATE           PIC 9(8).
+          02  LNK-JIGB-DATE-RE     REDEFINES   LNK-JIGB-DATE.           
+              03  J-YM                PIC 9(6).                         
+              03  J-DD                PIC 9(2).                         
+          02  LNK-LNAB-YM             PIC 9(6).                         
+          02  LNK-LNAB-YM-RE       REDEFINES   LNK-LNAB-YM.             
+              03  M-YY                PIC 9(4).                         
+              03  M-MM                PIC 9(2).                         
+          02  LNK-NABBANG             PIC 9(1).                         
+          02  LNK-NABGI               PIC 9(2).                         
+          02  LNK-MANGI               PIC 9(2).                         
+          02  LNK-HOISU               PIC 9(3).                         
+          02  LNK-CODE                PIC 9(1).                         
+          02  LNK-OUT.                                                  
+             03  G-YM           PIC 9(4).                               
+             03  D-YM           PIC 9(4).                               
+             03  SH             PIC 9(3).                               
+             03  MG             PIC 9(2).                               
+       01  V-KEY.                                                       
+           02  VT-KEY.                                                  
+990222         03  V-BOJONG-P           PIC  9(4).                      
+               03  V-BOJONG             PIC  9(4).                      
+               03  V-GUBUN              PIC  9(1).                      
+               03  V-PINAI              PIC  9(2).                      
+               03  V-GYENAI             PIC  9(2).                      
+               03  V-NABGI              PIC  9(2).                      
+               03  V-MANGI              PIC  9(2).                      
+               03  V-NABBANG            PIC  9(1).                      
+               03  V-GYEONGGWA          PIC  9(2).                      
+               03  V-SEX                PIC  9(1).                      
+               03  V-MYEONJE            PIC  9(1).                      
+               03  V-AGE                PIC  9(2).                      
+           02  V-OUT                    PIC X(14).                      
+           02  E                        PIC  9.                         
+       01  REC-SWITCH.                                                  
+         02  FILE-EOF-SWITCH    PIC X(3)   VALUE 'NO '.                 
+            88  FILE-EOF        VALUE 'YES'.                            
+         02  FIRST-DATA-SWITCH  PIC X(3)   VALUE 'YES'.                 
+            88  FIRST-DATA      VALUE 'YES'.                            
+      *=================================*
+       PROCEDURE               DIVISION.
+      *=================================*
+           OPEN        INPUT   FILE-IN
+                       OUTPUT  FILE-OUT.
+           INITIALIZE  WBA     REC-LINK   V-KEY  REC-KS.
+           MOVE ZERO  TO   KS-PR-RYO   KS-TR-RYO  KS-PS-RYO  KS-HS-RYO
+                           KS-WT-ALPHA KS-VT-ALPHA KS-VT  KS-VT1 KS-PB.
+           PERFORM     110-READ-DATA.                                   
+           PERFORM     100-PG-CONTROL                                   
+                               UNTIL   FILE-EOF.                        
+           CLOSE       FILE-IN     FILE-OUT.
+           DISPLAY     ' *==================================*'.         
+           DISPLAY     ' *  IN      TOTAL  =  ' CNT-IN.                 
+           DISPLAY     ' *  OUT     TOTAL  =  ' CNT-OUT.                
+           DISPLAY     ' *==================================*'.         
+           DISPLAY   '  *************************************'.         
+           DISPLAY   '  **  SINGYEYAG    P =  '   GUBUN-A-P.            
+           DISPLAY   '  **  YUJI.HUHWAL  P =  '   GUBUN-B-P.            
+           DISPLAY   '  **  COOLING      P =  '   GUBUN-C-P.            
+           DISPLAY   '  **  MINAP        P =  '   GUBUN-E-P.            
+           DISPLAY   '  **  VT-CHA       P =  '   GUBUN-F-P.            
+           DISPLAY   '  **  WANNAB (G,X) P =  '   GUBUN-G-P.            
+           DISPLAY   '  **  ILSI-MYUNJE  P =  '   GUBUN-H-P.            
+           DISPLAY   '  **  HALIN-AIK    P =  '   GUBUN-I-P.            
+           DISPLAY   '  **  BANSONG      P =  '   GUBUN-J-P.            
+           DISPLAY   '  **  CHUISO       P =  '   GUBUN-K-P.            
+           DISPLAY   '  **  GEOCHI       P =  '   GUBUN-M-P.            
+           DISPLAY   '  **  DANG-SUNSU   P =  '   GUBUN-S-P.            
+           DISPLAY   '  **  JUN-SUNSU    P =  '   GUBUN-T-P.            
+           DISPLAY   '  **  TOTAL    BOLYO =  '   GUBUN-TOT-P.          
+           DISPLAY     ' *==================================*'.         
+           STOP RUN.                                                    
+
+       100-PG-CONTROL.                                                  
+           PERFORM   120-DATA-WRITE.
+           PERFORM   110-READ-DATA.                                     
+       110-READ-DATA.
+           READ      FILE-IN   END  MOVE 'YES' TO FILE-EOF-SWITCH.
+           IF  NOT  FILE-EOF
+               MOVE    REC-IN   TO  REC-KS
+               ADD       1      TO  CNT-IN.
+       120-DATA-WRITE.
+           INITIALIZE   KS-VT-KEY  KS-VT-SEX  KS-IYUL.
+           IF  KS-NABBANG = 8  MOVE      12      TO    NAB
+           ELSE                MOVE  KS-NABBANG  TO    NAB.
+           IF  KS-NABBANG = 9  MOVE      1       TO    NAB.
+
+           MOVE   KS-BOJONG    TO  WK-BOJONG
+           MOVE   KS-BOJONG-T  TO  WK-BOJONG-T.
+           MOVE    KS-GYEYAG-YMD       TO   LNK-GYE-DATE.
+           COMPUTE  WK-IL  =  KS-GYEYAG-YY * 12 + KS-GYEYAG-MM
+                           +  KS-TOHOISU * NAB - 1.
+           DIVIDE  WK-IL BY  12  GIVING  M-YY  REMAINDER M-MM.
+               IF  M-MM = ZERO    MOVE   12          TO  M-MM
+                                  ADD    -1          TO  M-YY.
+           MOVE  KS-JOSA-YM            TO   J-YM.
+           MOVE    31                  TO   J-DD.
+           MOVE    KS-NABBANG            TO   LNK-NABBANG.
+           MOVE    KS-NABGI              TO   LNK-NABGI.
+           MOVE    KS-MANGI              TO   LNK-MANGI.
+           MOVE    KS-TOHOISU            TO   LNK-HOISU.
+           IF      KS-IDONG-A = 'G' OR 'X'
+                                MOVE    9         TO   LNK-CODE
+           ELSE                 MOVE    ZERO      TO   LNK-CODE.
+           CALL   'K11M8020'            USING   REC-LINK.
+           MOVE    G-YM                  TO   KS-GNGWA2-YM.
+
+           COMPUTE  WK-IL  =  KS-GYEYAG-YY * 12  + KS-GYEYAG-MM
+                                      +  (KS-FROMHOISU - 1) * NAB - 1
+           DIVIDE  WK-IL BY  12  GIVING  M-YY  REMAINDER M-MM
+           IF  M-MM = ZERO    MOVE   12  TO  M-MM
+                              ADD    -1  TO  M-YY.
+           IF  KS-IDONG-A = 'G' OR 'X'
+                       ADD   KS-GNG2-M  -1     GIVING  KS-GNG1-M
+                       MOVE  KS-GNG2-Y         TO      KS-GNG1-Y
+           ELSE        ADD   KS-FROMHOISU  -1  GIVING  LNK-HOISU
+                       CALL   'K11M8020'       USING   REC-LINK
+                       MOVE    G-YM            TO      KS-GNGWA1-YM.
+
+           IF KS-GNG1-M = 12  MOVE  ZERO TO  KS-GNG1-M
+                              ADD     1  TO  KS-GNG1-Y.
+           IF KS-GNG1-Y  = KS-GNG2-Y      NEXT   SENTENCE
+           ELSE      DISPLAY ' GNG-Y ERR = ' KS-JEUNGBEON
+                                 ' F ' KS-FROMHOISU ' T ' KS-TOHOISU.
+      ***********************************************************
+           MOVE    ZERO                TO  V-GUBUN.                     
+           MOVE    KS-BOJONG           TO  V-BOJONG-P.
+           MOVE    KS-BOJONG-T         TO  V-BOJONG.
+           MOVE    KS-NABGI            TO  V-NABGI.
+           MOVE    KS-MANGI            TO  V-MANGI.
+           MOVE    KS-NABBANG          TO  V-NABBANG.
+           MOVE    KS-PINAI            TO  V-PINAI.
+
+           IF KS-YUN-CODE = 3  AND  KS-SSY > 3
+              IF   KS-PISEX = 1  MOVE  35          TO  V-PINAI
+              ELSE               MOVE  25          TO  V-PINAI.
+           IF KS-BOJONG > 8000
+              IF KS-JEUNGBEON > 5095585
+                IF KS-JEUNGBEON < 5095599
+              IF   KS-PISEX = 1  MOVE  35          TO  V-PINAI
+              ELSE               MOVE  25          TO  V-PINAI.
+           IF KS-BOJONG > 8000
+              IF KS-JEUNGBEON = 5095625 OR 5098992 OR 5099002 OR
+                    5099327 OR 5099392 OR 5099966 OR 5101212 OR
+                    5101627 OR 5106938 OR 5096617 OR 5096618
+              IF   KS-PISEX = 1  MOVE  35          TO  V-PINAI
+              ELSE               MOVE  25          TO  V-PINAI.
+           MOVE    KS-GYENAI           TO  V-GYENAI.
+           IF  GYOYUK-BOJ   MOVE    KS-GYESEX   TO  V-SEX
+           ELSE             MOVE    KS-PISEX    TO  V-SEX.
+           IF  TK-IMSANBU-BOJANG
+               IF  KS-GYESEX = 1
+                            ADD   -3   TO  V-PINAI
+                            MOVE   2   TO  V-SEX.
+           MOVE    KS-GNG2-Y           TO  V-GYEONGGWA.
+           MOVE    KS-YUN-AGE          TO  V-AGE.
+           MOVE    ZERO                TO  V-MYEONJE.
+           MOVE    ZERO                TO  E.
+           IF  T-GMRI-LIN1       MOVE   ZERO      TO     V-KEY          
+           ELSE                  CALL  'K11M8005' USING  VT-KEY.        
+                                                                        
+           IF   E > ZERO      DISPLAY ' VT-CONVERT ERR = ' E            
+                                      ' V-OUT  = ' V-OUT                
+                                      ' IDONG  = ' KS-IDONG.            
+           MOVE    V-OUT               TO  KS-VT-KEY.
+           MOVE    KS-GNG2-Y           TO  KS-VT-GNG.
+           MOVE    V-SEX               TO  KS-VT-SEX.
+           IF  KS-IDONG-A = 'A'                                         
+                   ADD    KS-HABBOLYO  TO  GUBUN-A-P        ELSE        
+           IF  KS-IDONG-A = 'B' OR 'D'                                  
+                   ADD    KS-HABBOLYO  TO  GUBUN-B-P        ELSE        
+           IF  KS-IDONG-A = 'C'                                         
+                   ADD    KS-HABBOLYO  TO  GUBUN-C-P        ELSE        
+           IF  KS-IDONG-A = 'E'                                         
+                   ADD    KS-HABBOLYO  TO  GUBUN-E-P        ELSE        
+           IF  KS-IDONG-A = 'F'                                         
+                   ADD    KS-HABBOLYO  TO  GUBUN-F-P        ELSE        
+980216     IF  KS-IDONG-A = 'G' OR 'X'                                  
+                   ADD    KS-HABBOLYO  TO  GUBUN-G-P        ELSE        
+           IF  KS-IDONG-A = 'H'                                         
+                   ADD    KS-HABBOLYO  TO  GUBUN-H-P        ELSE        
+           IF  KS-IDONG-A = 'I'                                         
+                   ADD    KS-HABBOLYO  TO  GUBUN-I-P        ELSE        
+           IF  KS-IDONG-A = 'J'                                         
+                   ADD    KS-HABBOLYO  TO  GUBUN-J-P        ELSE        
+           IF  KS-IDONG-A = 'K'                                         
+                   ADD    KS-HABBOLYO  TO  GUBUN-K-P        ELSE        
+           IF  KS-IDONG-A = 'M'                                         
+                   ADD    KS-HABBOLYO  TO  GUBUN-M-P        ELSE        
+           IF  KS-IDONG-A = 'S'                                         
+                   ADD    KS-HABBOLYO  TO  GUBUN-S-P        ELSE        
+           IF  KS-IDONG-A = 'T'                                         
+                   ADD    KS-HABBOLYO  TO  GUBUN-T-P        ELSE        
+                   DISPLAY  ' ADD GUBUN ERR => ' KS-IDONG               
+                   ' POL = ' KS-JEUNGBEON ' ' KS-BOLYO ' ' KS-SSY       
+                   ' BOJ = ' KS-BOJONG ' ' KS-BOJONG-T.                 
+           ADD    KS-HABBOLYO  TO  GUBUN-TOT-P.                         
+           WRITE     REC-OUT  FROM REC-KS.
+           ADD     1   TO   CNT-OUT.

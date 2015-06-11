@@ -1,0 +1,70 @@
+//KERB9017 JOB (KER),'KER00',CLASS=S,MSGCLASS=X,MSGLEVEL=(1,1)          
+//S1 EXEC YSRCCAT,MBR=K00B9017                                          
+//C.SYSUT1 DD *                                                         
+           02  K3-JEUNGBEON               PIC 9(7).                     
+           02  K3-JT                      PIC 9(1).                     
+           02  K3-BOJONG-T                PIC 9(4).                     
+           02  K3-BSMG                    PIC 9(2).                     
+980718     02  K3-0-9                     PIC 9(2).                     
+           02  K3-BOJONG                  PIC 9(4).                     
+           02  K3-NABGI                   PIC 9(2).                     
+           02  K3-MANGI                   PIC 9(2).                     
+           02  K3-NABBANG                 PIC 9(1).                     
+           02  K3-PINAI                   PIC 9(2).                     
+           02  K3-PISEX                   PIC 9(1).                     
+           02  K3-LNAB-YM                 PIC 9(6).                     
+           02  K3-LNAB-YM-RE           REDEFINES   K3-LNAB-YM.          
+                  04  K3-LNAB-YY          PIC 9(4).                     
+                  04  K3-LNAB-MM          PIC 9(2).                     
+           02  K3-NABIB-HOISU             PIC 9(3).                     
+           02  K3-SEON-HOI                PIC 9(3).                     
+           02  K3-BOGEUM                  PIC S9(7)    COMP-3.          
+           02  K3-BOLYO                   PIC S9(9)    COMP-3.          
+           02  K3-GYE-YMD                 PIC 9(8).                     
+           02  K3-GYE-YMD-RE           REDEFINES   K3-GYE-YMD.          
+               04  K3-GYE-YM              PIC 9(6).                     
+               04  K3-GYE-YM-RE        REDEFINES   K3-GYE-YM.           
+                   05  K3-GYE-YY          PIC 9(4).                     
+                   05  K3-GYE-MM          PIC 9(2).                     
+               04  K3-GYE-DD              PIC 9(2).                     
+           02  K3-JIGB-YMD                PIC 9(8).                     
+           02  K3-JIGB-YMD-RE          REDEFINES   K3-JIGB-YMD.         
+               04  K3-JIGB-YM             PIC 9(6).                     
+               04  K3-JIGB-YM-RE       REDEFINES   K3-JIGB-YM.          
+                   05  K3-JIGB-YY         PIC 9(4).                     
+                   05  K3-JIGB-MM         PIC 9(2).                     
+               04  K3-JIGB-DD             PIC 9(2).                     
+           02  K3-GYULSAN-YMD             PIC 9(8).                     
+           02  K3-GYULSAN-YMD-RE       REDEFINES   K3-GYULSAN-YMD.      
+               04  K3-GYULSAN-YM          PIC 9(6).                     
+               04  K3-GYULSAN-YM-RE    REDEFINES   K3-GYULSAN-YM.       
+                   05  K3-GYULSAN-YY      PIC 9(4).                     
+                   05  K3-GYULSAN-MM      PIC 9(2).                     
+               04  K3-GYULSAN-DD          PIC 9(2).                     
+           02  K3-SEON-YMD                PIC 9(8).                     
+           02  K3-SEON-YMD-RE          REDEFINES   K3-SEON-YMD.         
+               04  K3-SEON-YM             PIC 9(6).                     
+               04  K3-SEON-YM-RE       REDEFINES   K3-SEON-YM.          
+                   05  K3-SEON-YY         PIC 9(4).                     
+                   05  K3-SEON-MM         PIC 9(2).                     
+               04  K3-SEON-DD             PIC 9(2).                     
+           02  K3-GNGWA-YM                PIC 9(4).                     
+           02  K3-GNGWA-RYM            REDEFINES   K3-GNGWA-YM.         
+               03  K3-GNGWA-YY            PIC 9(2).                     
+               03  K3-GNGWA-MM            PIC 9(2).                     
+           02  K3-SEON-IJA                PIC S9(9)    COMP-3.          
+           02  K3-PURE.                                                 
+               03  K3-PURE-YY             PIC S9(9)    COMP-3.          
+               03  K3-PURE-MM             PIC S9(9)    COMP-3.          
+           02  K3-HAIYAG.                                               
+               03  K3-HAIYAG-YY           PIC S9(9)    COMP-3.          
+               03  K3-HAIYAG-MM           PIC S9(9)    COMP-3.          
+980616     02  K3-GITAGUBUN-CODE          PIC 9(1).                     
+           02  K3-JUNWHAN-YMD             PIC 9(8).                     
+           02  K3-JUNWHAN-YMD-RE       REDEFINES   K3-JUNWHAN-YMD.      
+               04  K3-JUNWHAN-YM          PIC 9(6).                     
+               04  K3-JUNWHAN-YM-RE    REDEFINES   K3-JUNWHAN-YM.       
+                   05  K3-JUNWHAN-YY      PIC 9(4).                     
+                   05  K3-JUNWHAN-MM      PIC 9(2).                     
+               04  K3-JUNWHAN-DD          PIC 9(2).                     
+           02  K3-IYUL                    PIC 9(5).                     

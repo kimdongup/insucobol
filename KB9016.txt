@@ -1,0 +1,47 @@
+//KERB9016 JOB (KER),'KER00',CLASS=K,MSGCLASS=X,MSGLEVEL=(1,1)          
+//S1 EXEC YSRCCAT,MBR=K00B9016                                          
+//C.SYSUT1 DD *                                                         
+      *----------------(  2001  )-----------------------------*         
+  7        02  K2-JEUNGBEON               PIC 9(7).                     
+  8        02  K2-JT                      PIC 9(1).                     
+ 12        02  K2-BOJONG-T                PIC 9(4).                     
+ 20        02  K2-GYE-YMD                 PIC 9(8).                     
+           02  K2-GYE-YMD-RE           REDEFINES   K2-GYE-YMD.          
+               03  K2-GYE-YM              PIC 9(6).                     
+               03  K2-GYE-YM-RE        REDEFINES   K2-GYE-YM.           
+                   04  K2-GYE-YY          PIC 9(4).                     
+                   04  K2-GYE-MM          PIC 9(2).                     
+               03  K2-GYE-DD              PIC 9(2).                     
+ 26        02  K2-LNAB-YM                 PIC 9(6).                     
+           02  K2-LNAB-YM-RE           REDEFINES   K2-LNAB-YM.          
+               03  K2-LNAB-YY             PIC 9(4).                     
+               03  K2-LNAB-MM             PIC 9(2).                     
+ 30        02  K2-DIV-YM.                                               
+               03  K2-DIV-YY              PIC 9(2).                     
+               03  K2-DIV-MM              PIC 9(2).                     
+ 33        02  K2-LNAB-HOISU              PIC 9(3).                     
+ 36        02  K2-SEON-HOISU              PIC 9(3).                     
+ 40        02  K2-BOGEUM                  PIC S9(7)    COMP-3.          
+ 45        02  K2-BOLYO                   PIC S9(9)    COMP-3.          
+ 50        02  K2-HABBOLYO                PIC S9(9)    COMP-3.          
+ 52        02  K2-GY-GIGAN                PIC 9(2).                     
+ 54        02  K2-HOIGYE-MM               PIC 9(2).                     
+ 56        02  K2-BOHEOM-MM               PIC 9(2).                     
+ 64        02  K2-JIGB-YMD                PIC 9(8).                     
+           02  K2-JIGB-YMD-RE          REDEFINES   K2-JIGB-YMD.         
+               03  K2-JIGB-YM             PIC 9(6).                     
+               03  K2-JIGB-YM-RE       REDEFINES   K2-JIGB-YM.          
+                   05  K2-JIGB-YY         PIC 9(4).                     
+                   05  K2-JIGB-MM         PIC 9(2).                     
+               03  K2-JIGB-DD             PIC 9(2).                     
+ 69        02  K2-JIGBS                   PIC S9(9)    COMP-3.          
+113        02  K2-BAE      OCCURS   4.                                  
+               03  K2-DIV0                PIC 9(1).                     
+               03  K2-DIV1                PIC S9(9)    COMP-3.          
+               03  K2-DIV2                PIC S9(9)    COMP-3.          
+121        02  K2-SUGMGIGWAN              PIC X(8).                     
+           02  K2-SUGM-RE            REDEFINES   K2-SUGMGIGWAN.         
+              03  K2-GUG                  PIC 9(2).                     
+              03  K2-JEOMPO21             PIC 9(4).                     
+              03  K2-JEOMPO22             PIC X(2).                     
+122        02  K2-JUN-CODE                PIC 9(1).                     

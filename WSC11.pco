@@ -1,0 +1,3318 @@
+      *****************************************************************
+      **  SYSTEM     :  통계　ＳＹＳＴＥＭ　　　                     **
+      **  FUNCTION   :  당월 수입보험료 화일 생성                    **
+      **  CREATE     :   2001.08.27.                                 **
+      **  UPDATE     :                                               **
+      *****************************************************************
+       $set  CALLFH "EXTFH"
+       $set  FILETYPE"8"
+      *****************************************************************
+       IDENTIFICATION      DIVISION.
+       PROGRAM-ID.         STWSC11.
+       ENVIRONMENT         DIVISION.
+       CONFIGURATION       SECTION.
+      *****************************************************************
+       INPUT-OUTPUT        SECTION.
+      *****************************************************************
+       FILE-CONTROL.
+           SELECT  GEYAK-F       ASSIGN    TO    EXTERNAL  GEYAKF
+                                 FILE  STATUS    IS GE-STATUS.
+           SELECT  JSINKYE-F     ASSIGN    TO    EXTERNAL  JSINKYEF
+                                 ACCESS  MODE    IS RANDOM
+                                 ORGANIZATION    IS INDEXED
+                                 RECORD   KEY    IS WSC01F-KEY
+                                 FILE  STATUS    IS JS-STATUS.
+           SELECT  PSIN-F        ASSIGN    TO    EXTERNAL  PSINF
+                                 ACCESS  MODE    IS SEQUENTIAL
+                                 ORGANIZATION    IS INDEXED
+                                 RECORD   KEY    IS INM-KEY
+                                 FILE  STATUS    IS PS-STATUS.
+           SELECT  PIBKM-F       ASSIGN    TO    EXTERNAL  PIBKMF
+                                 ORGANIZATION    IS SEQUENTIAL
+                                 FILE  STATUS    IS PI-STATUS.
+           SELECT  GSIN-F        ASSIGN    TO    EXTERNAL  GSINF
+                                 ACCESS  MODE    IS SEQUENTIAL
+                                 ORGANIZATION    IS INDEXED
+                                 RECORD   KEY    IS GNT-KEY-NUMBER
+                                 FILE  STATUS    IS GS-STATUS.
+           SELECT  GIBKM-F       ASSIGN    TO    EXTERNAL  GIBKMF
+                                 FILE  STATUS    IS GI-STATUS.
+           SELECT  OUTFIL-F      ASSIGN    TO    EXTERNAL  OUTFILF
+                                 FILE  STATUS    IS OT-STATUS.
+      *****************************************************************
+       DATA                            DIVISION.
+      *****************************************************************
+       FILE                            SECTION.
+      *****************************************************************
+       FD  GEYAK-F      LABEL   RECORD     IS   STANDARD.
+       COPY STWUC11F.
+       FD  JSINKYE-F    LABEL   RECORD     IS   STANDARD.
+       COPY STWSC01F.
+       FD  PSIN-F       LABEL   RECORD     IS   STANDARD.
+200308* COPY INMASTU17.
+200311 COPY INMASTUT.
+       FD  PIBKM-F      LABEL   RECORD     IS   STANDARD.
+       COPY IPMIPSK.
+       FD  GSIN-F       LABEL   RECORD     IS   STANDARD.
+       COPY GNTONGN.
+       FD  GIBKM-F      LABEL   RECORD     IS   STANDARD.
+       COPY GPIPM2002.
+       FD  OUTFIL-F     LABEL   RECORD     IS   STANDARD.
+       COPY STWSC11F.
+      *****************************************************************
+       WORKING-STORAGE                 SECTION.
+      *****************************************************************
+       01  WORK-AREA.
+           05 IDX                       PIC S9(09).
+           05 JDX                       PIC S9(09).
+           05 KDX                       PIC S9(09).
+           05 WK-CNT                    PIC S9(09).
+           05 WK-MOK                    PIC S9(09).
+           05 WK-NAM                    PIC S9(09).
+           05 COMP-AREA                 PIC S9(11)V9(07).
+      *---------------------------------------------------------------*
+       01  ACCEPT-AREA.
+           05 ACC-BE-UPJUKYMD           PIC  9(08).
+           05 FILLER          REDEFINES ACC-BE-UPJUKYMD.
+              10 ACC-BE-UPJUKYY         PIC  9(04).
+              10 ACC-BE-UPJUKMM         PIC  9(02).
+              10 ACC-BE-UPJUKDD         PIC  9(02).
+           05 FILLER          REDEFINES ACC-BE-UPJUKYMD.
+              10 ACC-BE-UPJUKYM         PIC  9(06).
+              10 FILLER                 PIC  9(02).
+           05 FILLER                    PIC  X(01).
+           05 ACC-DA-UPJUKYMD           PIC  9(08).
+           05 FILLER          REDEFINES ACC-DA-UPJUKYMD.
+              10 ACC-DA-UPJUKYY         PIC  9(04).
+              10 ACC-DA-UPJUKMM         PIC  9(02).
+              10 ACC-DA-UPJUKDD         PIC  9(02).
+           05 FILLER          REDEFINES ACC-DA-UPJUKYMD.
+              10 ACC-DA-UPJUKYM         PIC  9(06).
+              10 FILLER                 PIC  9(02).
+      *---------------------------------------------------------------*
+       01  RESER-AREA.
+           05 RESER-JNO                 PIC  9(10).
+           05 RESER-GROUP-CD            PIC  9(10).
+           05 RESER-ALPHA-HALINYUL      PIC S9(02)V9(02).
+           05 RESER-SYDATE              PIC  9(08).
+           05 RESER-ERROR-SW            PIC  X(03).
+           05 RESER-CHURI-SW            PIC  X(03).
+      *---------------------------------------------------------------*
+       01  RESER-GEYAKGO-AREA.
+           05 RESER-BORYO               PIC S9(11).
+           05 RESER-BOKUM               PIC S9(11).
+           05 RESER-NAPKI               PIC  9(02).
+           05 RESER-NAPBANG             PIC  9(02).
+           05 RESER-CHURI-BORYO         PIC S9(11).
+           05 RESER-NAPIP-HESU          PIC S9(11).
+           05 RESER-GEYAKGO             PIC S9(11).
+      *---------------------------------------------------------------*
+       01  RESER-DANCHE-TKCD-AREA.
+           05 RDANCHE-TKCD-MANKI        PIC  9(02) OCCURS 11.
+           05 RDANCHE-TKCD-SEMANKI      PIC  X(01) OCCURS 11.
+           05 RDANCHE-TKCD-NAPKI        PIC  9(02) OCCURS 11.
+      *---------------------------------------------------------------*
+       01  FILE-AREA.
+           05 GE-STATUS                 PIC  X(02).
+           05 JS-STATUS                 PIC  X(02).
+           05 PS-STATUS                 PIC  X(02).
+           05 PI-STATUS                 PIC  X(02).
+           05 GS-STATUS                 PIC  X(02).
+           05 GI-STATUS                 PIC  X(02).
+           05 OT-STATUS                 PIC  X(02).
+           05 CNT-READ-GE               PIC  9(09).
+           05 CNT-WRITE-GE              PIC  9(09).
+           05 CNT-ERROR-GE              PIC  9(09).
+           05 CNT-SKIP-GE               PIC  9(09).
+           05 CNT-READ-PS               PIC  9(09).
+           05 CNT-WRITE-PS              PIC  9(09).
+           05 CNT-ERROR-PS              PIC  9(09).
+           05 CNT-SKIP-PS               PIC  9(09).
+           05 CNT-READ-PI               PIC  9(09).
+           05 CNT-WRITE-PI              PIC  9(09).
+           05 CNT-ERROR-PI              PIC  9(09).
+           05 CNT-SKIP-PI               PIC  9(09).
+           05 CNT-READ-GS               PIC  9(09).
+           05 CNT-WRITE-GS              PIC  9(09).
+           05 CNT-ERROR-GS              PIC  9(09).
+           05 CNT-SKIP-GS               PIC  9(09).
+           05 CNT-READ-GI               PIC  9(09).
+           05 CNT-WRITE-GI              PIC  9(09).
+           05 CNT-ERROR-GI              PIC  9(09).
+           05 CNT-SKIP-GI               PIC  9(09).
+           05 MAIN-RETURN-CODE          PIC  9(09).
+      *---------------------------------------------------------------*
+       01  SWITCHES.
+           05 DATA-EOF-GE-SW            PIC  X(03) VALUE 'NO'.
+              88 DATA-EOF-GE                       VALUE 'YES'.
+           05 DATA-EOF-PS-SW            PIC  X(03) VALUE 'NO'.
+              88 DATA-EOF-PS                       VALUE 'YES'.
+           05 DATA-EOF-PI-SW            PIC  X(03) VALUE 'NO'.
+              88 DATA-EOF-PI                       VALUE 'YES'.
+           05 DATA-EOF-GS-SW            PIC  X(03) VALUE 'NO'.
+              88 DATA-EOF-GS                       VALUE 'YES'.
+           05 DATA-EOF-GI-SW            PIC  X(03) VALUE 'NO'.
+              88 DATA-EOF-GI                       VALUE 'YES'.
+      *---------------------------------------------------------------*
+       COPY  STSPB01F.
+       COPY  STSPB11F.
+       COPY  ST88B01F.
+       COPY  ST88B11F.
+       COPY  STCPYB01F.
+       COPY  STCHUL01.
+      * COPY INMASTU1.
+      *****************************************************************
+      *    DB 관련사항 기술   ( START )                               *
+      *---------------------------------------------------------------*
+           EXEC  SQL  INCLUDE  SQLCA                 END-EXEC.
+           EXEC  SQL  BEGIN  DECLARE SECTION         END-EXEC.
+           EXEC  SQL  INCLUDE  IMI001T.lib           END-EXEC.
+           EXEC  SQL  INCLUDE  IMI008T.lib           END-EXEC.
+           EXEC  SQL  INCLUDE  IMI014T.lib           END-EXEC.
+           EXEC  SQL  INCLUDE  INI006T.lib           END-EXEC.
+           EXEC  SQL  INCLUDE  GNCA01T.lib           END-EXEC.
+           EXEC  SQL  INCLUDE  GMG001T.lib           END-EXEC.
+           EXEC  SQL  INCLUDE  GMG008T.lib           END-EXEC.
+           EXEC  SQL  INCLUDE  GMG014T.lib           END-EXEC.
+           EXEC  SQL  END    DECLARE SECTION         END-EXEC.
+      *---------------------------------------------------------------*
+      *    DB 관련사항 기술   (  END  )                               *
+      *****************************************************************
+       PROCEDURE    DIVISION.
+      *****************************************************************
+           PERFORM  1000-PREPARE-RTN       THRU  1000-PREPARE-EXIT.
+           PERFORM  2000-GEYAK-RTN         THRU  2000-GEYAK-EXIT
+                                           UNTIL DATA-EOF-GE.
+           PERFORM  3000-PSIN-RTN          THRU  3000-PSIN-EXIT
+                                           UNTIL DATA-EOF-PS.
+           PERFORM  4000-PIBKM-RTN         THRU  4000-PIBKM-EXIT
+                                           UNTIL DATA-EOF-PI.
+           PERFORM  5000-GSIN-RTN          THRU  5000-GSIN-EXIT
+                                           UNTIL DATA-EOF-GS.
+           PERFORM  6000-GIBKM-RTN         THRU  6000-GIBKM-EXIT
+                                           UNTIL DATA-EOF-GI.
+           PERFORM  9000-TERMINATE-RTN     THRU  9000-TERMINATE-EXIT. 
+           STOP RUN.
+      *****************************************************************
+       1000-PREPARE-RTN.
+      *****************************************************************
+           CALL    'STPASS'                USING SQLCA.
+       
+           IF       SQLCODE                =   ZERO
+                    NEXT  SENTENCE
+           ELSE
+                    DISPLAY 'STWSC11-ER(STPASS)===>'
+                        '/'  SQLCODE
+                    STOP     RUN.
+
+           INITIALIZE       WORK-AREA
+                            ACCEPT-AREA
+                            RESER-GEYAKGO-AREA
+                            RESER-DANCHE-TKCD-AREA
+                            FILE-AREA.
+
+           OPEN     INPUT   GEYAK-F
+                            JSINKYE-F   
+                            PSIN-F
+                            PIBKM-F
+                            GSIN-F
+                            GIBKM-F
+                    OUTPUT  OUTFIL-F.
+
+           IF      (GE-STATUS              =   '00')  AND
+                   (JS-STATUS              =   '00')  AND
+                   (PS-STATUS              =   '00')  AND
+                   (PI-STATUS              =   '00')  AND
+                   (GS-STATUS              =   '00')  AND
+                   (GI-STATUS              =   '00')  AND
+                   (OT-STATUS              =   '00')
+                    NEXT  SENTENCE
+           ELSE
+                    DISPLAY 'FILE OPEN ERROR : GE-STATUS : ' 
+                                               GE-STATUS
+                    DISPLAY 'FILE OPEN ERROR : JS-STATUS : ' 
+                                               JS-STATUS
+                    DISPLAY 'FILE OPEN ERROR : PS-STATUS : ' 
+                                               PS-STATUS
+                    DISPLAY 'FILE OPEN ERROR : PI-STATUS : ' 
+                                               PI-STATUS
+                    DISPLAY 'FILE OPEN ERROR : GS-STATUS : ' 
+                                               GS-STATUS
+                    DISPLAY 'FILE OPEN ERROR : GI-STATUS : ' 
+                                               GI-STATUS
+                    DISPLAY 'FILE OPEN ERROR : OT-STATUS : ' 
+                                               OT-STATUS
+                    STOP RUN.
+
+           ACCEPT   ACCEPT-AREA.
+
+           READ     GEYAK-F                AT  END
+                    MOVE 'YES'             TO  DATA-EOF-GE-SW.
+           READ     PSIN-F                 AT  END
+                    MOVE 'YES'             TO  DATA-EOF-PS-SW.
+           READ     PIBKM-F                AT  END
+                    MOVE 'YES'             TO  DATA-EOF-PI-SW.
+           READ     GSIN-F                 AT  END
+                    MOVE 'YES'             TO  DATA-EOF-GS-SW.
+           READ     GIBKM-F                AT  END
+                    MOVE 'YES'             TO  DATA-EOF-GI-SW.
+       1000-PREPARE-EXIT.                  EXIT.
+      *****************************************************************
+       1000-PRE-IMI001T-RTN.
+      *****************************************************************
+           MOVE     SPACE                  TO  RESER-ERROR-SW.
+           MOVE     RESER-JNO              TO  A-POLICY.
+
+           EXEC     SQL
+                    SELECT NVL(CANCEL_STAT,0),
+                           NVL(CNTRT_DISCH_DATE,0),
+                           NVL(BEF_CNTRT_DATE,0),
+                           NVL(CONVERT_DATE,0),
+                           NVL(SINS_BIR1,' '),
+                           NVL(SINS_RES1,' '),
+                           NVL(SINS_AGE1,0),
+                           NVL(SINS_BIR2,' '),
+                           NVL(SINS_RES2,' '),
+                           NVL(SINS_AGE2,0),
+                           NVL(I_CHL_AGE,0),
+                           NVL(SECOND_DATE,0)
+                    INTO   :A-CANCEL-STAT,
+                            A-CNTRT-DISCH-DATE,
+                            A-BEF-CNTRT-DATE,
+                            A-CONVERT-DATE,
+                            A-SINS-BIR1,
+                            A-SINS-RES1,
+                            A-SINS-AGE1,
+                            A-SINS-BIR2,
+                            A-SINS-RES2,
+                            A-SINS-AGE2,
+                            A-I-CHL-AGE,
+                            A-SECOND-DATE
+                    FROM    KMIMAD1.IMI001T
+                    WHERE   POLICY   =:A-POLICY
+           END-EXEC.
+
+           IF       SQLCODE            NOT =   ZERO
+                    DISPLAY 'STWSC11-ER(IMI001T-DB-ERROR)====>'
+                        '/'  RESER-JNO 
+                        '/'  SQLCODE
+                    MOVE    'YES'          TO  RESER-ERROR-SW
+           ELSE
+                    NEXT     SENTENCE.
+       1000-PRE-IMI001T-EXIT.              EXIT.
+      *****************************************************************
+       1000-PRE-IMI014T-RTN.
+      *****************************************************************
+           MOVE     SPACE                  TO  RESER-ERROR-SW.
+           MOVE     ZERO                   TO  RESER-SYDATE.
+           MOVE     RESER-JNO              TO  K-POLICY.
+
+      *****기존********************************************************
+      *     EXEC     SQL
+      *              SELECT  NVL(BEF_NET_INS_CLASS,0),
+      *                      NVL(CHN_DATE,0)
+      *              INTO   :K-BEF-NET-INS-CLASS,
+      *                      K-CHN-DATE
+      *              FROM    KMIMADM.IMI014T
+      *              WHERE  (POLICY    =  :K-POLICY) AND
+      *                     (CHN_CODE  =  '2100')
+      *     END-EXEC.
+      *****************************************************************
+
+200312*****변경*********************************************************
+           EXEC     SQL
+                    SELECT  NVL(BEF_NET_INS_CLASS,0),
+                            NVL(CHN_DATE,0)
+                    INTO   :K-BEF-NET-INS-CLASS,
+                            K-CHN-DATE
+                    FROM    KMIMADM.IMI014T
+                    WHERE  (POLICY    =  :K-POLICY)  AND
+                           (CHN_CODE  =  '2100')     AND
+                            NVL(CANCEL_DATE,0)  =  0
+           END-EXEC.
+      *****************************************************************
+
+           IF       SQLCODE            NOT =   ZERO
+                    DISPLAY 'STWSC11-ER(IMI014T-DB-ERROR)====>'
+                       '/'   RESER-JNO
+                        '/'  SQLCODE
+                    MOVE    'YES'          TO  RESER-ERROR-SW
+           ELSE
+                    MOVE     K-CHN-DATE    TO  RESER-SYDATE.
+       1000-PRE-IMI014T-EXIT.              EXIT.
+      *****************************************************************
+       1000-PRE-INI006T-RTN.
+      *****************************************************************
+           MOVE     SPACE                  TO  RESER-ERROR-SW.
+           MOVE     ZERO                   TO  RESER-ALPHA-HALINYUL.
+
+           IF      (RESER-GROUP-CD         >   7000000000)  AND
+                   (RESER-GROUP-CD         <   7999999999)
+                    NEXT  SENTENCE
+           ELSE
+                    GO    TO               1000-PRE-INI006T-EXIT.
+
+           MOVE     RESER-GROUP-CD         TO  ING1-GROUP-CD.
+
+           EXEC     SQL
+                    SELECT  NVL(ING1_SAUPYUL, 0)
+                    INTO   :ING1-SAUPYUL
+                    FROM    KMINADM.INI006T
+                    WHERE   ING1_GROUP_CD  =  :ING1-GROUP-CD
+           END-EXEC.
+
+           IF       SQLCODE            NOT =   ZERO
+                    DISPLAY 'STWSC11-ER(INI006T-DB-ERROR)====>'
+                       '/'   RESER-JNO
+                       '/'   RESER-GROUP-CD
+                        '/'  SQLCODE
+                    MOVE    'YES'          TO  RESER-ERROR-SW
+           ELSE
+                    MOVE     ING1-SAUPYUL  TO  RESER-ALPHA-HALINYUL.
+       1000-PRE-INI006T-EXIT.              EXIT.
+      *****************************************************************
+       1000-PRE-GMG001T-RTN.
+      *****************************************************************
+           MOVE     SPACE                  TO  RESER-ERROR-SW.
+           MOVE     RESER-JNO              TO  A1-POLICY.
+
+           EXEC     SQL
+                    SELECT NVL(CANCEL_STAT,0),
+                           NVL(CNTRT_DISCH_DATE,0),
+                           NVL(BEF_CNTRT_DATE,0),
+                           NVL(RECNTRT_DATE,0),
+                           NVL(PENSION_DATE,0),
+                           NVL(TAX_WOODAE,0),
+                           NVL(GROUP_AGE,0),
+                           NVL(CBIR,' '),
+                           NVL(CRES,' '),
+                           NVL(CAGE,0),
+                           NVL(IBIR,' '),
+                           NVL(IRES,' '),
+                           NVL(IAGE,0),
+                           NVL(SINS_BIR1,' '),
+                           NVL(SINS_RES1,' '),
+                           NVL(SINS_AGE1,0),
+                           NVL(SINS_BIR2,' '),
+                           NVL(SINS_RES2,' '),
+                           NVL(SINS_AGE2,0),
+                           NVL(I_CHL_AGE,0)
+                    INTO   :A1-CANCEL-STAT,
+                            A1-CNTRT-DISCH-DATE,
+                            A1-BEF-CNTRT-DATE,
+                            A1-RECNTRT-DATE,
+                            A1-PENSION-DATE,
+                            A1-TAX-WOODAE,
+                            A1-GROUP-AGE,
+                            A1-CBIR,
+                            A1-CRES,
+                            A1-CAGE,
+                            A1-IBIR,
+                            A1-IRES,
+                            A1-IAGE,
+                            A1-SINS-BIR1,
+                            A1-SINS-RES1,
+                            A1-SINS-AGE1,
+                            A1-SINS-BIR2,
+                            A1-SINS-RES2,
+                            A1-SINS-AGE2,
+                            A1-I-CHL-AGE
+                    FROM    KMGMADM.GMG001T
+                    WHERE   POLICY   =:A1-POLICY
+           END-EXEC.
+
+           IF       SQLCODE            NOT =   ZERO
+                    DISPLAY 'STWSC11-ER(GMG001T-DB-ERROR)====>'
+                        '/'  RESER-JNO 
+                        '/'  SQLCODE
+                    MOVE    'YES'          TO  RESER-ERROR-SW
+           ELSE
+                    NEXT     SENTENCE.
+       1000-PRE-GMG001T-EXIT.              EXIT.
+      *****************************************************************
+       1000-PRE-GMG014T-RTN.
+      *****************************************************************
+           MOVE     SPACE                  TO  RESER-ERROR-SW.
+           MOVE     ZERO                   TO  RESER-SYDATE.
+           MOVE     RESER-JNO              TO  K1-POLICY.
+
+           EXEC     SQL
+                    SELECT  NVL(BEF_NET_INS_CLASS,0),
+                            NVL(CHN_DATE,0)
+                    INTO   :K1-BEF-NET-INS-CLASS,
+                            K1-CHN-DATE
+                    FROM    KMGMADM.GMG014T
+                    WHERE  (POLICY    =  :K1-POLICY) AND
+                           (CHN_CODE  =  '2100')
+           END-EXEC.
+
+           IF       SQLCODE            NOT =   ZERO
+                    DISPLAY 'STWSC11-ER(GMG014T-DB-ERROR)====>'
+                       '/'   RESER-JNO
+                        '/'  SQLCODE
+                    MOVE    'YES'          TO  RESER-ERROR-SW
+           ELSE
+                    MOVE     K1-CHN-DATE   TO  RESER-SYDATE.
+       1000-PRE-GMG014T-EXIT.              EXIT.
+      *****************************************************************
+       1000-PRE-GNCA01T-RTN.
+      *****************************************************************
+           MOVE     SPACE                  TO  RESER-ERROR-SW.
+           MOVE     RESER-GROUP-CD         TO  GNC1-COMPANY-CODE.
+
+           EXEC     SQL
+                    SELECT  NVL(GNC1_POST_NO1,' '),
+                            NVL(GNC1_POST_NO2,' ')
+                    INTO   :GNC1-POST-NO1,
+                            GNC1-POST-NO2
+                    FROM    KMGNADM.GNCA01T
+                    WHERE   GNC1_COMPANY_CODE = :GNC1-COMPANY-CODE
+           END-EXEC.
+
+           IF       SQLCODE            NOT =   ZERO
+                    DISPLAY 'STWSC11-ER(GNCA01T-DB-ERROR)====>'
+                       '/'   RESER-JNO
+                       '/'   RESER-GROUP-CD
+                        '/'  SQLCODE
+                    MOVE    'YES'          TO  RESER-ERROR-SW
+           ELSE
+                    NEXT     SENTENCE.
+       1000-PRE-GNCA01T-EXIT.              EXIT.
+      *****************************************************************
+       1000-PRE-GEYAKGO-RTN.
+      *****************************************************************
+           MOVE     ZERO                   TO  RESER-GEYAKGO.
+
+           IF       BOJ-YOUNG-AGE-BJ-A         OR
+                    BOJ-MB-SINBARAM-DRIVE-A    OR
+                    BOJ-MB-SINBARAM-DRIVE-C
+                    MOVE     ZERO          TO  RESER-BORYO
+                    MOVE     ZERO          TO  RESER-BOKUM
+                    PERFORM                1000-PRE-GEYAKGO-BOZO-RTN
+                             THRU          1000-PRE-GEYAKGO-BOZO-EXIT
+                             VARYING       IDX  FROM  1  BY  1
+                             UNTIL         IDX  > 11
+           ELSE
+                    NEXT  SENTENCE.
+
+           IF       TUK-KUM-OK-FUTURE
+                    MOVE  30000            TO  RESER-CHURI-BORYO
+           ELSE
+                    MOVE  RESER-BORYO      TO  RESER-CHURI-BORYO.
+
+           IF       RESER-NAPBANG          =   5
+                    MOVE  1                TO  RESER-NAPIP-HESU
+           ELSE
+           IF       RESER-NAPKI        NOT >   10
+                    COMPUTE  RESER-NAPIP-HESU
+                        =    RTABLE-YEAR-FRQ(RESER-NAPBANG)
+                        *    RESER-NAPKI
+           ELSE
+                    COMPUTE  RESER-NAPIP-HESU
+                        =    RTABLE-YEAR-FRQ(RESER-NAPBANG)
+                        *    10.
+
+           IF       BOJ-NEW-PLAN-JAYU              OR
+KHEE                BOJ-MB-SUPER-JONGSIN-A         OR
+200212              BOJ-MB-MYUNPUM-JONGSIN-A       OR
+200309              BOJ-MB-OK-SUPERCARE-A          OR
+200312              BOJ-MB-TOGETHER-JONGSIN-A
+                    MOVE     RESER-BOKUM   TO  COMP-AREA
+           ELSE
+           IF       TUK-KUM-TOTAL
+                    COMPUTE  COMP-AREA     =   RESER-CHURI-BORYO
+                                           *   RESER-NAPIP-HESU
+           ELSE
+           IF       BOJ-MB-8275-GUNGANG-C-4TH
+                    COMPUTE  COMP-AREA     =   RESER-BOKUM * 0.9
+           ELSE
+                    MOVE     RESER-BOKUM   TO  COMP-AREA.
+
+           COMPUTE  COMP-AREA              =   COMP-AREA   / 1000.
+           COMPUTE  RESER-GEYAKGO  ROUNDED =   COMP-AREA.
+       1000-PRE-GEYAKGO-EXIT.              EXIT.
+      *****************************************************************
+       1000-PRE-GEYAKGO-BOZO-RTN.
+      *****************************************************************
+           IF       BOJ-YOUNG-AGE-BJ-A
+             IF     WSC11F-TKCD(IDX)       =  'W928' OR 'W932'
+                    ADD   WSC11F-BORYO(IDX)    TO  RESER-BORYO
+                    ADD   WSC11F-BOKUM(IDX)    TO  RESER-BOKUM
+             ELSE
+                    NEXT  SENTENCE
+           ELSE
+           IF       BOJ-MB-SINBARAM-DRIVE-A    OR
+                    BOJ-MB-SINBARAM-DRIVE-C
+             IF     WSC11F-TKCD(IDX)       =  'W942' OR 'W943' OR
+                                              'W944'
+                    ADD   WSC11F-BORYO(IDX)    TO  RESER-BORYO
+                    ADD   WSC11F-BOKUM(IDX)    TO  RESER-BOKUM
+             ELSE
+                    NEXT  SENTENCE
+           ELSE
+                    NEXT  SENTENCE.
+       1000-PRE-GEYAKGO-BOZO-EXIT.         EXIT.
+      *****************************************************************
+       1000-PRE-BOJONG-RTN.
+      *****************************************************************
+           IF       BOJ-MB-SK-JEONGKI-A        OR
+                    BOJ-YOUR-LIFE-A            OR
+                    BOJ-MB-MOTHER-ANSIM-A      OR
+                    BOJ-MB-GOGAEK-BONUS-A      OR
+                    BOJ-MB-KYOTONG-JH-A        OR
+                    BOJ-OLD-DAN-JEONGKI        OR
+                    BOJ-NEW-DAN-JEONGKI        OR
+                    BOJ-MB-BUSYNESS-SH-A       OR
+                    BOJ-MB-25H-ANJUN-A         OR
+                    BOJ-MB-NOKSAEK-ANJ-A       OR
+                    BOJ-MB-PREMIUM-SH-A        OR
+                    BOJ-MB-PREMIUM-SH-C        OR
+                    BOJ-SAE-DAN-BOJANG-A       OR
+                    BOJ-MB-DAN-SH2000-A        OR
+                    BOJ-MB-DAN-SH2000-C        OR
+                    BOJ-MB-KYO-SH-BJ-A         OR
+                    BOJ-MB-KYO-SH-BJ-C         OR
+                    BOJ-MB-OK-CARE             OR
+                    BOJ-MB-FREE-STYLE-A        OR
+                    BOJ-MB-KYOSH-JAYURO-A      OR
+                    BOJ-MB-SANGH-MYLIFE-A      OR
+                    BOJ-OK-DAN-JEONGKI         OR
+200309              BOJ-MB-OK-BIZPLUS-A
+             IF     WSC11F-MANKI(1)        =   1 
+                    MOVE  1       TO       WSC11F-AUTO-UP-CODE
+             ELSE
+                    NEXT  SENTENCE
+           ELSE
+                    NEXT  SENTENCE.
+
+           IF       BOJ-21C-MIRAE-SEOLKYE      OR
+                    BOJ-MB-WOORIJIP-GUNG-C     OR
+                    BOJ-MB-ARM-BJ-PLUS-A       OR
+                    BOJ-MB-ARM-BJ-PLUS-C       OR
+                    BOJ-MB-MILD-ANGPANG        OR 
+                    BOJ-MB-ARM-CLINIC-C        OR
+                    BOJ-MB-MY-DOCTOR-C         OR
+                    BOJ-MB-BEST-GUNGANG-C1     OR
+                    BOJ-MB-BEST-GUNGANG-C2     OR
+                    BOJ-MB-WOMAN-GUN-C         OR
+                    BOJ-MB-8275-GUNGANG-C      OR 
+                    BOJ-MB-3560-REDUS-B1       OR
+                    BOJ-MB-3560-REDUS-B2       OR
+                    BOJ-MB-3560-REDUS-C        OR
+                    BOJ-MB-WOMAN-TJ-ARM-A      OR
+                    BOJ-MB-MYHOM-ARM-A         OR
+                    BOJ-MB-MYHOM-ARM-C         OR
+                    BOJ-MB-POWER-GUNG-A        OR
+                    BOJ-MB-POWER-GUNG-C        OR
+                    BOJ-MYHOME-ANGPANG         OR
+                    BOJ-MB-OK-IAMWOMAN-C       OR
+                    BOJ-MB-OK-FAMILY-C         OR
+                    BOJ-MB-OK-ARM-BOJANG-C     OR
+                    BOJ-MB-FREE-STYLE-N-C-4J   OR
+                    BOJ-MB-OK-JHRO-ARM-C       OR
+200303              BOJ-MB-OK-ARM-BOJANG-A     OR
+200307              BOJ-MB-OKCALL-ARM-A        OR
+200307              BOJ-MB-OKCALL-GUNGANG-A    OR
+200307              BOJ-NP-OK-YUNKUM
+                    MOVE  1       TO       WSC11F-SAMANG-BJ-CODE
+           ELSE
+                    NEXT  SENTENCE.
+
+           IF       BOJ-MB-NOKSAEK-ANJ-A       OR 
+                    BOJ-MB-NOKSAEK-ANJ-B       OR 
+                    BOJ-MB-NOKSAEK-ANJ-C       OR
+                    BOJ-MB-MYHOM-119-C         OR
+                    BOJ-MB-SANGH-MYLIFE-A      OR
+                    BOJ-MB-SANGH-MYLIFE-C      OR
+                    BOJ-MB-KYOSH-JAYURO-A      OR
+                    BOJ-MB-KYOSH-JAYURO-C      OR
+                    BOJ-MB-PLUS-PHONE-SH-C     OR
+                    BOJ-MB-8275-SANGHAE-C      OR
+                    BOJ-MB-PERFECT-2-SH-C      OR
+                    BOJ-MB-JIK-OK-SAENGHWAL    OR
+                    BOJ-MB-PREMIUM-SH-A        OR
+                    BOJ-MB-PREMIUM-SH-C        OR
+                    BOJ-MB-OK-JONGUP-SH        OR
+                    BOJ-MB-DAN-SH2000-A        OR
+                    BOJ-MB-DAN-SH2000-C        OR
+                    BOJ-MB-KYO-SH-BJ-A         OR
+                    BOJ-MB-KYO-SH-BJ-C         OR
+                    BOJ-MB-BUSYNESS-SH-A       OR
+                    BOJ-MB-BUSYNESS-SH-C1      OR
+                    BOJ-MB-BUSYNESS-SH-C2      OR
+                    BOJ-MB-PERFECT-SH-C        OR
+                    BOJ-MB-SOS-KYO-SH-B        OR
+                    BOJ-MB-SOS-KYO-SH-C        OR
+                    BOJ-MB-DANCHE-ANJUN-A      OR
+                    BOJ-MB-DANCHE-ANJUN-C      OR
+                    BOJ-MB-POWER-KYO-A         OR
+                    BOJ-MB-POWER-KYO-B         OR
+                    BOJ-MB-POWER-KYO-C         OR
+                    BOJ-MB-BEST-FAMILY-SH-C    OR
+                    BOJ-MB-SPORTS-SH-A         OR
+                    BOJ-MB-HYUIL-KYO-JH-A      OR
+                    BOJ-MB-SINBARAM-DRIVE-A    OR
+                    BOJ-MB-SINBARAM-DRIVE-C    OR
+                    BOJ-MB-BONUS-KYOTONG-A     OR
+                    BOJ-MB-MOTHER-ANSIM-A      OR
+                    BOJ-MB-GOGAEK-BONUS-A      OR
+                    BOJ-MB-KYOTONG-JH-A        OR
+                    BOJ-MB-OK-JAEHAE-BJ-C      OR
+                    BOJ-MB-FREE-STYLE-N-C-2J   OR
+                    BOJ-MB-FREE-STYLE-N-C-3J   OR
+                    BOJ-MB-BUSY-PART-SH-A      OR
+                    BOJ-MB-BUSY-PART-SH-C      OR
+                    BOJ-MB-OK-FAMILY-PLUS-A    OR
+                    BOJ-MB-OK-FAMILY-PLUS-C    OR
+200301              BOJ-MB-PUBLIC-KYO-SA-A     OR
+200303              BOJ-MB-OK-JAEHAE-BJ-A      OR
+200304              BOJ-MB-OK-LEISURE-A        OR
+200306              BOJ-MB-OK-LIFEKYOTONG-A    OR
+200309              BOJ-MB-OK-BIZPLUS-A        OR
+200309              BOJ-MB-MYUNPUM-LIFE-A
+                    MOVE  1       TO       WSC11F-ILBANSA-BJ-CODE
+           ELSE
+                    NEXT  SENTENCE.
+
+           IF       BOJ-JIK-JEO                OR
+                    BOJ-21C-JONGUPWON-BJ
+                    MOVE  1       TO       WSC11F-TWIJIK-BJ-CODE
+           ELSE
+                    NEXT  SENTENCE.
+       1000-PRE-BOJONG-EXIT.               EXIT.
+      *****************************************************************
+       1000-PRE-LNAPIP-CHECK-RTN.
+      *****************************************************************
+           IF       WSC11F-LNAPIP-HESU     >   ZERO
+                    GO    TO               1000-PRE-LNAPIP-CHECK-EXIT
+           ELSE
+           IF       WSC11F-NAPBANG         =   5
+                    MOVE  1                TO  WSC11F-LNAPIP-HESU
+                    GO    TO               1000-PRE-LNAPIP-CHECK-EXIT
+           ELSE
+                    NEXT  SENTENCE.
+
+           INITIALIZE  STSPB01F.
+           MOVE     WSC11F-JNO             TO  PB01F-JNO.
+           MOVE    'END'                   TO  PB01F-CHURI-MODE.
+           COMPUTE  PB01F-END-DATE         =   WSC11F-LNAPIP-WOLBUN
+                                           *   100
+                                           +   WSC11F-GEDATEDD.
+           CALL    'STSPB01'               USING STSPB01F.
+           IF       PB01F-RETURN-CODE      =   ZERO
+                    NEXT  SENTENCE
+           ELSE
+                    DISPLAY 'STWSC11-ER(LNAPIP-CHECK:STSPB01)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-BOJ
+                    ADD   PB01F-RETURN-CODE TO MAIN-RETURN-CODE
+                    GO    TO               1000-PRE-LNAPIP-CHECK-EXIT.
+
+           INITIALIZE  STSPB11F.
+           MOVE     WSC11F-JNO             TO  PB11F-JNO.
+           MOVE     WSC11F-GEDATE          TO  PB11F-GEDATE.
+           MOVE     WSC11F-NAPBANG         TO  PB11F-NAPBANG.
+           MOVE     WSC11F-NAPKI(1)        TO  PB11F-NAPKI.
+           MOVE     PB01F-JOJ-DATE         TO  PB11F-KJDATE.
+           CALL    'STSPB11'               USING STSPB11F.
+
+           IF       PB11F-RETURN-CODE      =   ZERO
+                    NEXT  SENTENCE
+           ELSE
+                    DISPLAY 'STWSC11-ER(LNAPIP-CHECK:STSPB11)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-BOJ
+                    ADD   PB11F-RETURN-CODE TO MAIN-RETURN-CODE
+                    GO    TO               1000-PRE-LNAPIP-CHECK-EXIT.
+
+           IF       WSC11F-AUTO-UP-CODE    =   1
+                    MOVE     RTABLE-YEAR-FRQ(WSC11F-NAPBANG)
+                      TO     WK-CNT 
+           ELSE
+                    COMPUTE  WK-CNT
+                         =   WSC11F-NAPKI(1)
+                         *   RTABLE-YEAR-FRQ(WSC11F-NAPBANG).
+
+           IF      (PB11F-ED-CHASU         =   ZERO)    OR
+                   (PB11F-ED-CHASU         >   WK-CNT)
+                    DISPLAY 'STWSC11-ER(LNAPIP-CHECK:ED-CHASU)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-BOJ
+                        '/'  WSC11F-AUTO-UP-CODE
+                        '/'  WSC11F-NAPBANG
+                        '/'  WSC11F-NAPKI(1)
+                        '/'  WSC11F-LNAPIP-HESU
+                        '/'  PB11F-ED-CHASU
+                    ADD   1                TO  MAIN-RETURN-CODE
+                    GO    TO               1000-PRE-LNAPIP-CHECK-EXIT
+           ELSE
+                    MOVE  PB11F-ED-CHASU   TO  WSC11F-LNAPIP-HESU.
+       1000-PRE-LNAPIP-CHECK-EXIT.         EXIT.
+      *****************************************************************
+       2000-GEYAK-RTN.
+      *****************************************************************
+           ADD      1                      TO  CNT-READ-GE.
+
+      *****************************************************************
+      *     IF       WUC11F-JNO            =   7000869966
+      *****************************************************************
+
+           IF      (WUC11F-WOLBO-USE-CODE  =   1)              AND
+                   (WUC11F-CLAM            =   98)             AND
+                   (WUC11F-SMDATEYY        =   ACC-DA-UPJUKYY) AND
+                   (WUC11F-SMDATEMM        =   ACC-DA-UPJUKMM)
+                    PERFORM                2000-GEYAK-SUB-RTN
+                            THRU           2000-GEYAK-SUB-EXIT
+           ELSE
+                    ADD     1              TO  CNT-SKIP-GE.
+
+           DIVIDE   CNT-READ-GE            BY  10000
+                    GIVING                 WK-MOK
+                    REMAINDER              WK-NAM.
+
+           IF       WK-NAM                 =   ZERO
+                    DISPLAY 'GEYAK-DISPLAY===>'
+                        '/'  CNT-READ-GE
+                        '/'  CNT-WRITE-GE
+                        '/'  CNT-ERROR-GE
+                        '/'  CNT-SKIP-GE
+           ELSE
+                    NEXT  SENTENCE.
+
+           IF       CNT-ERROR-GE           >   1000
+                    MOVE 'YES'             TO  DATA-EOF-GE-SW
+           ELSE
+                    NEXT  SENTENCE.
+
+           READ     GEYAK-F                AT  END
+                    MOVE 'YES'             TO  DATA-EOF-GE-SW.
+       2000-GEYAK-EXIT.                    EXIT.
+      *****************************************************************
+       2000-GEYAK-SUB-RTN.
+      *****************************************************************
+           INITIALIZE       STWSC01F.
+           MOVE     ACC-BE-UPJUKYM         TO  WSC01F-CLOSE-DATEYM.
+           MOVE     WUC11F-JNO             TO  WSC01F-JNO.
+           MOVE     WUC11F-JNO-GD-GUBUN    TO  WSC01F-JNO-GD-GUBUN.
+
+           READ     JSINKYE-F.
+
+           IF       JS-STATUS              =  '00'
+             IF    (WSC01F-NETBORYO        =   WUC11F-HAPBORYO) AND
+                   (WSC01F-LNAPIP-HESU     =   WUC11F-LNAPIP-HESU)
+                    DISPLAY 'STWSC11-PR(JSINKYE-F:EQ)===>'
+                        '/'  WSC01F-CLOSE-DATEYM
+                        '/'  WSC01F-JNO
+                        '/'  WSC01F-NETBORYO
+                        '/'  WUC11F-HAPBORYO
+                        '/'  WSC01F-LNAPIP-WOLBUN
+                        '/'  WUC11F-LNAPIP-HESU
+             ELSE
+                    DISPLAY 'STWSC11-PR(JSINKYE-F:NT)===>'
+                        '/'  WSC01F-CLOSE-DATEYM
+                        '/'  WSC01F-JNO
+                        '/'  WSC01F-NETBORYO
+                        '/'  WUC11F-HAPBORYO
+                        '/'  WSC01F-LNAPIP-WOLBUN
+                        '/'  WUC11F-LNAPIP-HESU
+           ELSE
+                    ADD     1              TO  CNT-ERROR-GE
+                    DISPLAY 'STWSC11-ER(JSINKYE-F:READ)===>'
+                        '/'  WSC01F-CLOSE-DATEYM
+                        '/'  WSC01F-JNO
+                        '/'  JS-STATUS
+                    GO      TO             2000-GEYAK-SUB-EXIT.
+
+           INITIALIZE       STWSC11F.
+           MOVE     STWSC01F               TO  STWSC11F.
+           MOVE     ACC-DA-UPJUKYM         TO  WSC11F-CLOSE-DATEYM.
+           MOVE     WUC11F-CLAM            TO  WSC11F-CLAM.
+           MOVE     WUC11F-SMDATE          TO  WSC11F-SMDATE.
+           MOVE     ZERO                   TO  WSC11F-KYEYAK-CODE.
+           MOVE     2                      TO  WSC11F-CORRECT.
+           MOVE     3                      TO  WSC11F-WOLBO-GUBUN.
+           MOVE    -1                      TO  WSC11F-WOLBO-SIGN.
+
+           WRITE    STWSC11F.
+           ADD      1                      TO  CNT-WRITE-GE.
+       2000-GEYAK-SUB-EXIT.                EXIT.
+      *****************************************************************
+       3000-PSIN-RTN.
+      *****************************************************************
+           ADD      1                      TO  CNT-READ-PS.
+KHEE       MOVE     INM-JEUNGBUN-NO        TO  W-JNO-TOT.
+
+KHEE       IF       W-JNO-FY200203
+                    ADD     1              TO  CNT-SKIP-PS
+           ELSE
+200303     IF       W-JNO-FY200303
+                    ADD     1              TO  CNT-SKIP-PS
+           ELSE
+           IF      (INM-K-WOLDO            =   ACC-DA-UPJUKYM)  AND
+                   (INM-BANSONG-CODE       =   ZERO)
+                    PERFORM                3000-PSIN-SUB-RTN
+                            THRU           3000-PSIN-SUB-EXIT
+           ELSE
+                    ADD     1              TO  CNT-SKIP-PS.
+
+           DIVIDE   CNT-READ-PS            BY  10000
+                    GIVING                 WK-MOK
+                    REMAINDER              WK-NAM.
+
+           IF       WK-NAM                 =   ZERO
+                    DISPLAY 'PSINF-DISPLAY===>'
+                        '/'  CNT-READ-PS
+                        '/'  CNT-WRITE-PS
+                        '/'  CNT-ERROR-PS
+                        '/'  CNT-SKIP-PS
+           ELSE
+                    NEXT  SENTENCE.
+
+           IF       CNT-ERROR-PS           >   1000
+                    MOVE 'YES'             TO  DATA-EOF-PS-SW
+           ELSE
+                    NEXT  SENTENCE.
+
+           READ     PSIN-F                 AT  END
+                    MOVE 'YES'             TO  DATA-EOF-PS-SW.
+       3000-PSIN-EXIT.                     EXIT.
+      *****************************************************************
+       3000-PSIN-SUB-RTN.
+      *****************************************************************
+           MOVE     ZERO                   TO  MAIN-RETURN-CODE
+
+           INITIALIZE STWSC11F.
+           MOVE     ACC-DA-UPJUKYM         TO  WSC11F-CLOSE-DATEYM.
+           MOVE     INM-JEUNGBUN-NO        TO  WSC11F-JNO.
+           MOVE     1                      TO  WSC11F-JNO-GD-GUBUN.
+
+           INITIALIZE RESER-AREA.
+           MOVE     WSC11F-JNO             TO  RESER-JNO.
+
+           PERFORM                         1000-PRE-IMI001T-RTN
+                    THRU                   1000-PRE-IMI001T-EXIT.
+
+           IF       RESER-ERROR-SW         =   SPACE
+                    NEXT  SENTENCE
+           ELSE
+                    ADD   1                TO  CNT-ERROR-PS
+                    GO    TO               3000-PSIN-SUB-EXIT.
+
+           MOVE     INM-BOJONG             TO  WSC11F-BOJ.
+           MOVE     WSC11F-BOJ             TO  ST88B01F-88AREA-SW.
+           MOVE     WSC11F-BOJ             TO  ST88B11F-88AREA-SW.
+           MOVE     INM-LOW-TAX            TO  WSC11F-TAX-WOODAE.
+
+           IF       INM-K-JUMIN            =  '1777777'   OR
+200303                                        '3777777'
+                    MOVE  ZERO             TO  WSC11F-BORYO-BUDAMJA
+                    MOVE  100              TO  WSC11F-BORYO-BUDAMYUL
+           ELSE
+                    MOVE  1                TO  WSC11F-BORYO-BUDAMJA.
+
+           MOVE     INM-K-HANDICAP         TO  WSC11F-JANGAEIN-CODE.
+           MOVE     INM-GROUP-CD           TO  WSC11F-GROUP-CD.
+           MOVE     INM-MOKI-CHONG         TO  WSC11F-SK-CHONGUK.
+           MOVE     INM-MOKI-KUK           TO  WSC11F-SK-GUK.
+           MOVE     INM-MOKI-SO            TO  WSC11F-SK-SO.
+           MOVE     INM-MOSA               TO  WSC11F-SK-SAWON.
+           MOVE     INM-MOKI-SO            TO  WSC11F-MJ-SO.
+           MOVE     INM-MOSA               TO  WSC11F-MJ-SAWON.
+           MOVE     INM-MOKI-KUK           TO  WSC11F-SIL-SK-GUK.
+           MOVE     INM-MOKI-SO            TO  WSC11F-SIL-SK-SO.
+           MOVE     INM-SUBANG             TO  WSC11F-SUBANG.
+           MOVE     INM-POST-1             TO  WSC11F-POST-NO-1.
+           MOVE     INM-POST-2             TO  WSC11F-POST-NO-2.
+           MOVE     INM-K-SIKI             TO  WSC11F-1ST-GEDATE.
+           MOVE     INM-K-SIKI             TO  WSC11F-GEDATE.
+
+           INITIALIZE  STSPB01F.
+           MOVE     WSC11F-JNO             TO  PB01F-JNO.
+           MOVE    'END'                   TO  PB01F-CHURI-MODE.
+           MOVE     WSC11F-GEDATE          TO  PB01F-END-DATE.
+           ADD      INM-MANKI              TO  PB01F-END-DATEYY.
+           CALL    'STSPB01'               USING STSPB01F.
+           IF       PB01F-RETURN-CODE      =   ZERO
+                    MOVE  PB01F-JOJ-DATE   TO  WSC11F-MKDATE
+           ELSE
+                    DISPLAY 'STWSC11-ER(STSPB01)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-GEDATE
+                        '/'  INM-MANKI
+                    ADD   1                TO  CNT-ERROR-PS
+                    GO    TO               3000-PSIN-SUB-EXIT.
+
+           MOVE     INM-JIKEUB-SIKI        TO  WSC11F-YKDATE.
+           MOVE     A-SECOND-DATE          TO  WSC11F-SECOND-DATE.
+           MOVE     INM-NABBANG            TO  WSC11F-NAPBANG.
+
+
+      *     PERFORM                         3100-PSIN-TKCD-RTN
+      *              THRU                   3100-PSIN-TKCD-EXIT
+      *              VARYING  IDX           FROM  1  BY  1
+      *              UNTIL    IDX           >   10.
+
+
+200311     PERFORM                         3100-PSIN-TKCD-RTN
+                    THRU                   3100-PSIN-TKCD-EXIT
+                    VARYING  IDX           FROM  1  BY  1
+                    UNTIL    IDX           >   11.
+
+           INITIALIZE RESER-GEYAKGO-AREA.
+           MOVE     WSC11F-BORYO(1)        TO  RESER-BORYO.
+           MOVE     WSC11F-BOKUM(1)        TO  RESER-BOKUM.
+           MOVE     WSC11F-NAPKI(1)        TO  RESER-NAPKI.
+           MOVE     WSC11F-NAPBANG         TO  RESER-NAPBANG.
+
+           PERFORM                         1000-PRE-GEYAKGO-RTN
+                    THRU                   1000-PRE-GEYAKGO-EXIT.
+
+           MOVE     RESER-GEYAKGO          TO  WSC11F-GEYAKGO.
+
+           PERFORM                         1000-PRE-BOJONG-RTN
+                    THRU                   1000-PRE-BOJONG-EXIT.
+
+           PERFORM                         3100-PSIN-PIBOHUMJA-RTN
+                    THRU                   3100-PSIN-PIBOHUMJA-EXIT.
+
+           MOVE     INM-K-WOLDO            TO  WSC11F-LNAPIP-WOLBUN.
+           COMPUTE  WSC11F-LNAPIP-HESU     =   1 + INM-SUNNAB.
+           MOVE     INM-K-SIKI             TO  WSC11F-LNAPIP-DATE.
+
+           IF       A-CANCEL-STAT          =   1
+             IF     A-CNTRT-DISCH-DATE     >   ACC-DA-UPJUKYMD  
+                    NEXT  SENTENCE
+             ELSE
+                    MOVE  A-CNTRT-STAT         TO  WSC11F-CLAM
+                    MOVE  A-CNTRT-DISCH-DATE   TO  WSC11F-SMDATE
+           ELSE
+                    NEXT  SENTENCE.
+
+           MOVE     1                      TO  WSC11F-KYEYAK-CODE.
+           MOVE     1                      TO  WSC11F-IPKUM-HESU.
+           MOVE     INM-SUNNAB             TO  WSC11F-SUNNAP-HESU.
+           MOVE     INM-HALIN-PP           TO  WSC11F-SUNNAP-HALINYEG.
+
+           COMPUTE  WSC11F-NETBORYO        =   WSC11F-HAPBORYO
+                                           -   INM-GROUP-HALIN
+                                           -   INM-GOAEK-HALIN.
+
+           MOVE     1                      TO  WSC11F-WOLBO-GUBUN.
+           MOVE     1                      TO  WSC11F-WOLBO-SIGN.
+           MOVE     1                      TO  WSC11F-WOLBO-GUNSU.
+           MOVE     WSC11F-NETBORYO        TO  WSC11F-WOLBO-KUMYEG.
+
+           PERFORM                         1000-PRE-LNAPIP-CHECK-RTN
+                    THRU                   1000-PRE-LNAPIP-CHECK-EXIT.
+
+           MOVE     1                      TO  WSC11F-WOLBO-FR-HESU.
+           MOVE     WSC11F-LNAPIP-HESU     TO  WSC11F-WOLBO-TO-HESU.
+200307     MOVE     ZERO                   TO  WSC11F-VG-FUND-CD.
+200307     MOVE     ZERO                   TO  WSC11F-VG-IPKUM-GB.
+200307     MOVE     ZERO                   TO  WSC11F-VG-SUN-BORYO.
+200307     MOVE     ZERO                   TO  WSC11F-VG-RISK-BORYO.
+200307     MOVE     ZERO                   TO  WSC11F-VG-YUJIBI.
+
+           IF       MAIN-RETURN-CODE       =   ZERO
+                    WRITE STWSC11F
+                    ADD   1                TO  CNT-WRITE-PS
+           ELSE
+                    ADD   1                TO  CNT-ERROR-PS.
+       3000-PSIN-SUB-EXIT.                 EXIT.
+      *****************************************************************
+       3100-PSIN-TKCD-RTN.
+      *****************************************************************
+           MOVE     INM-TCOD(IDX)          TO  WSC11F-TKCD(IDX).
+
+           IF      (IDX                    =   1)     AND
+                   (INM-MANKI              =   99)
+                    MOVE  INM-MANKI        TO  WSC11F-MANKI(IDX)
+           ELSE
+           IF       INM-BOJONG             =  '1302' OR '1303' OR
+                                              'A010' OR 'A011'
+                    COMPUTE                WSC11F-MANKI(IDX)
+                                  =        INM-MANKI-T(IDX)
+                                  -        INM-JP1-AGE
+           ELSE
+           IF       INM-MANKI-T(IDX)       =   99
+                    MOVE  INM-MANKI-T(IDX) TO  WSC11F-MANKI(IDX)
+           ELSE
+           IF       INM-YEUNCHK(IDX)       =  '1'
+                    MOVE  INM-MANKI-T(IDX) TO  WSC11F-MANKI(IDX)
+           ELSE
+KHEE       IF     ((INM-BOJONG         NOT <  'G690')   AND
+                   (INM-BOJONG         NOT >  'G695'))        OR
+200303            ((INM-BOJONG         NOT <  'G723')   AND
+200303             (INM-BOJONG         NOT >  'G728'))
+                    COMPUTE                WSC11F-MANKI(IDX)
+                                  =        INM-MANKI-T(IDX)
+                                  -        INM-JP1-AGE
+           ELSE
+                    COMPUTE                WSC11F-MANKI(IDX)
+                                  =        INM-MANKI-T(IDX)
+                                  -        INM-PNAI.
+
+200312     IF       WSC11F-TKCD(IDX)       =  'Z182'  OR 
+                                              'Z183'  OR
+                                              'Z184'  OR
+                                              'Z188'  OR
+                                              'Z191'
+                    COMPUTE                WSC11F-MANKI(IDX)
+                                  =        INM-MANKI-T(IDX)
+                                  -        INM-JP-AGE
+
+      *****************************************************************
+200312*     IF       WSC11F-TKCD(IDX)       =  'Z182'  OR 
+      *                                        'Z183'  OR
+      *                                        'Z184'  OR
+      *                                        'Z188'  OR
+      *                                        'Z191'
+      *              COMPUTE                WSC11F-MANKI(IDX)
+      *                            =        INM-MANKI-T(IDX)
+      *                            -        INM-JP-AGE
+      *              DISPLAY 'STWSC11-ER(TKCD-DATA)===>'
+      *                  '/'  WSC11F-JNO
+      *                  '/'  WSC11F-BOJ
+      *                  '/'  IDX
+      *                  '/'  WSC11F-TKCD(IDX)
+      *                  '/'  WSC11F-NAPKI(IDX)
+      *                  '/'  WSC11F-MANKI(IDX)
+      *                  '/'  WSC11F-BOKUM(IDX)
+      *                  '/'  WSC11F-BORYO(IDX).
+      *****************************************************************
+
+           IF       WSC11F-NAPBANG         =   5
+                    MOVE  1                TO  WSC11F-NAPKI(IDX)
+           ELSE
+                    MOVE  INM-NABKI-T(IDX) TO  WSC11F-NAPKI(IDX).
+
+           MOVE     INM-SS(IDX)            TO  WSC11F-BOKUM(IDX).
+           MOVE     INM-PP(IDX)            TO  WSC11F-BORYO(IDX).
+
+           IF       WSC11F-TKCD(IDX)       =  '1001'
+                    COMPUTE                WSC11F-BOKUM(IDX)
+                                   =       WSC11F-BOKUM(IDX) * 1.5
+           ELSE
+                    NEXT  SENTENCE.
+
+           IF       WSC11F-TKCD(IDX)       =   ZERO OR SPACE
+                    NEXT SENTENCE
+           ELSE
+                    ADD  WSC11F-BORYO(IDX) TO  WSC11F-HAPBORYO.
+
+           COMPUTE  WSC11F-BOKUM(IDX)      =   WSC11F-BOKUM(IDX)
+                                           *   1000.
+
+           IF       WSC11F-BORYO(IDX)  NOT =   ZERO
+             IF    (WSC11F-TKCD(IDX)       =   SPACE) OR
+                   (WSC11F-TKCD(IDX)       =   ZERO)  OR
+                   (WSC11F-MANKI(IDX)      =   ZERO)  OR
+                   (WSC11F-NAPKI(IDX)      =   ZERO)  OR
+                   (WSC11F-BOKUM(IDX)      =   ZERO)
+                    DISPLAY 'STWSC11-ER(TKCD-DATA)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-BOJ
+                        '/'  IDX
+                        '/'  WSC11F-TKCD(IDX)
+                        '/'  WSC11F-MANKI(IDX)
+                        '/'  WSC11F-NAPKI(IDX)
+                        '/'  WSC11F-BOKUM(IDX)
+                        '/'  WSC11F-BORYO(IDX)
+                    ADD   1                TO  MAIN-RETURN-CODE
+             ELSE
+                    NEXT     SENTENCE
+           ELSE
+                    NEXT     SENTENCE.
+       3100-PSIN-TKCD-EXIT.                EXIT.
+      *****************************************************************
+       3100-PSIN-PIBOHUMJA-RTN.
+      *****************************************************************
+           MOVE     INM-KNAI               TO  WSC11F-TAB-GNAI.
+           MOVE     INM-K-SEX              TO  WSC11F-TAB-GSEX.
+           MOVE     INM-PNAI               TO  WSC11F-TAB-PNAI.
+           MOVE     INM-P-SEX              TO  WSC11F-TAB-PSEX.
+           MOVE     ZERO                   TO  WSC11F-TAB-GROUP-NAI.
+           MOVE     INM-K-AGE              TO  WSC11F-GYE-NAI.
+           MOVE     INM-K-BIRTH            TO  WSC11F-GYE-JUMIN-NO1.
+           MOVE     INM-K-JUMIN            TO  WSC11F-GYE-JUMIN-NO2.
+           MOVE     INM-P-AGE              TO  WSC11F-JUP-NAI.
+           MOVE     INM-P-BIRTH            TO  WSC11F-JUP-JUMIN-NO1.
+           MOVE     INM-P-JUMIN            TO  WSC11F-JUP-JUMIN-NO2.
+           MOVE     INM-JP-AGE             TO  WSC11F-JOP-NAI.
+           MOVE     INM-JP-BIRTH           TO  WSC11F-JOP-JUMIN-NO1.
+           MOVE     INM-JP-JUMIN           TO  WSC11F-JOP-JUMIN-NO2.
+           MOVE     INM-JP1-AGE            TO  WSC11F-JAP-NAI.
+           MOVE     INM-JP1-BIRTH          TO  WSC11F-JAP-JUMIN-NO1.
+           MOVE     INM-JP1-JUMIN          TO  WSC11F-JAP-JUMIN-NO2.
+
+           IF       BOJ-INJAE-GYO          OR
+                    BOJ-KUKMIN-GYO
+                    MOVE  INM-K-AGE        TO  WSC11F-JUP-NAI
+                    MOVE  INM-K-BIRTH      TO  WSC11F-JUP-JUMIN-NO1
+                    MOVE  INM-K-JUMIN      TO  WSC11F-JUP-JUMIN-NO2
+                    MOVE  INM-P-AGE        TO  WSC11F-JAP-NAI
+                    MOVE  INM-P-BIRTH      TO  WSC11F-JAP-JUMIN-NO1
+                    MOVE  INM-P-JUMIN      TO  WSC11F-JAP-JUMIN-NO2
+           ELSE
+           IF       BOJ-GGUREOGI-GUNGANG-A OR
+                    BOJ-GGUREOGI-GUNGANG-C
+                    MOVE  INM-JP-AGE       TO  WSC11F-JUP-NAI
+                    MOVE  INM-JP-BIRTH     TO  WSC11F-JUP-JUMIN-NO1
+                    MOVE  INM-JP-JUMIN     TO  WSC11F-JUP-JUMIN-NO2
+                    MOVE  ZERO             TO  WSC11F-JOP-NAI
+                    MOVE  ZERO             TO  WSC11F-JOP-JUMIN-NO1
+                    MOVE  ZERO             TO  WSC11F-JOP-JUMIN-NO2
+                    MOVE  INM-P-AGE        TO  WSC11F-JAP-NAI
+                    MOVE  INM-P-BIRTH      TO  WSC11F-JAP-JUMIN-NO1
+                    MOVE  INM-P-JUMIN      TO  WSC11F-JAP-JUMIN-NO2
+           ELSE
+                    NEXT  SENTENCE.
+       3100-PSIN-PIBOHUMJA-EXIT.           EXIT.
+      *****************************************************************
+       4000-PIBKM-RTN.
+      *****************************************************************
+           ADD      1                      TO  CNT-READ-PI.
+KHEE       MOVE     IJUNGBEON              TO  W-JNO-TOT.
+
+           PERFORM                         4000-PIBKM-PRE-RTN
+                    THRU                   4000-PIBKM-PRE-EXIT.
+
+***************임시처리start-처리후 삭제요망
+200312*     IF       IJUNGBEON              =   7001201695
+      *              ADD     1              TO  CNT-SKIP-PI
+      *     ELSE
+***************임시처리end
+KHEE       IF       W-JNO-FY200203
+                    ADD     1              TO  CNT-SKIP-PI
+           ELSE
+200303     IF       W-JNO-FY200303
+                    ADD     1              TO  CNT-SKIP-PI
+           ELSE
+           IF       IGUBUN                 =   ZERO
+             IF     IPDC                   =   ZERO OR 9
+                    ADD     1              TO  CNT-SKIP-PI
+             ELSE
+                    PERFORM                4000-PIBKM-SUB-RTN
+                            THRU           4000-PIBKM-SUB-EXIT
+           ELSE
+           IF       IGUBUN                 =   1 OR 5
+             IF     I-P-H-I                =   1
+                    PERFORM                4000-PIBKM-SUB-RTN
+                            THRU           4000-PIBKM-SUB-EXIT
+             ELSE
+             IF     I-P-H-I                =   4
+               IF   IGBNCD                 =  'S'
+                    PERFORM                4000-PIBKM-SUB-RTN
+                            THRU           4000-PIBKM-SUB-EXIT
+               ELSE
+                    ADD     1              TO  CNT-SKIP-PI
+             ELSE
+             IF     I-P-H-I                =   2 OR 3 OR 5
+                    ADD     1              TO  CNT-SKIP-PI
+             ELSE
+                    ADD     1              TO  CNT-ERROR-PI
+                    DISPLAY 'STWSC11-ER(PIBKM:I-P-H-I)===>'
+                        '/'  ACC-DA-UPJUKYMD
+                        '/'  IJUNGBEON
+                        '/'  IGUBUN
+                        '/'  I-P-H-I 
+           ELSE
+                    ADD     1              TO  CNT-ERROR-PI
+                    DISPLAY 'STWSC11-ER(PIBKM:IGUBUN)===>'
+                        '/'  ACC-DA-UPJUKYMD
+                        '/'  IJUNGBEON
+                        '/'  IGUBUN.
+
+           DIVIDE   CNT-READ-PI            BY  10000
+                    GIVING                 WK-MOK
+                    REMAINDER              WK-NAM.
+
+           IF       WK-NAM                 =   ZERO
+                    DISPLAY 'PIBKM-DISPLAY===>'
+                        '/'  CNT-READ-PI
+                        '/'  CNT-WRITE-PI
+                        '/'  CNT-ERROR-PI
+                        '/'  CNT-SKIP-PI
+           ELSE
+                    NEXT  SENTENCE.
+
+           IF       CNT-ERROR-PI           >   1000
+                    MOVE 'YES'             TO  DATA-EOF-PI-SW
+           ELSE
+                    NEXT  SENTENCE.
+
+           READ     PIBKM-F                AT  END
+                    MOVE 'YES'             TO  DATA-EOF-PI-SW.
+       4000-PIBKM-EXIT.                    EXIT.
+      *****************************************************************
+       4000-PIBKM-PRE-RTN.
+      *****************************************************************
+           IF      (ACC-DA-UPJUKYM         =   200112)       AND
+                   (IJUNGBEON              =   3050391725)   AND
+                   (IBOP                   =   ZERO)         AND
+                   (IMANGI-YY              =   ZERO)         AND
+                   (IPENSION-DATE          =   ZERO)
+                    MOVE   99              TO  IBOP
+                    MOVE   9999            TO  IMANGI-YY
+                    MOVE   20280610        TO  IPENSION-DATE
+           ELSE
+           IF      (ACC-DA-UPJUKYM         =   200112)       AND
+                   (IJUNGBEON              =   3060169655)   AND
+                   (IBOP                   =   ZERO)         AND
+                   (IMANGI-YY              =   ZERO)         AND
+                   (IPENSION-DATE          =   ZERO)
+                    MOVE   99              TO  IBOP
+                    MOVE   9999            TO  IMANGI-YY
+                    MOVE   20140429        TO  IPENSION-DATE
+           ELSE
+           IF      (ACC-DA-UPJUKYM         =   200112)       AND
+                   (IJUNGBEON              =   3060778736)   AND
+                   (IBOP                   =   ZERO)         AND
+                   (IMANGI-YY              =   ZERO)         AND
+                   (IPENSION-DATE          =   ZERO)
+                    MOVE   99              TO  IBOP
+                    MOVE   9999            TO  IMANGI-YY
+                    MOVE   20210725        TO  IPENSION-DATE
+           ELSE
+           IF      (ACC-DA-UPJUKYM         =   200112)       AND
+                   (IJUNGBEON              =   3061340032)   AND
+                   (IBOP                   =   ZERO)         AND
+                   (IMANGI-YY              =   ZERO)         AND
+                   (IPENSION-DATE          =   ZERO)
+                    MOVE   99              TO  IBOP
+                    MOVE   9999            TO  IMANGI-YY
+                    MOVE   20371007        TO  IPENSION-DATE
+           ELSE
+           IF      (ACC-DA-UPJUKYM         =   200112)       AND
+                   (IJUNGBEON              =   3061470108)   AND
+                   (IBOP                   =   ZERO)         AND
+                   (IMANGI-YY              =   ZERO)         AND
+                   (IPENSION-DATE          =   ZERO)
+                    MOVE   99              TO  IBOP
+                    MOVE   9999            TO  IMANGI-YY
+                    MOVE   20261031        TO  IPENSION-DATE
+           ELSE
+           IF      (ACC-DA-UPJUKYM         =   200112)       AND
+                   (IJUNGBEON              =   3062224117)   AND
+                   (IBOP                   =   ZERO)         AND
+                   (IMANGI-YY              =   ZERO)         AND
+                   (IPENSION-DATE          =   ZERO)
+                    MOVE   99              TO  IBOP
+                    MOVE   9999            TO  IMANGI-YY
+                    MOVE   20220124        TO  IPENSION-DATE
+           ELSE
+           IF      (ACC-DA-UPJUKYM         =   200112)       AND
+                   (IJUNGBEON              =   3082037761)   AND
+                   (IBOP                   =   ZERO)         AND
+                   (IMANGI-YY              =   ZERO)         AND
+                   (IPENSION-DATE          =   ZERO)
+                    MOVE   99              TO  IBOP
+                    MOVE   9999            TO  IMANGI-YY
+                    MOVE   20280130        TO  IPENSION-DATE
+           ELSE
+                    NEXT   SENTENCE.
+       4000-PIBKM-PRE-EXIT.                EXIT.
+      *****************************************************************
+       4000-PIBKM-SUB-RTN.
+      *****************************************************************
+           MOVE     ZERO                   TO  MAIN-RETURN-CODE
+
+           INITIALIZE STWSC11F.
+           MOVE     ACC-DA-UPJUKYM         TO  WSC11F-CLOSE-DATEYM.
+           MOVE     IJUNGBEON              TO  WSC11F-JNO.
+           MOVE     1                      TO  WSC11F-JNO-GD-GUBUN.
+
+           INITIALIZE RESER-AREA.
+           MOVE     WSC11F-JNO             TO  RESER-JNO.
+
+           PERFORM                         1000-PRE-IMI001T-RTN
+                    THRU                   1000-PRE-IMI001T-EXIT.
+
+           IF       RESER-ERROR-SW         =   SPACE
+                    NEXT  SENTENCE
+           ELSE
+                    ADD   1                TO  CNT-ERROR-PI
+                    GO    TO               4000-PIBKM-SUB-EXIT.
+
+           MOVE     IJU-BOJONG             TO  WSC11F-BOJ.
+           MOVE     WSC11F-BOJ             TO  ST88B01F-88AREA-SW.
+           MOVE     WSC11F-BOJ             TO  ST88B11F-88AREA-SW.
+           MOVE     ITAX-WOODAE            TO  WSC11F-TAX-WOODAE.
+
+           IF       ICRES                  =  '1777777'    OR
+200303                                        '3777777'
+                    MOVE  ZERO             TO  WSC11F-BORYO-BUDAMJA
+                    MOVE  100              TO  WSC11F-BORYO-BUDAMYUL
+           ELSE
+                    MOVE  1                TO  WSC11F-BORYO-BUDAMJA.
+
+           MOVE     IGPNO                  TO  WSC11F-GROUP-CD.
+
+           IF       BOJ-BI-GAKYE
+             IF     TUK-COMPANY-KM
+                    INITIALIZE RESER-AREA
+                    MOVE   WSC11F-JNO      TO  RESER-JNO
+                    MOVE   WSC11F-GROUP-CD TO  RESER-GROUP-CD
+                    PERFORM                1000-PRE-INI006T-RTN
+                           THRU            1000-PRE-INI006T-EXIT
+               IF   RESER-ERROR-SW         =   SPACE
+                    COMPUTE                WSC11F-ALPHA-HALINYUL
+                                 =         RESER-ALPHA-HALINYUL
+                                 *         0.25
+               ELSE
+                    ADD   1                TO  CNT-ERROR-PI
+                    GO    TO               4000-PIBKM-SUB-EXIT
+             ELSE
+             IF     TUK-COMPANY-HD
+                    COMPUTE                WSC11F-ALPHA-HALINYUL
+                                 =         INO-TAX-HALIN
+                                 *         0.25
+             ELSE
+                    NEXT  SENTENCE
+           ELSE
+                    NEXT  SENTENCE.
+
+           IF       IPENSION-CODE          =   1
+             IF     A-CONVERT-DATE         >   ACC-DA-UPJUKYMD
+                    NEXT  SENTENCE
+             ELSE
+                    MOVE   IPENSION-CODE   TO  WSC11F-YOUN-JHCODE
+                    MOVE   A-CONVERT-DATE  TO  WSC11F-YOUN-JHDATE
+           ELSE
+                    NEXT  SENTENCE.
+
+           IF       BOJ-BI-GAKYE           OR
+                    BOJ-BI-KEUNROJA        OR
+                    BOJ-NOJUK
+             IF    (INOTAX-CHN-DATE        >   ZERO)       AND
+                   (INOTAX-CHN-DATE    NOT >   ACC-DA-UPJUKYMD)
+                    MOVE 'C'               TO  WSC11F-IYUL-JHCODE
+                    MOVE  INOTAX-CHN-DATE  TO  WSC11F-IYUL-JHDATE
+             ELSE
+                    NEXT  SENTENCE
+           ELSE
+                    NEXT  SENTENCE.
+
+           MOVE     ICHONGUK               TO  WSC11F-SK-CHONGUK.
+           MOVE     IGUK                   TO  WSC11F-SK-GUK.
+           MOVE     ISO                    TO  WSC11F-SK-SO.
+           MOVE     IROOT-SAWON            TO  WSC11F-SK-SAWON.
+           MOVE     IMOJIB-SO              TO  WSC11F-MJ-SO.
+           MOVE     IMOJIB-SAWON           TO  WSC11F-MJ-SAWON.
+           MOVE     IPRE-GUK               TO  WSC11F-SIL-SK-GUK.
+           MOVE     IPRE-SO                TO  WSC11F-SIL-SK-SO.
+           MOVE     ISUBANG                TO  WSC11F-SUBANG.
+           MOVE     IPOST                  TO  WSC11F-POST-NO-1.
+           MOVE     ZERO                   TO  WSC11F-POST-NO-2.
+           MOVE     IGYEYAK-YMD            TO  WSC11F-GEDATE.
+
+           IF       A-BEF-CNTRT-DATE       NUMERIC 
+             IF    (A-BEF-CNTRT-DATE       =   ZERO)          OR
+                   (A-BEF-CNTRT-DATE       >   WSC11F-GEDATE)
+                    MOVE  WSC11F-GEDATE    TO  WSC11F-1ST-GEDATE
+             ELSE
+                    MOVE  A-BEF-CNTRT-DATE TO  WSC11F-1ST-GEDATE
+           ELSE
+                    MOVE  WSC11F-GEDATE    TO  WSC11F-1ST-GEDATE.
+
+           INITIALIZE  STSPB01F.
+           MOVE     WSC11F-JNO             TO  PB01F-JNO.
+           MOVE    'END'                   TO  PB01F-CHURI-MODE.
+           MOVE     IMANGI-YY              TO  PB01F-END-DATEYY.
+           MOVE     WSC11F-GEDATEMM        TO  PB01F-END-DATEMM.
+           MOVE     WSC11F-GEDATEDD        TO  PB01F-END-DATEDD.
+           CALL    'STSPB01'               USING STSPB01F.
+           IF       PB01F-RETURN-CODE      =   ZERO
+                    MOVE  PB01F-JOJ-DATE   TO  WSC11F-MKDATE
+           ELSE
+                    DISPLAY 'STWSC11-ER(STSPB01)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-GEDATE
+                        '/'  IMANGI-YY
+                    ADD   1                TO  CNT-ERROR-PI
+                    GO    TO               4000-PIBKM-SUB-EXIT.
+
+           MOVE     IPENSION-DATE          TO  WSC11F-YKDATE.
+           MOVE     A-SECOND-DATE          TO  WSC11F-SECOND-DATE.
+           MOVE     INAPBANG               TO  WSC11F-NAPBANG.
+
+           PERFORM                         4100-PIBKM-TKCD-RTN
+                    THRU                   4100-PIBKM-TKCD-EXIT
+                    VARYING  IDX           FROM  1  BY  1
+                    UNTIL    IDX           >   11.
+
+           INITIALIZE RESER-GEYAKGO-AREA.
+           MOVE     WSC11F-BORYO(1)        TO  RESER-BORYO.
+           MOVE     WSC11F-BOKUM(1)        TO  RESER-BOKUM.
+           MOVE     WSC11F-NAPKI(1)        TO  RESER-NAPKI.
+           MOVE     WSC11F-NAPBANG         TO  RESER-NAPBANG.
+
+           PERFORM                         1000-PRE-GEYAKGO-RTN
+                    THRU                   1000-PRE-GEYAKGO-EXIT.
+
+           MOVE     RESER-GEYAKGO          TO  WSC11F-GEYAKGO.
+
+           PERFORM                         1000-PRE-BOJONG-RTN
+                    THRU                   1000-PRE-BOJONG-EXIT.
+
+           PERFORM                         4100-PIBKM-PIBOHUMJA-RTN
+                    THRU                   4100-PIBKM-PIBOHUMJA-EXIT.
+
+           MOVE     ILYM                   TO  WSC11F-LNAPIP-WOLBUN.
+           MOVE     ILPMT                  TO  WSC11F-LNAPIP-HESU.
+           MOVE     ILYMD                  TO  WSC11F-LNAPIP-DATE.
+
+           IF       A-CANCEL-STAT          =   1
+             IF     A-CNTRT-DISCH-DATE     >   ACC-DA-UPJUKYMD  
+                    NEXT  SENTENCE
+             ELSE
+                    MOVE  A-CNTRT-STAT         TO  WSC11F-CLAM
+                    MOVE  A-CNTRT-DISCH-DATE   TO  WSC11F-SMDATE
+           ELSE
+                    NEXT  SENTENCE.
+
+           MOVE     IBUHAL                 TO  WSC11F-BUHAL.
+           MOVE     ISUNYEON               TO  WSC11F-SUNYEON.
+
+           IF       WSC11F-SUNYEON         =  'S'
+                    INITIALIZE RESER-AREA
+                    MOVE   WSC11F-JNO      TO  RESER-JNO
+                    PERFORM                1000-PRE-IMI014T-RTN
+                           THRU            1000-PRE-IMI014T-EXIT
+             IF     RESER-ERROR-SW         =   SPACE
+               IF   RESER-SYDATE           >   ACC-DA-UPJUKYMD
+                    MOVE  SPACE            TO  WSC11F-SUNYEON
+               ELSE
+                    MOVE  RESER-SYDATE     TO  WSC11F-SUNYEON-DATE
+             ELSE
+                    ADD   1                TO  CNT-ERROR-PI
+                    GO    TO               4000-PIBKM-SUB-EXIT
+           ELSE
+                    MOVE  SPACE            TO  WSC11F-SUNYEON.
+
+           IF       WSC11F-AUTO-UP-CODE    =   1
+             IF    (WSC11F-NAPBANG         =   5)  OR
+                   (WSC11F-LNAPIP-HESU     >
+                             RTABLE-YEAR-FRQ(WSC11F-NAPBANG))
+                    DISPLAY 'STWSC11-ER(AUTO-UP)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-BOJ
+                        '/'  WSC11F-NAPBANG
+                        '/'  WSC11F-LNAPIP-HESU
+                    ADD   1                TO  CNT-ERROR-PI
+                    GO    TO               4000-PIBKM-SUB-EXIT
+             ELSE
+                    NEXT  SENTENCE
+           ELSE
+                    NEXT  SENTENCE.
+
+           MOVE     3                      TO  WSC11F-KYEYAK-CODE.
+
+           IF       IGUBUN                 =   ZERO
+                    MOVE  IPDC             TO  WSC11F-IPMS-CLASS
+                    MOVE  IGBNCD           TO  WSC11F-IPMS-GBNCD
+                    MOVE  1                TO  WSC11F-IPKUM-HESU
+                    MOVE  ZERO             TO  WSC11F-SUNNAP-HESU
+           ELSE
+           IF       IGUBUN                 =   1 OR 5
+                    MOVE  1                TO  WSC11F-IPMS-GBNCD
+                    MOVE  1                TO  WSC11F-IPKUM-HESU
+                    MOVE  ZERO             TO  WSC11F-SUNNAP-HESU
+             IF     I-PATH                 =   2 
+                    MOVE  4                TO  WSC11F-IPMS-CLASS
+             ELSE
+             IF     I-PATH                 =   3 
+                    MOVE  5                TO  WSC11F-IPMS-CLASS
+             ELSE
+                    MOVE  3                TO  WSC11F-IPMS-CLASS
+           ELSE
+                    NEXT  SENTENCE.
+
+           IF       IGUBUN                 =   ZERO
+                    MOVE  ZERO             TO  WSC11F-CORRECT
+           ELSE
+           IF       IGUBUN                 =   1
+                    MOVE  1                TO  WSC11F-CORRECT
+           ELSE
+           IF       IGUBUN                 =   5
+                    MOVE  2                TO  WSC11F-CORRECT
+           ELSE
+                    NEXT  SENTENCE.
+
+           MOVE     IPKUM-LINE             TO  WSC11F-IPKUM-LINE.
+           MOVE     ISUN-HALIN             TO  WSC11F-SUNNAP-HALINYEG.
+
+           COMPUTE  WSC11F-NETBORYO        =   IPREK-P 
+                                           +   ISUN-HALIN.
+
+           IF       IPREK-P                <   ZERO
+             IF     IGUBUN             NOT =   5
+               IF   WSC11F-NETBORYO        <   ZERO
+                    DISPLAY 'STWSC11-ER(PIBKM:NETBORYO)===>'
+                        '/'  WSC11F-JNO
+                        '/'  IGUBUN
+                        '/'  IPREK-P
+                        '/'  ISUN-HALIN
+                        '/'  WSC11F-NETBORYO
+                    ADD   1                TO  CNT-ERROR-PI
+                    GO    TO               4000-PIBKM-SUB-EXIT
+               ELSE
+                    NEXT     SENTENCE
+             ELSE
+             IF    (ISUN-HALIN         NOT =   ZERO)  OR
+                   (WSC11F-NETBORYO    NOT <   ZERO)
+                    DISPLAY 'STWSC11-ER(PIBKM:IPREK<0)===>'
+                        '/'  WSC11F-JNO
+                        '/'  IGUBUN
+                        '/'  IPREK-P
+                        '/'  ISUN-HALIN
+                        '/'  WSC11F-NETBORYO
+                    ADD   1                TO  CNT-ERROR-PI
+                    GO    TO               4000-PIBKM-SUB-EXIT
+             ELSE
+                    COMPUTE                WSC11F-NETBORYO
+                                   =       WSC11F-NETBORYO * (-1)
+           ELSE
+             IF    (IGUBUN                 =   5)     OR
+                   (WSC11F-NETBORYO        <   ZERO)
+                    DISPLAY 'STWSC11-ER(PIBKM:IPREK>=0)===>'
+                        '/'  WSC11F-JNO
+                        '/'  IGUBUN
+                        '/'  IPREK-P
+                        '/'  ISUN-HALIN
+                        '/'  WSC11F-NETBORYO
+                    ADD   1                TO  CNT-ERROR-PI
+                    GO    TO               4000-PIBKM-SUB-EXIT
+             ELSE
+                    NEXT    SENTENCE.
+
+           IF       IGROUP                 =   ZERO
+             IF     IICHE                  =   ZERO
+                    MOVE    ZERO           TO  WSC11F-HALIN-CHECK
+             ELSE
+                    MOVE    3              TO  WSC11F-HALIN-CHECK
+           ELSE
+             IF     IICHE                  =   ZERO
+                    MOVE    2              TO  WSC11F-HALIN-CHECK
+             ELSE
+                    MOVE    4              TO  WSC11F-HALIN-CHECK.
+
+           IF       BOJ-BI-GAKYE    AND   (IGBNCD     NOT =  'V')
+                    PERFORM                4100-PIBKM-ADD-BORYO-RTN
+                            THRU           4100-PIBKM-ADD-BORYO-EXIT
+             IF     RESER-CHURI-SW         =  'YES'
+                    NEXT    SENTENCE
+             ELSE
+                    DISPLAY 'STWSC11-ER(ADD-BORYO<>ZERO)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-BOJ
+                        '/'  IGBNCD
+                        '/'  WSC11F-HAPBORYO
+                        '/'  WSC11F-NETBORYO
+                        '/'  IGROUP
+                        '/'  IICHE
+                    ADD   1                TO  CNT-ERROR-PI
+                    GO    TO               4000-PIBKM-SUB-EXIT
+           ELSE
+                    NEXT    SENTENCE.
+
+           IF      (IPDC                   =   3)  AND
+                   (IGBNCD                 =  'V')
+                    MOVE    5              TO  WSC11F-WOLBO-GUBUN
+           ELSE
+           IF       IGUBUN                 =   5
+                    MOVE    4              TO  WSC11F-WOLBO-GUBUN
+           ELSE
+                    MOVE    2              TO  WSC11F-WOLBO-GUBUN.
+
+           IF       IGUBUN                 =   5
+                    MOVE   -1              TO  WSC11F-WOLBO-SIGN
+           ELSE
+                    MOVE   +1              TO  WSC11F-WOLBO-SIGN.
+
+           MOVE     1                      TO  WSC11F-WOLBO-GUNSU.
+
+           IF       WSC11F-NETBORYO    NOT <   ZERO
+                    MOVE  WSC11F-NETBORYO  TO  WSC11F-WOLBO-KUMYEG
+           ELSE
+                    DISPLAY 'STWSC11-ER(PIBKM:NETBORYO)===>'
+                        '/'  WSC11F-JNO
+                        '/'  IGUBUN
+                        '/'  IPREK-P
+                        '/'  ISUN-HALIN
+                        '/'  WSC11F-NETBORYO
+                    ADD   1                TO  CNT-ERROR-PI
+                    GO    TO               4000-PIBKM-SUB-EXIT.
+
+           PERFORM                         1000-PRE-LNAPIP-CHECK-RTN
+                    THRU                   1000-PRE-LNAPIP-CHECK-EXIT.
+
+           MOVE     WSC11F-LNAPIP-HESU     TO  WSC11F-WOLBO-FR-HESU.
+           MOVE     WSC11F-LNAPIP-HESU     TO  WSC11F-WOLBO-TO-HESU.
+200307     MOVE     ZERO                   TO  WSC11F-VG-FUND-CD.
+200307     MOVE     ZERO                   TO  WSC11F-VG-IPKUM-GB.
+200307     MOVE     ZERO                   TO  WSC11F-VG-SUN-BORYO.
+200307     MOVE     ZERO                   TO  WSC11F-VG-RISK-BORYO.
+200307     MOVE     ZERO                   TO  WSC11F-VG-YUJIBI.
+
+           IF       MAIN-RETURN-CODE       =   ZERO
+                    WRITE STWSC11F
+                    ADD   1                TO  CNT-WRITE-PI
+           ELSE
+                    ADD   1                TO  CNT-ERROR-PI.
+       4000-PIBKM-SUB-EXIT.                EXIT.
+      *****************************************************************
+       4100-PIBKM-TKCD-RTN.
+      *****************************************************************
+           COMPUTE  JDX                    =   IDX  -  1.
+
+           IF       IDX                    =   1
+             IF     IJU-BORYO          NOT =   ZERO
+               IF   IJU-BOKEUM-FULL    NOT =   ZERO
+                    NEXT  SENTENCE
+               ELSE
+               IF   IJU-BOKEUM         NOT =   ZERO
+                    DISPLAY 'STWSC11-WR(JU-TKCD-BOKUM)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-BOJ
+                        '/'  IJU-BOJONG
+                        '/'  IJU-BOKEUM-FULL
+                        '/'  IJU-BOKEUM
+                    COMPUTE                IJU-BOKEUM-FULL
+                                 =         IJU-BOKEUM * 1000
+               ELSE
+                    DISPLAY 'STWSC11-ER(JU-TKCD-BOKUM)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-BOJ
+                        '/'  IJU-BOJONG
+                        '/'  IJU-BOKEUM-FULL
+                        '/'  IJU-BOKEUM
+                    ADD   1                TO  MAIN-RETURN-CODE
+             ELSE
+                    NEXT  SENTENCE
+           ELSE
+             IF     ISPC-BORYO(JDX)        NOT =   ZERO
+               IF   ISPCA-BOKEUM-FULL(JDX) NOT =   ZERO
+                    NEXT  SENTENCE
+               ELSE
+               IF   ISPC-BOKEUM(JDX)       NOT =   ZERO
+                    DISPLAY 'STWSC11-WR(BU-TKCD-BOKUM-4100)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-BOJ
+                        '/'  ISPC-BOJONG(JDX)
+                        '/'  ISPCA-BOKEUM-FULL(JDX)
+                        '/'  ISPC-BOKEUM(JDX)
+                    COMPUTE                ISPCA-BOKEUM-FULL(JDX)
+                                 =         ISPC-BOKEUM(JDX) * 1000
+               ELSE
+               IF   ISPC-BOJONG(JDX)          =  '0002'
+                    MOVE                   ISPC-BORYO(JDX)
+                             TO            ISPCA-BOKEUM-FULL(JDX)
+               ELSE
+                    DISPLAY 'STWSC11-ER(BU-TKCD-BOKUM)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-BOJ
+                        '/'  ISPC-BOJONG(JDX)
+                        '/'  ISPCA-BOKEUM-FULL(JDX)
+                        '/'  ISPC-BOKEUM(JDX)
+                    ADD   1                TO  MAIN-RETURN-CODE
+             ELSE
+                    NEXT  SENTENCE.
+
+           IF       IDX                     =   1
+                    MOVE  IJU-BOJONG        TO  WSC11F-TKCD(IDX)
+                    MOVE  IBOP              TO  WSC11F-MANKI(IDX)
+                    MOVE  INAPGI            TO  WSC11F-NAPKI(IDX)
+                    MOVE  IJU-BOKEUM-FULL   TO  WSC11F-BOKUM(IDX)
+                    MOVE  IJU-BORYO         TO  WSC11F-BORYO(IDX)
+           ELSE
+KHEE       IF       ISPCA-RECEIPT-STAT(JDX) =  8
+                    MOVE  ISPC-BOJONG(JDX)     TO  WSC11F-TKCD(IDX)
+                    MOVE  IBOP                 TO  WSC11F-MANKI(IDX)
+                    MOVE  INAPGI               TO  WSC11F-NAPKI(IDX)
+                    MOVE  ISPCA-BOKEUM-FULL(JDX) 
+                                               TO  WSC11F-BOKUM(IDX)
+KHEE                MOVE  ZERO                 TO  WSC11F-BORYO(IDX)
+KHEE  *              MOVE  ISPCA-RECEIPT-STAT(JDX)
+      *                                         TO  WSC11F-STATUS(IDX)
+           ELSE
+           IF      (ISPC-INS-TERM(JDX)         =   ZERO)  AND
+                   (ISPC-PAY-TERM(JDX)         =   ZERO)
+                    MOVE  ISPC-BOJONG(JDX)     TO  WSC11F-TKCD(IDX)
+                    MOVE  IBOP                 TO  WSC11F-MANKI(IDX)
+                    MOVE  INAPGI               TO  WSC11F-NAPKI(IDX)
+                    MOVE  ISPCA-BOKEUM-FULL(JDX) 
+                                               TO  WSC11F-BOKUM(IDX)
+                    MOVE  ISPC-BORYO(JDX)      TO  WSC11F-BORYO(IDX)
+           ELSE
+                    MOVE  ISPC-BOJONG(JDX)     TO  WSC11F-TKCD(IDX)
+                    MOVE  ISPC-INS-TERM(JDX)   TO  WSC11F-MANKI(IDX)
+                    MOVE  ISPC-PAY-TERM(JDX)   TO  WSC11F-NAPKI(IDX)
+                    MOVE  ISPCA-BOKEUM-FULL(JDX) 
+                                               TO  WSC11F-BOKUM(IDX)
+                    MOVE  ISPC-BORYO(JDX)      TO  WSC11F-BORYO(IDX).
+
+KJS-E      IF       WSC11F-NAPBANG             =   5
+KJS-E               MOVE  1                    TO  WSC11F-NAPKI(IDX)
+KJS-E      ELSE
+KJS-E               NEXT  SENTENCE.
+
+           IF       WSC11F-TKCD(IDX)       =   ZERO OR SPACE
+                    NEXT SENTENCE
+           ELSE
+                    ADD  WSC11F-BORYO(IDX) TO  WSC11F-HAPBORYO.
+
+           IF       WSC11F-TKCD(IDX)       =  '1001'
+                    COMPUTE                WSC11F-BOKUM(IDX)
+                                   =       WSC11F-BOKUM(IDX) * 1.5
+           ELSE
+                    NEXT  SENTENCE.
+
+           IF       WSC11F-BORYO(IDX)      NOT =   ZERO
+             IF    (WSC11F-TKCD(IDX)           =   SPACE) OR
+                   (WSC11F-TKCD(IDX)           =   ZERO)  OR
+                   (WSC11F-MANKI(IDX)          =   ZERO)  OR
+                   (WSC11F-NAPKI(IDX)          =   ZERO)  OR
+                   (WSC11F-BOKUM(IDX)          =   ZERO)
+                    DISPLAY 'STWSC11-ER(TKCD-DATA)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-BOJ
+                        '/'  IDX
+                        '/'  WSC11F-TKCD(IDX)
+                        '/'  WSC11F-MANKI(IDX)
+                        '/'  WSC11F-NAPKI(IDX)
+                        '/'  WSC11F-BOKUM(IDX)
+                        '/'  WSC11F-BORYO(IDX)
+                    ADD   1                TO  MAIN-RETURN-CODE
+             ELSE
+                    NEXT     SENTENCE
+           ELSE
+                    NEXT     SENTENCE.
+       4100-PIBKM-TKCD-EXIT.               EXIT.
+      *****************************************************************
+       4100-PIBKM-ADD-BORYO-RTN.
+      *****************************************************************
+           MOVE     SPACE                  TO  RESER-CHURI-SW.
+
+           COMPUTE  WSC11F-ADD-BORYO       =   WSC11F-NETBORYO
+                                           +   IGROUP
+                                           +   IICHE 
+                                           -   WSC11F-HAPBORYO.
+
+           IF       WSC11F-ADD-BORYO       =   ZERO
+                    MOVE 'YES'             TO  RESER-CHURI-SW
+                    GO    TO               4100-PIBKM-ADD-BORYO-EXIT
+           ELSE
+                    NEXT  SENTENCE.
+
+           PERFORM                         4100-PIBKM-ADD-SUB-RTN
+                    THRU                   4100-PIBKM-ADD-SUB-EXIT
+                    VARYING                IDX FROM 1 BY 1
+                    UNTIL                 (IDX            >  11)  OR
+                                          (RESER-CHURI-SW = 'YES').
+       4100-PIBKM-ADD-BORYO-EXIT.          EXIT.
+      *****************************************************************
+       4100-PIBKM-ADD-SUB-RTN.
+      *****************************************************************
+           IF       TUK-COMPANY-SK
+                    GO    TO               4100-PIBKM-ADD-SUB-EXIT
+           ELSE
+           IF      (WSC11F-TKCD(IDX)       =   ZERO OR SPACE)  AND
+                   (WSC11F-BOKUM(IDX)      =   ZERO)           AND
+                   (WSC11F-BORYO(IDX)      =   ZERO)
+                    NEXT  SENTENCE
+           ELSE
+                    GO    TO               4100-PIBKM-ADD-SUB-EXIT.
+
+           DISPLAY 'KJS-DS(ADD-BE)==>'
+               '/'  IDX
+               '/'  WSC11F-TKCD(IDX)
+               '/'  WSC11F-MANKI(IDX)
+               '/'  WSC11F-NAPKI(IDX)
+               '/'  WSC11F-STATUS(IDX)
+               '/'  WSC11F-BOKUM(IDX)
+               '/'  WSC11F-BORYO(IDX)
+               '/'  WSC11F-HAPBORYO
+               '/'  WSC11F-ADD-BORYO
+               '/'  RESER-CHURI-SW.
+
+           MOVE    'YES'                   TO  RESER-CHURI-SW.
+
+           IF       TUK-COMPANY-KM
+                    MOVE '0001'            TO  WSC11F-TKCD(IDX)
+           ELSE
+           IF       TUK-COMPANY-HD
+                    MOVE '0002'            TO  WSC11F-TKCD(IDX)
+           ELSE
+                    NEXT  SENTENCE.
+
+           MOVE     WSC11F-MANKI(1)        TO  WSC11F-MANKI(IDX).
+           MOVE     WSC11F-NAPKI(1)        TO  WSC11F-NAPKI(IDX).
+           MOVE     ZERO                   TO  WSC11F-STATUS(IDX).
+           MOVE     WSC11F-ADD-BORYO       TO  WSC11F-BOKUM(IDX).
+           MOVE     WSC11F-ADD-BORYO       TO  WSC11F-BORYO(IDX).
+           ADD      WSC11F-BORYO(IDX)      TO  WSC11F-HAPBORYO.
+           MOVE     ZERO                   TO  WSC11F-ADD-BORYO.
+
+           DISPLAY 'KJS-DS(ADD-AF)==>'
+               '/'  IDX
+               '/'  WSC11F-TKCD(IDX)
+               '/'  WSC11F-MANKI(IDX)
+               '/'  WSC11F-NAPKI(IDX)
+               '/'  WSC11F-STATUS(IDX)
+               '/'  WSC11F-BOKUM(IDX)
+               '/'  WSC11F-BORYO(IDX)
+               '/'  WSC11F-HAPBORYO
+               '/'  WSC11F-ADD-BORYO
+               '/'  RESER-CHURI-SW.
+       4100-PIBKM-ADD-SUB-EXIT.            EXIT.
+      *****************************************************************
+       4100-PIBKM-PIBOHUMJA-RTN.
+      *****************************************************************
+           MOVE     ICAGE                  TO  WSC11F-TAB-GNAI.
+           MOVE     ICSEX                  TO  WSC11F-TAB-GSEX.
+           MOVE     IIAGE                  TO  WSC11F-TAB-PNAI.
+           MOVE     IISEX                  TO  WSC11F-TAB-PSEX.
+           MOVE     IGROUP-AGE             TO  WSC11F-TAB-GROUP-NAI.
+           MOVE     ICAGE                  TO  WSC11F-GYE-NAI.
+           MOVE     ICBIR                  TO  WSC11F-GYE-JUMIN-NO1.
+           MOVE     ICRES                  TO  WSC11F-GYE-JUMIN-NO2.
+           MOVE     IIAGE                  TO  WSC11F-JUP-NAI.
+           MOVE     IIBIR                  TO  WSC11F-JUP-JUMIN-NO1.
+           MOVE     IIRES                  TO  WSC11F-JUP-JUMIN-NO2.
+           MOVE     IIAGE1                 TO  WSC11F-JOP-NAI.
+           MOVE     A-SINS-BIR1            TO  WSC11F-JOP-JUMIN-NO1.
+           MOVE     A-SINS-RES1            TO  WSC11F-JOP-JUMIN-NO2.
+           MOVE     A-SINS-AGE2            TO  WSC11F-JAP-NAI.
+           MOVE     A-SINS-BIR2            TO  WSC11F-JAP-JUMIN-NO1.
+           MOVE     A-SINS-RES2            TO  WSC11F-JAP-JUMIN-NO2.
+
+           IF       BOJ-INJAE-GYO          OR
+                    BOJ-KUKMIN-GYO
+                    MOVE  ICAGE            TO  WSC11F-JUP-NAI
+                    MOVE  ICBIR            TO  WSC11F-JUP-JUMIN-NO1
+                    MOVE  ICRES            TO  WSC11F-JUP-JUMIN-NO2
+                    MOVE  IIAGE            TO  WSC11F-JAP-NAI
+                    MOVE  IIBIR            TO  WSC11F-JAP-JUMIN-NO1
+                    MOVE  IIRES            TO  WSC11F-JAP-JUMIN-NO2
+           ELSE
+           IF       BOJ-GGUREOGI-GUNGANG-A OR
+                    BOJ-GGUREOGI-GUNGANG-C
+                    MOVE  IIAGE1           TO  WSC11F-JUP-NAI
+                    MOVE  A-SINS-BIR1      TO  WSC11F-JUP-JUMIN-NO1
+                    MOVE  A-SINS-RES1      TO  WSC11F-JUP-JUMIN-NO2
+                    MOVE  ZERO             TO  WSC11F-JOP-NAI
+                    MOVE  ZERO             TO  WSC11F-JOP-JUMIN-NO1
+                    MOVE  ZERO             TO  WSC11F-JOP-JUMIN-NO2
+                    MOVE  IIAGE            TO  WSC11F-JAP-NAI
+                    MOVE  IIBIR            TO  WSC11F-JAP-JUMIN-NO1
+                    MOVE  IIRES            TO  WSC11F-JAP-JUMIN-NO2
+           ELSE
+                    NEXT  SENTENCE.
+       4100-PIBKM-PIBOHUMJA-EXIT.          EXIT.
+      *****************************************************************
+       5000-GSIN-RTN.
+      *****************************************************************
+           ADD      1                      TO  CNT-READ-GS.
+KHEE       MOVE     GNT-JNG-FIRST          TO  W-JNO-TOT.
+
+           IF       GNT-PANJEONG           NUMERIC
+                    NEXT    SENTENCE
+           ELSE
+                    MOVE    ZERO           TO  GNT-PANJEONG.
+
+KHEE       IF       W-JNO-FY200203
+                    ADD     1              TO  CNT-SKIP-GS
+           ELSE
+200303     IF       W-JNO-FY200303
+                    ADD     1              TO  CNT-SKIP-GS
+           ELSE
+           IF      (GNT-KYEYAK-YYMMDD      >   ACC-BE-UPJUKYMD) AND
+                   (GNT-KYEYAK-YYMMDD  NOT >   ACC-DA-UPJUKYMD) AND
+                   (GNT-GWANRI-GUBUN       =   1)               AND
+                   (GNT-PANJEONG           =   ZERO)
+                    PERFORM                5000-GSIN-SUB-RTN
+                            THRU           5000-GSIN-SUB-EXIT
+           ELSE
+                    ADD     1              TO  CNT-SKIP-GS.
+
+           DIVIDE   CNT-READ-GS            BY  10000
+                    GIVING                 WK-MOK
+                    REMAINDER              WK-NAM.
+
+           IF       WK-NAM                 =   ZERO
+                    DISPLAY 'GSINF-DISPLAY===>'
+                        '/'  CNT-READ-GS
+                        '/'  CNT-WRITE-GS
+                        '/'  CNT-ERROR-GS
+                        '/'  CNT-SKIP-GS
+           ELSE
+                    NEXT  SENTENCE.
+
+           IF       CNT-ERROR-GS           >   1000
+                    MOVE 'YES'             TO  DATA-EOF-GS-SW
+           ELSE
+                    NEXT  SENTENCE.
+
+           READ     GSIN-F                 AT  END
+                    MOVE 'YES'             TO  DATA-EOF-GS-SW.
+       5000-GSIN-EXIT.                     EXIT.
+      *****************************************************************
+       5000-GSIN-SUB-RTN.
+      *****************************************************************
+           MOVE     ZERO                   TO  MAIN-RETURN-CODE
+
+           PERFORM                         5000-GSIN-PRE-CHURI-RTN
+                    THRU                   5000-GSIN-PRE-CHURI-EXIT.
+
+           INITIALIZE STWSC11F.
+           MOVE     ACC-DA-UPJUKYM         TO  WSC11F-CLOSE-DATEYM.
+           MOVE     GNT-JNG-FIRST          TO  WSC11F-JNO.
+           MOVE     2                      TO  WSC11F-JNO-GD-GUBUN.
+
+           INITIALIZE RESER-AREA.
+           MOVE     WSC11F-JNO             TO  RESER-JNO.
+           PERFORM                         1000-PRE-GMG001T-RTN
+                    THRU                   1000-PRE-GMG001T-EXIT.
+
+           IF       RESER-ERROR-SW         =   SPACE
+                    NEXT  SENTENCE
+           ELSE
+                    ADD   1                TO  CNT-ERROR-GS
+                    GO    TO               5000-GSIN-SUB-EXIT.
+
+           MOVE     GNT-BOJONG             TO  WSC11F-BOJ.
+           MOVE     WSC11F-BOJ             TO  ST88B01F-88AREA-SW.
+           MOVE     WSC11F-BOJ             TO  ST88B11F-88AREA-SW.
+           MOVE     A1-TAX-WOODAE          TO  WSC11F-TAX-WOODAE.
+           MOVE     GNT-BUDAM-CD           TO  WSC11F-BORYO-BUDAMJA.
+           MOVE     GNT-BUDAM-RATE         TO  WSC11F-BORYO-BUDAMYUL.
+           MOVE     ZERO                   TO  WSC11F-JANGAEIN-CODE.
+           MOVE     GNT-DANCHE-NO          TO  WSC11F-GROUP-CD.
+
+           PERFORM                         5000-GSIN-OK-FUTURE-RTN
+                    THRU                   5000-GSIN-OK-FUTURE-EXIT.
+
+           MOVE     GNT-JONG               TO  WSC11F-SK-CHONGUK.
+           MOVE     GNT-SUKEUM-GUK         TO  WSC11F-SK-GUK.
+           MOVE     GNT-SUKEUM-SO          TO  WSC11F-SK-SO.
+           MOVE     GNT-SUKEUM-SAWON       TO  WSC11F-SK-SAWON.
+           MOVE     GNT-MOJIP-SO           TO  WSC11F-MJ-SO.
+           MOVE     GNT-MOJIP-SAWON        TO  WSC11F-MJ-SAWON.
+           MOVE     GNT-SUKEUM-GUK         TO  WSC11F-SIL-SK-GUK.
+           MOVE     GNT-SUKEUM-SO          TO  WSC11F-SIL-SK-SO.
+           MOVE     GNT-SUBANG             TO  WSC11F-SUBANG.
+
+           INITIALIZE RESER-AREA.
+           MOVE     WSC11F-JNO             TO  RESER-JNO.
+           MOVE     WSC11F-GROUP-CD        TO  RESER-GROUP-CD.
+           PERFORM                         1000-PRE-GNCA01T-RTN
+                    THRU                   1000-PRE-GNCA01T-EXIT.
+           IF       RESER-ERROR-SW         =   SPACE
+                    MOVE  GNC1-POST-NO1    TO  WSC11F-POST-NO-1
+                    MOVE  GNC1-POST-NO2    TO  WSC11F-POST-NO-2
+           ELSE
+                    ADD   1                TO  CNT-ERROR-GS
+                    GO    TO               5000-GSIN-SUB-EXIT.
+
+           MOVE     GNT-KYEYAK-YYMMDD      TO  WSC11F-1ST-GEDATE.
+           MOVE     GNT-KYEYAK-YYMMDD      TO  WSC11F-GEDATE.
+           MOVE     GNT-MANGI-YYMMDD       TO  WSC11F-MKDATE.
+           MOVE     A1-PENSION-DATE        TO  WSC11F-YKDATE.
+           MOVE     GNT-NAPBANG            TO  WSC11F-NAPBANG.
+KHEE       MOVE     GNT-MANGI-NABGI        TO  RESER-DANCHE-TKCD-AREA.
+
+           PERFORM                         5100-GSIN-TKCD-RTN
+                    THRU                   5100-GSIN-TKCD-EXIT
+                    VARYING  IDX           FROM  1  BY  1
+                    UNTIL    IDX           >     11.
+
+           INITIALIZE RESER-GEYAKGO-AREA.
+           MOVE     WSC11F-BORYO(1)        TO  RESER-BORYO.
+           MOVE     WSC11F-BOKUM(1)        TO  RESER-BOKUM.
+           MOVE     WSC11F-NAPKI(1)        TO  RESER-NAPKI.
+           MOVE     WSC11F-NAPBANG         TO  RESER-NAPBANG.
+
+           PERFORM                         1000-PRE-GEYAKGO-RTN
+                    THRU                   1000-PRE-GEYAKGO-EXIT.
+
+           MOVE     RESER-GEYAKGO          TO  WSC11F-GEYAKGO.
+
+           PERFORM                         1000-PRE-BOJONG-RTN
+                    THRU                   1000-PRE-BOJONG-EXIT.
+
+           PERFORM                         5100-GSIN-PIBOHUMJA-RTN
+                    THRU                   5100-GSIN-PIBOHUMJA-EXIT.
+
+           MOVE     GNT-LAST-Y-MONTH       TO  WSC11F-LNAPIP-WOLBUN.
+           MOVE     GNT-HOISU              TO  WSC11F-LNAPIP-HESU.
+           MOVE     GNT-KYEYAK-YYMMDD      TO  WSC11F-LNAPIP-DATE.
+
+           IF       A1-CANCEL-STAT         =   1
+             IF     A1-CNTRT-DISCH-DATE    >   ACC-DA-UPJUKYMD  
+                    NEXT  SENTENCE
+             ELSE
+                    MOVE  A1-CNTRT-STAT        TO  WSC11F-CLAM
+                    MOVE  A1-CNTRT-DISCH-DATE  TO  WSC11F-SMDATE
+           ELSE
+                    NEXT  SENTENCE.
+
+           MOVE     2                      TO  WSC11F-KYEYAK-CODE.
+           MOVE     1                      TO  WSC11F-IPKUM-HESU.
+           MOVE     GNT-SUNNAP-CNT         TO  WSC11F-SUNNAP-HESU.
+           MOVE     GNT-SUNNAP-INTEST      TO  WSC11F-SUNNAP-HALINYEG.
+           MOVE     WSC11F-HAPBORYO        TO  WSC11F-NETBORYO.
+
+           MOVE     1                      TO  WSC11F-WOLBO-GUBUN.
+           MOVE     1                      TO  WSC11F-WOLBO-SIGN.
+           MOVE     1                      TO  WSC11F-WOLBO-GUNSU.
+           MOVE     WSC11F-NETBORYO        TO  WSC11F-WOLBO-KUMYEG.
+
+           PERFORM                         1000-PRE-LNAPIP-CHECK-RTN
+                    THRU                   1000-PRE-LNAPIP-CHECK-EXIT.
+
+           MOVE     1                      TO  WSC11F-WOLBO-FR-HESU.
+           MOVE     WSC11F-LNAPIP-HESU     TO  WSC11F-WOLBO-TO-HESU.
+
+           IF       MAIN-RETURN-CODE       =   ZERO
+                    WRITE STWSC11F
+                    ADD   1                TO  CNT-WRITE-GS
+           ELSE
+                    ADD   1                TO  CNT-ERROR-GS.
+       5000-GSIN-SUB-EXIT.                 EXIT.
+      *****************************************************************
+       5000-GSIN-OK-FUTURE-RTN.
+      *****************************************************************
+           IF       ACC-DA-UPJUKYM     NOT >   200209
+                    PERFORM                5000-OK-FUTURE-200209-RTN
+                             THRU          5000-OK-FUTURE-200209-EXIT
+           ELSE
+                    PERFORM                5000-OK-FUTURE-200210-RTN
+                             THRU          5000-OK-FUTURE-200210-EXIT.
+       5000-GSIN-OK-FUTURE-EXIT.           EXIT.
+      *****************************************************************
+       5000-OK-FUTURE-200209-RTN.
+      *****************************************************************
+           IF       BOJ-OK-FUTURE
+             IF     WSC11F-GROUP-CD        =   1150470000   OR
+                                               2689480000   OR
+                                               1955880000   OR
+KHEE                                           2968300000   OR
+KHEE                                           2692000000   OR
+KHEE                                           2690480000   OR
+KHEE                                           2085590000   OR
+KHEE                                           1012680000   OR
+KHEE                                           2691760000
+                    MOVE  0.6              TO  WSC11F-ALPHA-HALINYUL
+             ELSE
+             IF     WSC11F-GROUP-CD        =   1170610000   OR
+                                               1972010000   OR
+                                               2691210000   OR
+                                               2690040000
+                    NEXT  SENTENCE
+             ELSE
+                    DISPLAY 'STWSC11-ER(GSINF:OK-FUTURE)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-GROUP-CD
+                    ADD   1                TO  CNT-ERROR-GI
+                    GO    TO               5000-GSIN-SUB-EXIT
+           ELSE
+                    NEXT  SENTENCE.
+       5000-OK-FUTURE-200209-EXIT.         EXIT.
+      *****************************************************************
+       5000-OK-FUTURE-200210-RTN.
+      *****************************************************************
+           IF       BOJ-OK-FUTURE
+             IF     WSC11F-GROUP-CD        =   1150470000   OR
+                                               2689480000   OR
+                                               1955880000   OR
+KHEE                                           2968300000   OR
+KHEE                                           1012680000
+                    MOVE  0.6              TO  WSC11F-ALPHA-HALINYUL
+             ELSE
+             IF     WSC11F-GROUP-CD        =   1170610000   OR
+                                               1972010000   OR
+                                               2691210000   OR
+                                               2690040000   OR
+KHEE                                           2692000000   OR
+KHEE                                           2690480000   OR
+KHEE                                           2085590000   OR
+KHEE                                           2691760000   OR
+KHEE                                           2976200000   OR
+200212                                         1129430000   OR
+200212                                         1003370000   OR
+200303                                         2085640000   OR
+200304                                         2978380000   OR
+200306                                         1115460000   OR
+200307                                         2968000000   OR
+200308                                         2690510000   OR
+200309                                         2057530000
+                    NEXT  SENTENCE
+             ELSE
+                    DISPLAY 'STWSC11-ER(GSINF:OK-FUTURE)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-GROUP-CD
+                    ADD   1                TO  CNT-ERROR-GI
+                    GO    TO               5000-GSIN-SUB-EXIT
+           ELSE
+                    NEXT  SENTENCE.
+       5000-OK-FUTURE-200210-EXIT.        EXIT.
+      *****************************************************************
+       5000-GSIN-PRE-CHURI-RTN.
+      *****************************************************************
+KHEE       IF      (ACC-DA-UPJUKYM     NOT <   200203)  AND
+                   (ACC-DA-UPJUKYM     NOT >   200206)
+             IF    (GNT-JNG-FIRST          =   7000302155  OR  
+                                               7000302156  OR
+                                               7000302157  OR
+                                               7000302158  OR
+                                               7000302159  OR
+                                               7000302160  OR
+                                               7000302161  OR
+                                               7000302162  OR
+                                               7000302163  OR
+                                               7000302164)
+                    MOVE    900000000      TO  WSC11F-BOKUM(1)
+             ELSE
+                    NEXT    SENTENCE
+           ELSE
+                    NEXT    SENTENCE.
+       5000-GSIN-PRE-CHURI-EXIT.           EXIT.
+      *****************************************************************
+       5100-GSIN-TKCD-RTN.
+      *****************************************************************
+           IF       ACC-DA-UPJUKYMD    NOT >   20020630
+                    PERFORM                5100-GSIN-TKCD-200206-RTN
+                             THRU          5100-GSIN-TKCD-200206-EXIT
+           ELSE
+                    PERFORM                5100-GSIN-TKCD-200207-RTN
+                             THRU          5100-GSIN-TKCD-200207-EXIT.
+       5100-GSIN-TKCD-EXIT.                EXIT.
+      *****************************************************************
+       5100-GSIN-TKCD-200206-RTN.
+      *****************************************************************
+           COMPUTE  JDX                    =   IDX  -  1.
+
+           IF       IDX                    =   1
+                    MOVE  GNT-BOJONG       TO  WSC11F-TKCD(IDX)
+           ELSE
+                    MOVE  GNT-TCOD(JDX)    TO  WSC11F-TKCD(IDX).
+
+           MOVE     GNT-MANGI              TO  WSC11F-MANKI(IDX).
+
+           IF       WSC11F-NAPBANG         =   5
+                    MOVE  1                TO  WSC11F-NAPKI(IDX)
+           ELSE
+                    MOVE  GNT-NABGI        TO  WSC11F-NAPKI(IDX).
+
+           MOVE     GNT-SS(IDX)            TO  WSC11F-BOKUM(IDX).
+           MOVE     GNT-PP(IDX)            TO  WSC11F-BORYO(IDX).
+
+KHEE       IF       BOJ-MB-OK-MY-LIFE
+             IF     IDX                    =   1
+                    NEXT  SENTENCE
+             ELSE
+                    MOVE  20               TO  WSC11F-MANKI(IDX)
+           ELSE
+                    NEXT   SENTENCE.
+
+           IF       WSC11F-TKCD(IDX)       =   ZERO OR SPACE
+                    NEXT SENTENCE
+           ELSE
+                    ADD  WSC11F-BORYO(IDX) TO  WSC11F-HAPBORYO.
+
+           IF       WSC11F-BORYO(IDX)  NOT =   ZERO
+             IF    (WSC11F-TKCD(IDX)       =   SPACE) OR
+                   (WSC11F-TKCD(IDX)       =   ZERO)  OR
+                   (WSC11F-MANKI(IDX)      =   ZERO)  OR
+                   (WSC11F-NAPKI(IDX)      =   ZERO)  OR
+                   (WSC11F-BOKUM(IDX)      =   ZERO)
+                    DISPLAY 'STWSC11-ER(TKCD-DATA)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-BOJ
+                        '/'  IDX
+                        '/'  WSC11F-TKCD(IDX)
+                        '/'  WSC11F-MANKI(IDX)
+                        '/'  WSC11F-NAPKI(IDX)
+                        '/'  WSC11F-BOKUM(IDX)
+                        '/'  WSC11F-BORYO(IDX)
+                    ADD   1                TO  MAIN-RETURN-CODE
+             ELSE
+                    NEXT     SENTENCE
+           ELSE
+                    NEXT     SENTENCE.
+       5100-GSIN-TKCD-200206-EXIT.         EXIT.
+      *****************************************************************
+       5100-GSIN-TKCD-200207-RTN.
+      *****************************************************************
+           COMPUTE  JDX                    =   IDX  -  1.
+
+           IF       IDX                    =   1
+             IF     GNT-BOJONG             =   ZERO OR SPACE
+                    DISPLAY 'STWSC11-ER(D-BOJ)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-BOJ
+                        '/'  IDX
+                        '/'  GNT-BOJONG
+                    ADD   1                TO  MAIN-RETURN-CODE
+             ELSE
+             IF    (GNT-NABGI              NOT NUMERIC)  OR
+                   (GNT-MANGI              NOT NUMERIC)  OR
+                   (RDANCHE-TKCD-NAPKI(1)  NOT NUMERIC)  OR
+                   (RDANCHE-TKCD-MANKI(1)  NOT NUMERIC)
+                    DISPLAY 'STWSC11-ER(D-NK1)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-BOJ
+                        '/'  IDX
+                        '/'  GNT-BOJONG
+                        '/'  GNT-NABGI
+                        '/'  GNT-MANGI
+                        '/'  RDANCHE-TKCD-NAPKI(1)
+                        '/'  RDANCHE-TKCD-MANKI(1)
+                    ADD   1                TO  MAIN-RETURN-CODE
+             ELSE
+             IF    (GNT-NABGI      NOT =   RDANCHE-TKCD-NAPKI(1)) OR
+                   (GNT-MANGI      NOT =   RDANCHE-TKCD-MANKI(1)) OR
+KJS-E********      (GNT-NABGI          =   ZERO)                  OR
+                   (GNT-MANGI          =   ZERO)
+                    DISPLAY 'STWSC11-ER(D-NK2)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-BOJ
+                        '/'  IDX
+                        '/'  GNT-BOJONG
+                        '/'  GNT-NABGI
+                        '/'  GNT-MANGI
+                        '/'  RDANCHE-TKCD-NAPKI(1)
+                        '/'  RDANCHE-TKCD-MANKI(1)
+                    ADD   1                TO  MAIN-RETURN-CODE
+             ELSE
+                    NEXT     SENTENCE
+           ELSE
+             IF     GNT-TCOD(JDX)          =   ZERO OR SPACE
+                    NEXT     SENTENCE
+             ELSE
+             IF    (RDANCHE-TKCD-NAPKI(IDX)    NOT NUMERIC)  OR
+                   (RDANCHE-TKCD-MANKI(IDX)    NOT NUMERIC)
+                    DISPLAY 'STWSC11-ER(D-TK-NK1)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-BOJ
+                        '/'  IDX
+                        '/'  GNT-BOJONG
+                        '/'  RDANCHE-TKCD-NAPKI(IDX)
+                        '/'  RDANCHE-TKCD-MANKI(IDX)
+                    ADD   1                TO  MAIN-RETURN-CODE
+             ELSE
+             IF     RDANCHE-TKCD-MANKI(IDX)    =   ZERO
+                    DISPLAY 'STWSC11-ER(D-TK-NK2)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-BOJ
+                        '/'  IDX
+                        '/'  GNT-BOJONG
+                        '/'  RDANCHE-TKCD-NAPKI(IDX)
+                        '/'  RDANCHE-TKCD-MANKI(IDX)
+                    ADD   1                TO  MAIN-RETURN-CODE
+             ELSE
+                    NEXT     SENTENCE.
+
+           IF       IDX                    =   1
+                    MOVE  GNT-BOJONG       TO  WSC11F-TKCD(IDX)
+           ELSE
+                    MOVE  GNT-TCOD(JDX)    TO  WSC11F-TKCD(IDX).
+
+           IF       RDANCHE-TKCD-MANKI(IDX)    =   99
+                    MOVE                   RDANCHE-TKCD-MANKI(IDX)
+                          TO               WSC11F-MANKI(IDX)
+           ELSE
+           IF       RDANCHE-TKCD-SEMANKI(IDX)  =  '2'
+                    COMPUTE                WSC11F-MANKI(IDX)
+                                  =        RDANCHE-TKCD-MANKI(IDX)
+                                  -        GNT-NAI
+           ELSE
+                    MOVE                   RDANCHE-TKCD-MANKI(IDX)
+                          TO               WSC11F-MANKI(IDX).
+
+           IF       WSC11F-NAPBANG         =   5
+                    MOVE  1                TO  WSC11F-NAPKI(IDX)
+           ELSE
+                    MOVE                   RDANCHE-TKCD-NAPKI(IDX)
+                          TO               WSC11F-NAPKI(IDX).
+
+           MOVE     GNT-SS(IDX)            TO  WSC11F-BOKUM(IDX).
+           MOVE     GNT-PP(IDX)            TO  WSC11F-BORYO(IDX).
+
+           IF       WSC11F-TKCD(IDX)       =   ZERO OR SPACE
+                    NEXT SENTENCE
+           ELSE
+                    ADD  WSC11F-BORYO(IDX) TO  WSC11F-HAPBORYO.
+
+           IF       WSC11F-BORYO(IDX)  NOT =   ZERO
+             IF    (WSC11F-TKCD(IDX)       =   SPACE) OR
+                   (WSC11F-TKCD(IDX)       =   ZERO)  OR
+                   (WSC11F-MANKI(IDX)      =   ZERO)  OR
+                   (WSC11F-NAPKI(IDX)      =   ZERO)  OR
+                   (WSC11F-BOKUM(IDX)      =   ZERO)
+                    DISPLAY 'STWSC11-ER(TKCD-DATA)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-BOJ
+                        '/'  IDX
+                        '/'  WSC11F-TKCD(IDX)
+                        '/'  WSC11F-MANKI(IDX)
+                        '/'  WSC11F-NAPKI(IDX)
+                        '/'  WSC11F-BOKUM(IDX)
+                        '/'  WSC11F-BORYO(IDX)
+                    ADD   1                TO  MAIN-RETURN-CODE
+             ELSE
+                    NEXT     SENTENCE
+           ELSE
+                    NEXT     SENTENCE.
+       5100-GSIN-TKCD-200207-EXIT.         EXIT.
+      *****************************************************************
+       5100-GSIN-PIBOHUMJA-RTN.
+      *****************************************************************
+           MOVE     ZERO                   TO  WSC11F-TAB-GNAI.
+           MOVE     ZERO                   TO  WSC11F-TAB-GSEX.
+           MOVE     GNT-NAI                TO  WSC11F-TAB-PNAI.
+           MOVE     GNT-PISEX              TO  WSC11F-TAB-PSEX.
+           MOVE     A1-GROUP-AGE           TO  WSC11F-TAB-GROUP-NAI.
+           MOVE     A1-CAGE                TO  WSC11F-GYE-NAI.
+           MOVE     A1-CBIR                TO  WSC11F-GYE-JUMIN-NO1.
+           MOVE     A1-CRES                TO  WSC11F-GYE-JUMIN-NO2.
+           MOVE     A1-IAGE                TO  WSC11F-JUP-NAI.
+           MOVE     A1-IBIR                TO  WSC11F-JUP-JUMIN-NO1.
+           MOVE     A1-IRES                TO  WSC11F-JUP-JUMIN-NO2.
+           MOVE     A1-SINS-AGE1           TO  WSC11F-JOP-NAI.
+           MOVE     A1-SINS-BIR1           TO  WSC11F-JOP-JUMIN-NO1.
+           MOVE     A1-SINS-RES1           TO  WSC11F-JOP-JUMIN-NO2.
+           MOVE     A1-SINS-AGE2           TO  WSC11F-JAP-NAI.
+           MOVE     A1-SINS-BIR2           TO  WSC11F-JAP-JUMIN-NO1.
+           MOVE     A1-SINS-RES2           TO  WSC11F-JAP-JUMIN-NO2.
+       5100-GSIN-PIBOHUMJA-EXIT.           EXIT.
+      *****************************************************************
+       6000-GIBKM-RTN.
+      *****************************************************************
+           ADD      1                      TO  CNT-READ-GI.
+KHEE       MOVE     GPI-JUNGBEON           TO  W-JNO-TOT.
+
+KHEE       IF       W-JNO-FY200203
+                    ADD     1              TO  CNT-SKIP-GI
+           ELSE
+200303     IF       W-JNO-FY200303
+                    ADD     1              TO  CNT-SKIP-GI
+           ELSE
+200304     IF      (GPI-GBNCD              =   0)  AND
+                   (GPI-IP-WAY             =   0)
+                    PERFORM                6000-GIBKM-SUB-RTN
+                            THRU           6000-GIBKM-SUB-EXIT
+           ELSE
+           IF       GPI-IP-WAY         NOT =   8
+             IF     GPI-GBNCD              =   ZERO OR 9
+                    ADD     1              TO  CNT-SKIP-GI
+             ELSE
+                    PERFORM                6000-GIBKM-SUB-RTN
+                            THRU           6000-GIBKM-SUB-EXIT
+           ELSE
+             IF     GPI-GBNCD              =   2 OR 3 OR 4 OR 5
+                    ADD     1              TO  CNT-SKIP-GI
+             ELSE
+                    PERFORM                6000-GIBKM-SUB-RTN
+                            THRU           6000-GIBKM-SUB-EXIT.
+
+           DIVIDE   CNT-READ-GI            BY  10000
+                    GIVING                 WK-MOK
+                    REMAINDER              WK-NAM.
+
+           IF       WK-NAM                 =   ZERO
+                    DISPLAY 'GIBKM-DISPLAY===>'
+                        '/'  CNT-READ-GI
+                        '/'  CNT-WRITE-GI
+                        '/'  CNT-ERROR-GI
+                        '/'  CNT-SKIP-GI
+           ELSE
+                    NEXT  SENTENCE.
+
+           IF       CNT-ERROR-GI           >   1000
+                    MOVE 'YES'             TO  DATA-EOF-GI-SW
+           ELSE
+                    NEXT  SENTENCE.
+
+           READ     GIBKM-F                AT  END
+                    MOVE 'YES'             TO  DATA-EOF-GI-SW.
+       6000-GIBKM-EXIT.                    EXIT.
+      *****************************************************************
+       6000-GIBKM-SUB-RTN.
+      *****************************************************************
+           MOVE     ZERO                   TO  MAIN-RETURN-CODE
+
+      *****OK-FUTURE 추가납입확인(정상)-200308*************************
+200304*     IF      (GPI-GBNCD              =   0)   AND
+      *             (GPI-IP-WAY             =   0)
+      *             DISPLAY 'GIBKM-OK-FUTURE-TEST-AA===>'
+      *                 '/'  GPI-BOJONG
+      *                 '/'  GPI-JUNGBEON
+      *                 '/'  GPI-LYM
+      *                 '/'  GPI-LPMT
+      *                 '/'  GPI-LYMD
+      *                 '/'  GPI-CHERI-P
+      *                 '/'  GPI-HAPBORYO
+      *                 '/'  GPI-ICHE
+      *                 '/'  GPI-GBNCD
+      *                 '/'  GPI-IP-WAY.
+      *****************************************************************
+
+           INITIALIZE STWSC11F.
+           MOVE     ACC-DA-UPJUKYM         TO  WSC11F-CLOSE-DATEYM.
+           MOVE     GPI-JUNGBEON           TO  WSC11F-JNO.
+           MOVE     2                      TO  WSC11F-JNO-GD-GUBUN.
+
+           INITIALIZE RESER-AREA.
+           MOVE     WSC11F-JNO             TO  RESER-JNO.
+           PERFORM                         1000-PRE-GMG001T-RTN
+                    THRU                   1000-PRE-GMG001T-EXIT.
+           IF       RESER-ERROR-SW         =   SPACE
+                    NEXT  SENTENCE
+           ELSE
+                    ADD   1                TO  CNT-ERROR-GI
+                    GO    TO               6000-GIBKM-SUB-EXIT.
+
+           MOVE     GPI-BOJONG             TO  WSC11F-BOJ.
+           MOVE     WSC11F-BOJ             TO  ST88B01F-88AREA-SW.
+           MOVE     WSC11F-BOJ             TO  ST88B11F-88AREA-SW.
+           MOVE     A1-TAX-WOODAE          TO  WSC11F-TAX-WOODAE.
+           MOVE     GPI-BUDAM              TO  WSC11F-BORYO-BUDAMJA.
+           MOVE     GPI-BUDAM-YUL          TO  WSC11F-BORYO-BUDAMYUL.
+           MOVE     ZERO                   TO  WSC11F-JANGAEIN-CODE.
+           MOVE     GPI-GPNO               TO  WSC11F-GROUP-CD.
+
+           PERFORM                         6000-GIBKM-OK-FUTURE-RTN
+                    THRU                   6000-GIBKM-OK-FUTURE-EXIT.
+
+           MOVE     GPI-21C-JONG           TO  WSC11F-21C-JONG.
+           MOVE     GPI-CHONGUK            TO  WSC11F-SK-CHONGUK.
+           MOVE     GPI-GUK                TO  WSC11F-SK-GUK.
+           MOVE     GPI-SO                 TO  WSC11F-SK-SO.
+           MOVE     GPI-SAWON              TO  WSC11F-SK-SAWON.
+           MOVE     GPI-MOJIB-SO           TO  WSC11F-MJ-SO.
+           MOVE     GPI-MOJIB-SAWON        TO  WSC11F-MJ-SAWON.
+           MOVE     GPI-PRE-GUK            TO  WSC11F-SIL-SK-GUK.
+           MOVE     GPI-PRE-SO             TO  WSC11F-SIL-SK-SO.
+           MOVE     GPI-SUBANG             TO  WSC11F-SUBANG.
+
+           INITIALIZE RESER-AREA.
+           MOVE     WSC11F-JNO             TO  RESER-JNO.
+           MOVE     WSC11F-GROUP-CD        TO  RESER-GROUP-CD.
+           PERFORM                         1000-PRE-GNCA01T-RTN
+                    THRU                   1000-PRE-GNCA01T-EXIT.
+
+           IF       RESER-ERROR-SW         =   SPACE
+                    MOVE  GNC1-POST-NO1    TO  WSC11F-POST-NO-1
+                    MOVE  GNC1-POST-NO2    TO  WSC11F-POST-NO-2
+           ELSE
+                    ADD   1                TO  CNT-ERROR-GI
+                    GO    TO               6000-GIBKM-SUB-EXIT.
+
+           MOVE     GPI-BOP                TO  WSC11F-MANKI(1).
+
+           PERFORM                         1000-PRE-BOJONG-RTN
+                    THRU                   1000-PRE-BOJONG-EXIT.
+
+           MOVE     ZERO                   TO  WSC11F-MANKI(1).
+
+           IF       A1-BEF-CNTRT-DATE      NOT NUMERIC
+                    MOVE  ZERO             TO  A1-BEF-CNTRT-DATE 
+           ELSE
+                    NEXT  SENTENCE.
+
+           IF       A1-RECNTRT-DATE        NOT NUMERIC
+                    MOVE  ZERO             TO  A1-RECNTRT-DATE
+           ELSE
+                    NEXT  SENTENCE.
+
+           IF       WSC11F-AUTO-UP-CODE    =   1
+             IF     GPI-SUNYEON            =  'S'
+                    DISPLAY 'STWSC11-ER(AUTO-UP/SUNYEON)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-BOJ
+                        '/'  GPI-BOP
+                        '/'  WSC11F-AUTO-UP-CODE
+                        '/'  GPI-SUNYEON
+                    ADD   1                TO  CNT-ERROR-GI
+                    GO    TO               6000-GIBKM-SUB-EXIT
+             ELSE 
+             IF    (A1-RECNTRT-DATE    NOT =   ZERO)      AND
+                   (A1-RECNTRT-DATE    NOT <   GPI-GYEYAK-YMD)
+                    MOVE  A1-RECNTRT-DATE  TO  WSC11F-GEDATE
+                    MOVE  GPI-GYEYAK-YMD   TO  WSC11F-1ST-GEDATE
+             ELSE 
+                    MOVE  GPI-GYEYAK-YMD   TO  WSC11F-GEDATE
+                    MOVE  GPI-GYEYAK-YMD   TO  WSC11F-1ST-GEDATE
+           ELSE 
+           IF       GPI-SUNYEON            =  'S'
+             IF    (A1-BEF-CNTRT-DATE  NOT =   ZERO)      AND
+                   (A1-BEF-CNTRT-DATE      <   GPI-GYEYAK-YMD)
+                    MOVE  GPI-GYEYAK-YMD       TO  WSC11F-GEDATE
+                    MOVE  A1-BEF-CNTRT-DATE    TO  WSC11F-1ST-GEDATE
+             ELSE 
+                    DISPLAY 'STWSC11-ER(SUNYEON:RECONTRACT)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-BOJ
+                        '/'  GPI-GYEYAK-YMD
+                        '/'  A1-RECNTRT-DATE
+                        '/'  A1-BEF-CNTRT-DATE
+                    ADD   1                TO  CNT-ERROR-GI
+                    GO    TO               6000-GIBKM-SUB-EXIT
+           ELSE 
+                    MOVE  GPI-GYEYAK-YMD   TO  WSC11F-GEDATE
+                    MOVE  GPI-GYEYAK-YMD   TO  WSC11F-1ST-GEDATE.
+
+           INITIALIZE  STSPB01F.
+           MOVE     WSC11F-JNO             TO  PB01F-JNO.
+           MOVE    'END'                   TO  PB01F-CHURI-MODE.
+           MOVE     GPI-MANGI-YY           TO  PB01F-END-DATEYY.
+           MOVE     WSC11F-GEDATEMM        TO  PB01F-END-DATEMM.
+           MOVE     WSC11F-GEDATEDD        TO  PB01F-END-DATEDD.
+           CALL    'STSPB01'               USING STSPB01F.
+           IF       PB01F-RETURN-CODE      =   ZERO
+                    MOVE  PB01F-JOJ-DATE   TO  WSC11F-MKDATE
+           ELSE
+                    DISPLAY 'STWSC11-ER(STSPB01)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-GEDATE
+                        '/'  GPI-MANGI-YY
+                    ADD   1                TO  CNT-ERROR-GI
+                    GO    TO               6000-GIBKM-SUB-EXIT.
+
+           MOVE     A1-PENSION-DATE        TO  WSC11F-YKDATE.
+           MOVE     GPI-NAPBANG            TO  WSC11F-NAPBANG.
+
+           PERFORM                         6100-GIBKM-TKCD-RTN
+                    THRU                   6100-GIBKM-TKCD-EXIT
+                    VARYING  IDX           FROM  1  BY  1
+                    UNTIL    IDX           >   11.
+
+           PERFORM                         6100-PRE-GIBKM-TKCD-RTN
+                    THRU                   6100-PRE-GIBKM-TKCD-EXIT.
+
+           INITIALIZE RESER-GEYAKGO-AREA.
+           MOVE     WSC11F-BORYO(1)        TO  RESER-BORYO.
+           MOVE     WSC11F-BOKUM(1)        TO  RESER-BOKUM.
+           MOVE     WSC11F-NAPKI(1)        TO  RESER-NAPKI.
+           MOVE     WSC11F-NAPBANG         TO  RESER-NAPBANG.
+
+           PERFORM                         1000-PRE-GEYAKGO-RTN
+                    THRU                   1000-PRE-GEYAKGO-EXIT.
+
+           MOVE     RESER-GEYAKGO          TO  WSC11F-GEYAKGO.
+
+           PERFORM                         6100-GIBKM-PIBOHUMJA-RTN
+                    THRU                   6100-GIBKM-PIBOHUMJA-EXIT.
+
+           MOVE     GPI-LYM                TO  WSC11F-LNAPIP-WOLBUN.
+           MOVE     GPI-LPMT               TO  WSC11F-LNAPIP-HESU.
+           MOVE     GPI-LYMD               TO  WSC11F-LNAPIP-DATE.
+
+           IF       A1-CANCEL-STAT         =   1
+             IF     A1-CNTRT-DISCH-DATE    >   ACC-DA-UPJUKYMD  
+                    NEXT  SENTENCE
+             ELSE
+                    MOVE  A1-CNTRT-STAT        TO  WSC11F-CLAM
+                    MOVE  A1-CNTRT-DISCH-DATE  TO  WSC11F-SMDATE
+           ELSE
+                    NEXT  SENTENCE.
+
+           MOVE     GPI-BUHAL              TO  WSC11F-BUHAL.
+           MOVE     GPI-SUNYEON            TO  WSC11F-SUNYEON.
+
+           IF       WSC11F-SUNYEON         =  'S'
+                    INITIALIZE RESER-AREA
+                    MOVE   WSC11F-JNO      TO  RESER-JNO
+                    PERFORM                1000-PRE-GMG014T-RTN
+                           THRU            1000-PRE-GMG014T-EXIT
+             IF     RESER-ERROR-SW         =   SPACE
+               IF   RESER-SYDATE           >   ACC-DA-UPJUKYMD
+                    MOVE  SPACE            TO  WSC11F-SUNYEON
+               ELSE
+                    MOVE  RESER-SYDATE     TO  WSC11F-SUNYEON-DATE
+             ELSE
+                    ADD   1                TO  CNT-ERROR-GI
+                    GO    TO               6000-GIBKM-SUB-EXIT
+           ELSE
+                    MOVE  SPACE            TO  WSC11F-SUNYEON.
+
+           IF       WSC11F-AUTO-UP-CODE    =  1
+             IF    (WSC11F-NAPBANG         =  5)  OR
+                   (WSC11F-LNAPIP-HESU     >
+                             RTABLE-YEAR-FRQ(WSC11F-NAPBANG))
+                    DISPLAY 'STWSC11-ER(AUTO-UP)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-BOJ
+                        '/'  WSC11F-NAPBANG
+                        '/'  WSC11F-LNAPIP-HESU
+                    ADD   1                TO  CNT-ERROR-GI
+                    GO    TO               6000-GIBKM-SUB-EXIT
+             ELSE
+                    NEXT  SENTENCE
+           ELSE
+                    NEXT  SENTENCE.
+
+           MOVE     4                      TO  WSC11F-KYEYAK-CODE.
+
+           IF       GPI-IP-WAY         NOT =   8
+                    MOVE  GPI-IP-WAY       TO  WSC11F-IPMS-CLASS
+                    MOVE  GPI-GBNCD        TO  WSC11F-IPMS-GBNCD
+                    MOVE  1                TO  WSC11F-IPKUM-HESU
+                    MOVE  ZERO             TO  WSC11F-SUNNAP-HESU
+           ELSE
+                    MOVE  1                TO  WSC11F-IPMS-GBNCD
+                    MOVE  1                TO  WSC11F-IPKUM-HESU
+                    MOVE  ZERO             TO  WSC11F-SUNNAP-HESU
+             IF     GPI-PATH               =   2 
+                    MOVE  4                TO  WSC11F-IPMS-CLASS
+             ELSE
+             IF     GPI-PATH               =   3 
+                    MOVE  5                TO  WSC11F-IPMS-CLASS
+             ELSE
+                    MOVE  3                TO  WSC11F-IPMS-CLASS.
+
+           IF       GPI-IP-WAY         NOT =   8
+                    MOVE  ZERO             TO  WSC11F-CORRECT
+           ELSE
+           IF       GPI-NBSUN              =   5
+                    MOVE  2                TO  WSC11F-CORRECT
+           ELSE
+                    MOVE  1                TO  WSC11F-CORRECT.
+
+           MOVE     ZERO                   TO  WSC11F-IPKUM-LINE.
+
+           IF       GPI-SPC-DISCH          =   1
+                    MOVE     ZEROS         TO  WSC11F-SUNNAP-HALINYEG
+           ELSE
+                    MOVE     GPI-PREK-P    TO  WSC11F-SUNNAP-HALINYEG.
+
+           IF       GPI-IP-WAY         NOT =   8
+             IF     GPI-SPC-DISCH          =   1
+                    MOVE  GPI-CHERI-P      TO  WSC11F-NETBORYO
+                    MOVE  ZERO             TO  WSC11F-HALIN-CHECK
+             ELSE
+             IF     GPI-GBNCD              =   5  OR  6
+                    MOVE  GPI-CHERI-P      TO  WSC11F-NETBORYO
+                    MOVE  ZERO             TO  WSC11F-HALIN-CHECK
+             ELSE
+             IF     GPI-IP-WAY             =   4
+                    MOVE  GPI-CHERI-P      TO  WSC11F-NETBORYO
+                    MOVE  4                TO  WSC11F-HALIN-CHECK
+             ELSE
+                    MOVE  WSC11F-HAPBORYO  TO  WSC11F-NETBORYO
+                    MOVE  ZERO             TO  WSC11F-HALIN-CHECK
+           ELSE
+                    MOVE  GPI-CHERI-P      TO  WSC11F-NETBORYO
+                    MOVE  ZERO             TO  WSC11F-HALIN-CHECK.
+
+200304     IF      (BOJ-OK-FUTURE)                  AND
+                   (GPI-GBNCD              =   0)   AND
+                   (GPI-IP-WAY             =   0)
+                    MOVE  GPI-CHERI-P      TO  WSC11F-NETBORYO.
+
+           IF       GPI-NBSUN              =   5
+                    MOVE    4              TO  WSC11F-WOLBO-GUBUN
+           ELSE
+           IF       GPI-GBNCD              =   6
+                    MOVE    5              TO  WSC11F-WOLBO-GUBUN
+           ELSE
+                    MOVE    2              TO  WSC11F-WOLBO-GUBUN.
+
+           IF       GPI-NBSUN              =   5
+                    MOVE   -1              TO  WSC11F-WOLBO-SIGN
+                    MOVE   +1              TO  WSC11F-WOLBO-GUNSU
+             IF     WSC11F-NETBORYO    NOT >   ZERO
+                    COMPUTE                WSC11F-NETBORYO
+                                  =        WSC11F-NETBORYO * (-1)
+                    MOVE  WSC11F-NETBORYO  TO  WSC11F-WOLBO-KUMYEG
+             ELSE
+                    DISPLAY 'STWSC11-ER(GIBKM:NETBORYO)===>'
+                        '/'  WSC11F-JNO
+                        '/'  GPI-NBSUN
+                        '/'  GPI-IP-WAY
+                        '/'  GPI-GBNCD
+                        '/'  GPI-CHERI-P
+                        '/'  WSC11F-HAPBORYO
+                        '/'  WSC11F-NETBORYO
+                    ADD   1                TO  CNT-ERROR-GI
+                    GO    TO               6000-GIBKM-SUB-EXIT
+           ELSE
+                    MOVE   +1              TO  WSC11F-WOLBO-SIGN
+                    MOVE   +1              TO  WSC11F-WOLBO-GUNSU
+             IF     WSC11F-NETBORYO    NOT <   ZERO
+                    MOVE  WSC11F-NETBORYO  TO  WSC11F-WOLBO-KUMYEG
+             ELSE
+                    DISPLAY 'STWSC11-ER(GIBKM:NETBORYO)===>'
+                        '/'  WSC11F-JNO
+                        '/'  GPI-NBSUN
+                        '/'  GPI-IP-WAY
+                        '/'  GPI-GBNCD
+                        '/'  GPI-CHERI-P
+                        '/'  WSC11F-HAPBORYO
+                        '/'  WSC11F-NETBORYO
+                    ADD   1                TO  CNT-ERROR-GI
+                    GO    TO               6000-GIBKM-SUB-EXIT.
+
+           PERFORM                         1000-PRE-LNAPIP-CHECK-RTN
+                    THRU                   1000-PRE-LNAPIP-CHECK-EXIT.
+
+           MOVE     WSC11F-LNAPIP-HESU     TO  WSC11F-WOLBO-FR-HESU.
+           MOVE     WSC11F-LNAPIP-HESU     TO  WSC11F-WOLBO-TO-HESU.
+
+           IF       MAIN-RETURN-CODE       =   ZERO
+                    WRITE STWSC11F
+                    ADD   1                TO  CNT-WRITE-GI
+           ELSE
+                    ADD   1                TO  CNT-ERROR-GI.
+
+      *****OK-FUTURE 추가납입확인**************************************
+200304*     IF       BOJ-OK-FUTURE                AND
+      *              WSC11F-OK-FUTURE-CODE  =   2
+      *              DISPLAY 'GIBKM-OK-FUTURE-TEST-BB===>'
+      *                  '/'  WSC11F-BOJ
+      *                  '/'  WSC11F-JNO
+      *                  '/'  WSC11F-HAPBORYO
+      *                  '/'  WSC11F-WOLBO-KUMYEG.
+      *****************************************************************
+
+      *****OK-FUTURE 추가납입확인**************************************
+200309*     IF      (GPI-GBNCD              =   0)  AND
+      *             (GPI-IP-WAY             =   0)
+      *             DISPLAY 'GIBKM-OK-FUTURE-TEST-BB===>'
+      *                 '/'  GPI-BOJONG
+      *                 '/'  GPI-JUNGBEON
+      *                 '/'  GPI-LYM
+      *                 '/'  GPI-LPMT
+      *                 '/'  GPI-LYMD
+      *                 '/'  GPI-CHERI-P
+      *                 '/'  GPI-HAPBORYO
+      *                 '/'  WSC11F-WOLBO-KUMYEG
+      *                 '/'  WSC11F-NETBORYO
+      *                 '/'  GPI-ICHE
+      *                 '/'  GPI-GBNCD
+      *                 '/'  GPI-IP-WAY.
+      *****************************************************************
+
+       6000-GIBKM-SUB-EXIT.                EXIT.
+      *****************************************************************
+       6000-GIBKM-OK-FUTURE-RTN.
+      *****************************************************************
+           IF       ACC-DA-UPJUKYM     NOT >   200209
+                    PERFORM                6000-OK-FUTURE-200209-RTN
+                             THRU          6000-OK-FUTURE-200209-EXIT
+           ELSE
+                    PERFORM                6000-OK-FUTURE-200210-RTN
+                             THRU          6000-OK-FUTURE-200210-EXIT.
+       6000-GIBKM-OK-FUTURE-EXIT.          EXIT.
+      *****************************************************************
+       6000-OK-FUTURE-200209-RTN.
+      *****************************************************************
+           IF       BOJ-OK-FUTURE
+             IF     WSC11F-GROUP-CD        =   1150470000   OR
+                                               2689480000   OR
+                                               1955880000   OR
+KHEE                                           2968300000   OR
+KHEE                                           2692000000   OR
+KHEE                                           2690480000   OR
+KHEE                                           2085590000   OR
+KHEE                                           1012680000   OR
+KHEE                                           2691760000
+                    MOVE  0.6              TO  WSC11F-ALPHA-HALINYUL
+             ELSE
+             IF     WSC11F-GROUP-CD        =   1170610000   OR
+                                               1972010000   OR
+                                               2691210000   OR
+                                               2690040000
+                    NEXT  SENTENCE
+             ELSE
+                    DISPLAY 'STWSC11-ER(GIBKM:OK-FUTURE)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-GROUP-CD
+                    ADD   1                TO  CNT-ERROR-GI
+                    GO    TO               6000-GIBKM-SUB-EXIT
+           ELSE
+                    NEXT  SENTENCE.
+       6000-OK-FUTURE-200209-EXIT.         EXIT.
+      *****************************************************************
+       6000-OK-FUTURE-200210-RTN.
+      *****************************************************************
+           IF       BOJ-OK-FUTURE
+             IF     WSC11F-GROUP-CD        =   1150470000   OR
+                                               2689480000   OR
+                                               1955880000   OR
+KHEE                                           2968300000   OR
+KHEE                                           1012680000
+                    MOVE  0.6              TO  WSC11F-ALPHA-HALINYUL
+             ELSE
+             IF     WSC11F-GROUP-CD        =   1170610000   OR
+                                               1972010000   OR
+                                               2691210000   OR
+                                               2690040000   OR
+KHEE                                           2692000000   OR
+KHEE                                           2690480000   OR
+KHEE                                           2085590000   OR
+KHEE                                           2691760000   OR
+KHEE                                           2976200000   OR
+200212                                         1129430000   OR
+200212                                         1003370000   OR
+200303                                         2085640000   OR
+200304                                         2978380000   OR
+200306                                         1115460000   OR
+200307                                         2968000000   OR
+200308                                         2690510000   OR
+200309                                         2057530000
+                    NEXT  SENTENCE
+             ELSE
+                    DISPLAY 'STWSC11-ER(GIBKM:OK-FUTURE)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-GROUP-CD
+                    ADD   1                TO  CNT-ERROR-GI
+                    GO    TO               6000-GIBKM-SUB-EXIT
+           ELSE
+                    NEXT  SENTENCE.
+
+      *****************************************************************
+200304*     IF       BOJ-OK-FUTURE
+      *         IF  (GPI-GBNCD              =   0)  AND
+      *             (GPI-IP-WAY             =   0)
+      *              MOVE  2                TO  WSC11F-OK-FUTURE-CODE
+      **              DISPLAY 'STWSC11-FUTURE-CODE-2)===>'
+      **                  '/'  WSC11F-JNO
+      **                  '/'  WSC11F-OK-FUTURE-CODE
+      *         ELSE
+      *              MOVE  1                TO  WSC11F-OK-FUTURE-CODE
+      **              DISPLAY 'STWSC11-FUTURE-CODE-1)===>'
+      **                  '/'  WSC11F-JNO
+      **                  '/'  WSC11F-OK-FUTURE-CODE
+      *     ELSE
+      *              NEXT  SENTENCE.
+      *****************************************************************
+
+       6000-OK-FUTURE-200210-EXIT.        EXIT.
+      *****************************************************************
+       6100-GIBKM-TKCD-RTN.
+      *****************************************************************
+           IF       ACC-DA-UPJUKYMD    NOT >   20020731
+                    PERFORM             6100-GIBKM-TKCD-200207-RTN
+                             THRU       6100-GIBKM-TKCD-200207-EXIT
+           ELSE
+                    PERFORM             6100-GIBKM-TKCD-200208-RTN
+                             THRU       6100-GIBKM-TKCD-200208-EXIT.
+       6100-GIBKM-TKCD-EXIT.               EXIT.
+      *****************************************************************
+       6100-GIBKM-TKCD-200207-RTN.
+      *****************************************************************
+           COMPUTE  JDX                    =   IDX  -  1.
+
+           IF       IDX                    =   1
+             IF     GPI-JU-BORYO       NOT =   ZERO
+               IF   GPI-JU-BOKEUM      NOT =   ZERO
+                    NEXT  SENTENCE
+               ELSE
+                    DISPLAY 'STWSC11-ER(JU-TKCD-BOKUM)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-BOJ
+                        '/'  GPI-JU-BOJONG
+                        '/'  GPI-JU-BOKEUM
+                    ADD   1                TO  MAIN-RETURN-CODE
+             ELSE
+                    NEXT  SENTENCE
+           ELSE
+             IF     GPI-SPC-BORYO(JDX)     NOT =   ZERO
+               IF   GPI-SPCA-SS-FULL(JDX)  NOT =   ZERO
+                    NEXT  SENTENCE
+               ELSE
+               IF   GPI-SPC-BOKEUM(JDX)    NOT =   ZERO
+                    DISPLAY 'STWSC11-WR(6000-BU-TKCD-BOKUM)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-BOJ
+                        '/'  GPI-SPC-BOJONG(JDX)
+                        '/'  GPI-SPCA-SS-FULL(JDX)
+                        '/'  GPI-SPC-BOKEUM(JDX)
+                    COMPUTE             GPI-SPCA-SS-FULL(JDX)
+                                 =      GPI-SPC-BOKEUM(JDX) * 1000
+               ELSE
+                    DISPLAY 'STWSC11-ER(BU-TKCD-BOKUM)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-BOJ
+                        '/'  GPI-SPC-BOJONG(JDX)
+                        '/'  GPI-SPCA-SS-FULL(JDX)
+                        '/'  GPI-SPC-BOKEUM(JDX)
+                    ADD   1                TO  MAIN-RETURN-CODE
+             ELSE
+                    NEXT  SENTENCE.
+
+           IF       IDX                    =   1
+                    MOVE  GPI-BOJONG       TO  WSC11F-TKCD(IDX)
+                    MOVE  GPI-BOP          TO  WSC11F-MANKI(IDX)
+                    MOVE  GPI-NAPGI        TO  WSC11F-NAPKI(IDX)
+                    COMPUTE                    WSC11F-BOKUM(IDX)
+                                           =   GPI-JU-BOKEUM
+                                           *   1000
+                    MOVE  GPI-JU-BORYO     TO  WSC11F-BORYO(IDX)
+           ELSE
+           IF       GPI-SPCA-INS-TERM(JDX) =   ZERO
+                     
+                    MOVE  GPI-SPC-BOJONG(JDX)
+                                           TO  WSC11F-TKCD(IDX)
+                    MOVE  GPI-BOP          TO  WSC11F-MANKI(IDX)
+                    MOVE  GPI-NAPGI        TO  WSC11F-NAPKI(IDX)
+                    MOVE  GPI-SPCA-SS-FULL(JDX) 
+                                           TO  WSC11F-BOKUM(IDX)
+                    MOVE  GPI-SPC-BORYO(JDX)
+                                           TO  WSC11F-BORYO(IDX)
+           ELSE
+                    MOVE  GPI-SPC-BOJONG(JDX)
+                                           TO  WSC11F-TKCD(IDX)
+                    MOVE  GPI-SPCA-INS-TERM(JDX)
+                                           TO  WSC11F-MANKI(IDX)
+                    MOVE  GPI-NAPGI        TO  WSC11F-NAPKI(IDX)
+                    MOVE  GPI-SPCA-SS-FULL(JDX) 
+                                           TO  WSC11F-BOKUM(IDX)
+                    MOVE  GPI-SPC-BORYO(JDX)
+                                           TO  WSC11F-BORYO(IDX).
+
+      **OK-MY-LIFE*****************************************************
+KHEE  *     IF       BOJ-MB-OK-MY-LIFE
+      *       IF     IDX                    =   1
+      *              NEXT  SENTENCE
+      *       ELSE
+      *              MOVE  20               TO  WSC11F-MANKI(IDX)
+      *     ELSE
+      *              NEXT   SENTENCE.
+
+KHEE  *     IF       BOJ-MB-OK-MY-LIFE
+      *       IF     GPI-BOJONG             =  'T370'  OR 
+      *                                        'T371'  OR
+      *                                        'T372'
+      *          IF     IDX                 =   1
+      *              NEXT  SENTENCE
+      *          ELSE
+      *              MOVE  20               TO  WSC11F-MANKI(IDX)
+      *       ELSE
+      *       IF     GPI-BOJONG             =  'T374'
+      *          IF  IDX                    =   1
+      *              MOVE  99               TO  WSC11F-MANKI(1)
+      *          ELSE
+      *          IF  GPI-SPC-BOJONG(JDX)    =  'Y845' OR 
+      *                                        'Y846' OR
+      *                                        'Y847'
+      *              MOVE   GPI-SPC-SEMANGI(JDX)
+      *                                     TO  WSC11F-MANKI(IDX)
+      *              MOVE   GPI-SPC-PAY-TERM(JDX) 
+      *                                     TO  WSC11F-NAPKI(IDX)
+      *          ELSE
+      *              NEXT   SENTENCE
+      *       ELSE
+      *              DISPLAY 'STWSC11-ER(GIBKM:OK-MY-LIFE)===>'
+      *                  '/'  WSC11F-JNO
+      *                  '/'  WSC11F-TKCD(IDX)
+      *                  '/'  WSC11F-MANKI(IDX)
+      *                  '/'  WSC11F-NAPKI(IDX)
+      *     ELSE
+      *              NEXT   SENTENCE.
+      *****************************************************************
+
+KJS-E      IF       WSC11F-NAPBANG         =   5
+KJS-E               MOVE  1                TO  WSC11F-NAPKI(IDX)
+KJS-E      ELSE
+KJS-E               NEXT  SENTENCE.
+
+           IF       WSC11F-TKCD(IDX)       =   ZERO OR SPACE
+                    NEXT SENTENCE
+           ELSE
+                    ADD  WSC11F-BORYO(IDX) TO  WSC11F-HAPBORYO.
+
+           IF       WSC11F-BORYO(IDX)  NOT =   ZERO
+             IF    (WSC11F-TKCD(IDX)       =   SPACE) OR
+                   (WSC11F-TKCD(IDX)       =   ZERO)  OR
+                   (WSC11F-MANKI(IDX)      =   ZERO)  OR
+                   (WSC11F-NAPKI(IDX)      =   ZERO)  OR
+                   (WSC11F-BOKUM(IDX)      =   ZERO)
+                    DISPLAY 'STWSC11-ER(TKCD-DATA)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-BOJ
+                        '/'  IDX
+                        '/'  WSC11F-TKCD(IDX)
+                        '/'  WSC11F-MANKI(IDX)
+                        '/'  WSC11F-NAPKI(IDX)
+                        '/'  WSC11F-BOKUM(IDX)
+                        '/'  WSC11F-BORYO(IDX)
+                    ADD   1                TO  MAIN-RETURN-CODE
+             ELSE
+                    NEXT     SENTENCE
+           ELSE
+                    NEXT     SENTENCE.
+       6100-GIBKM-TKCD-200207-EXIT.        EXIT.
+      *****************************************************************
+       6100-GIBKM-TKCD-200208-RTN.
+      *****************************************************************
+           COMPUTE  JDX                    =   IDX  -  1.
+
+           IF       IDX                    =   1
+             IF     GPI-JU-BORYO       NOT =   ZERO
+               IF   GPI-JU-BOKEUM      NOT =   ZERO
+                    NEXT  SENTENCE
+               ELSE
+                    DISPLAY 'STWSC11-ER(JU-TKCD-BOKUM)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-BOJ
+                        '/'  GPI-JU-BOJONG
+                        '/'  GPI-JU-BOKEUM
+                    ADD   1                TO  MAIN-RETURN-CODE
+             ELSE
+                    NEXT  SENTENCE
+           ELSE
+             IF     GPI-SPC-BORYO(JDX)     NOT =   ZERO
+               IF   GPI-SPCA-SS-FULL(JDX)  NOT =   ZERO
+                    NEXT  SENTENCE
+               ELSE
+               IF   GPI-SPC-BOKEUM(JDX)    NOT =   ZERO
+                    DISPLAY 'STWSC11-WR(BU-TKCD-BOKUM-6100)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-BOJ
+                        '/'  GPI-SPC-BOJONG(JDX)
+                        '/'  GPI-SPCA-SS-FULL(JDX)
+                        '/'  GPI-SPC-BOKEUM(JDX)
+                    COMPUTE             GPI-SPCA-SS-FULL(JDX)
+                                 =      GPI-SPC-BOKEUM(JDX) * 1000
+               ELSE
+                    DISPLAY 'STWSC11-ER(BU-TKCD-BOKUM)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-BOJ
+                        '/'  GPI-SPC-BOJONG(JDX)
+                        '/'  GPI-SPCA-SS-FULL(JDX)
+                        '/'  GPI-SPC-BOKEUM(JDX)
+                    ADD   1                TO  MAIN-RETURN-CODE
+             ELSE
+                    NEXT  SENTENCE.
+
+           IF       IDX                    =   1
+                    MOVE  GPI-BOJONG       TO  WSC11F-TKCD(IDX)
+                    MOVE  GPI-BOP          TO  WSC11F-MANKI(IDX)
+                    MOVE  GPI-NAPGI        TO  WSC11F-NAPKI(IDX)
+                    COMPUTE                    WSC11F-BOKUM(IDX)
+                                           =   GPI-JU-BOKEUM
+                                           *   1000
+                    MOVE  GPI-JU-BORYO     TO  WSC11F-BORYO(IDX)
+           ELSE
+           IF      (GPI-SPCA-INS-TERM(JDX) =   ZERO)     OR
+                   (GPI-SPCA-PAY-TERM(JDX) =   ZERO)     OR
+                   (GPI-SPCA-INS-TERM(JDX) NOT NUMERIC)  OR
+                   (GPI-SPCA-PAY-TERM(JDX) NOT NUMERIC)
+                    MOVE  GPI-SPC-BOJONG(JDX)
+                                           TO  WSC11F-TKCD(IDX)
+                    MOVE  GPI-BOP          TO  WSC11F-MANKI(IDX)
+                    MOVE  GPI-NAPGI        TO  WSC11F-NAPKI(IDX)
+                    MOVE  GPI-SPCA-SS-FULL(JDX) 
+                                           TO  WSC11F-BOKUM(IDX)
+                    MOVE  GPI-SPC-BORYO(JDX)
+                                           TO  WSC11F-BORYO(IDX)
+           ELSE
+                    MOVE  GPI-SPC-BOJONG(JDX) 
+                                           TO  WSC11F-TKCD(IDX)
+                    MOVE  GPI-SPCA-INS-TERM(JDX)
+                                           TO  WSC11F-MANKI(IDX)
+                    MOVE  GPI-SPCA-PAY-TERM(JDX)
+                                           TO  WSC11F-NAPKI(IDX)
+                    MOVE  GPI-SPCA-SS-FULL(JDX) 
+                                           TO  WSC11F-BOKUM(IDX)
+                    MOVE  GPI-SPC-BORYO(JDX)
+                                           TO  WSC11F-BORYO(IDX).
+
+      *****************************************************************
+      *     IF       IDX                    =   1
+      *              MOVE  GPI-BOJONG       TO  WSC11F-TKCD(IDX)
+      *              MOVE  GPI-BOP          TO  WSC11F-MANKI(IDX)
+      *              MOVE  GPI-NAPGI        TO  WSC11F-NAPKI(IDX)
+      *              COMPUTE                    WSC11F-BOKUM(IDX)
+      *                                     =   GPI-JU-BOKEUM
+      *                                     *   1000
+      *              MOVE  GPI-JU-BORYO     TO  WSC11F-BORYO(IDX)
+      *     ELSE
+      *              MOVE  GPI-SPC-BOJONG(JDX)
+      *                                     TO  WSC11F-TKCD(IDX)
+      *              MOVE  GPI-SPCA-INS-TERM(JDX)
+      *                                     TO  WSC11F-MANKI(IDX)
+      *              MOVE  GPI-SPCA-PAY-TERM(JDX)
+      *                                     TO  WSC11F-NAPKI(IDX)
+      *              MOVE  GPI-SPCA-SS-FULL(JDX) 
+      *                                     TO  WSC11F-BOKUM(IDX)
+      *              MOVE  GPI-SPC-BORYO(JDX)
+      *                                     TO  WSC11F-BORYO(IDX).
+      *****************************************************************
+
+KJS-E      IF       WSC11F-NAPBANG         =   5
+KJS-E               MOVE  1                TO  WSC11F-NAPKI(IDX)
+KJS-E      ELSE
+KJS-E               NEXT  SENTENCE.
+
+           IF       WSC11F-TKCD(IDX)       =   ZERO OR SPACE
+                    NEXT SENTENCE
+           ELSE
+                    ADD  WSC11F-BORYO(IDX) TO  WSC11F-HAPBORYO.
+
+           IF       WSC11F-BORYO(IDX)  NOT =   ZERO
+             IF    (WSC11F-TKCD(IDX)       =   SPACE)  OR
+                   (WSC11F-TKCD(IDX)       =   ZERO)   OR
+                   (WSC11F-MANKI(IDX)  NOT NUMERIC)    OR
+                   (WSC11F-MANKI(IDX)      =   ZERO)   OR
+                   (WSC11F-NAPKI(IDX)      =   SPACE)  OR
+                   (WSC11F-NAPKI(IDX)  NOT NUMERIC)    OR
+                   (WSC11F-BOKUM(IDX)      =   ZERO)
+                    DISPLAY 'STWSC11-ER(6000-TKCD-DATA)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-BOJ
+                        '/'  IDX
+                        '/'  WSC11F-TKCD(IDX)
+                        '/'  WSC11F-MANKI(IDX)
+                        '/'  WSC11F-NAPKI(IDX)
+                        '/'  WSC11F-BOKUM(IDX)
+                        '/'  WSC11F-BORYO(IDX)
+                    ADD   1                TO  MAIN-RETURN-CODE
+             ELSE
+                    NEXT     SENTENCE
+           ELSE
+                    NEXT     SENTENCE.
+       6100-GIBKM-TKCD-200208-EXIT.        EXIT.
+      *****************************************************************
+       6100-PRE-GIBKM-TKCD-RTN.
+      *****************************************************************
+           IF      (WSC11F-CLOSE-DATEYM    =   200208  OR
+                                               200209)       AND
+                   (WSC11F-JNO             =   0931101475)   AND
+                   (WSC11F-TKCD(2)         =  '0603')
+                    MOVE   10              TO  WSC11F-NAPKI(2)
+                    MOVE   10000000        TO  WSC11F-BOKUM(2)
+                    DISPLAY 'STWSC11-WR(6100-PRE-GIBKM-TKCD-FIR)===>'
+                        '/'  WSC11F-CLOSE-DATEYM
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-BOJ
+                        '/'  WSC11F-TKCD(1)
+                        '/'  WSC11F-MANKI(1)
+                        '/'  WSC11F-NAPKI(1)
+                        '/'  WSC11F-BOKUM(1)
+                        '/'  WSC11F-BORYO(1)
+                        '/'  WSC11F-TKCD(2)
+                        '/'  WSC11F-MANKI(2)
+                        '/'  WSC11F-NAPKI(2)
+                        '/'  WSC11F-BOKUM(2)
+                        '/'  WSC11F-BORYO(2)
+                        '/'  WSC11F-TKCD(3)
+                        '/'  WSC11F-MANKI(3)
+                        '/'  WSC11F-NAPKI(3)
+                        '/'  WSC11F-BOKUM(3)
+                        '/'  WSC11F-BORYO(3)
+           ELSE
+                    NEXT   SENTENCE.
+
+           IF      (WSC11F-CLOSE-DATEYM    =   200208  OR
+                                               200209)      AND
+                   (WSC11F-JNO             =   0931101475)
+                    DISPLAY 'STWSC11-WR(6100-PRE-GIBKM-TKCD-SEC)===>'
+                        '/'  WSC11F-CLOSE-DATEYM
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-BOJ
+                        '/'  WSC11F-TKCD(1)
+                        '/'  WSC11F-MANKI(1)
+                        '/'  WSC11F-NAPKI(1)
+                        '/'  WSC11F-BOKUM(1)
+                        '/'  WSC11F-BORYO(1)
+                        '/'  WSC11F-TKCD(2)
+                        '/'  WSC11F-MANKI(2)
+                        '/'  WSC11F-NAPKI(2)
+                        '/'  WSC11F-BOKUM(2)
+                        '/'  WSC11F-BORYO(2)
+                        '/'  WSC11F-TKCD(3)
+                        '/'  WSC11F-MANKI(3)
+                        '/'  WSC11F-NAPKI(3)
+                        '/'  WSC11F-BOKUM(3)
+                        '/'  WSC11F-BORYO(3)
+           ELSE
+                    NEXT   SENTENCE.
+       6100-PRE-GIBKM-TKCD-EXIT.           EXIT.
+      *****************************************************************
+       6100-GIBKM-PIBOHUMJA-RTN.
+      *****************************************************************
+           MOVE     GPI-CAGE               TO  WSC11F-TAB-GNAI.
+           MOVE     ZERO                   TO  WSC11F-TAB-GSEX.
+           MOVE     GPI-IAGE               TO  WSC11F-TAB-PNAI.
+           MOVE     GPI-ISEX               TO  WSC11F-TAB-PSEX.
+           MOVE     A1-GROUP-AGE           TO  WSC11F-TAB-GROUP-NAI.
+           MOVE     A1-CAGE                TO  WSC11F-GYE-NAI.
+           MOVE     A1-CBIR                TO  WSC11F-GYE-JUMIN-NO1.
+           MOVE     A1-CRES                TO  WSC11F-GYE-JUMIN-NO2.
+           MOVE     A1-IAGE                TO  WSC11F-JUP-NAI.
+           MOVE     A1-IBIR                TO  WSC11F-JUP-JUMIN-NO1.
+           MOVE     A1-IRES                TO  WSC11F-JUP-JUMIN-NO2.
+           MOVE     A1-SINS-AGE1           TO  WSC11F-JOP-NAI.
+           MOVE     A1-SINS-BIR1           TO  WSC11F-JOP-JUMIN-NO1.
+           MOVE     A1-SINS-RES1           TO  WSC11F-JOP-JUMIN-NO2.
+           MOVE     A1-SINS-AGE2           TO  WSC11F-JAP-NAI.
+           MOVE     A1-SINS-BIR2           TO  WSC11F-JAP-JUMIN-NO1.
+           MOVE     A1-SINS-RES2           TO  WSC11F-JAP-JUMIN-NO2.
+
+           IF      (WSC11F-TAB-GROUP-NAI   =   ZERO)   AND
+                   (WSC11F-BOJ         NOT <  '9500')  AND
+                   (WSC11F-BOJ         NOT >  '9515')  AND
+                   (GPI-JU-SEQ             >  '49')
+             IF     WSC11F-JUP-SEX         =   1
+                    MOVE  35               TO  WSC11F-TAB-GROUP-NAI
+             ELSE
+             IF     WSC11F-JUP-SEX         =   2
+                    MOVE  25               TO  WSC11F-TAB-GROUP-NAI
+             ELSE
+                    DISPLAY 'STWSC11-ER(JUP-SEX)===>'
+                        '/'  WSC11F-JNO
+                        '/'  WSC11F-BOJ
+                        '/'  WSC11F-JUP-SEX
+                    ADD   1                TO  CNT-ERROR-GI
+                    STOP  RUN
+           ELSE
+                    NEXT  SENTENCE.
+       6100-GIBKM-PIBOHUMJA-EXIT.          EXIT.
+      *****************************************************************
+       9000-TERMINATE-RTN.
+      *****************************************************************
+           DISPLAY '***************************************'.
+           DISPLAY 'DA-UPJUKYM  ======>'   ACC-DA-UPJUKYM.
+           DISPLAY '***************************************'.
+           DISPLAY 'CNT-READ-GE       ==>'   CNT-READ-GE.
+           DISPLAY 'CNT-WRITE-GE      ==>'   CNT-WRITE-GE.
+           DISPLAY 'CNT-ERROR-GE      ==>'   CNT-ERROR-GE.
+           DISPLAY 'CNT-SKIP-GE       ==>'   CNT-SKIP-GE.
+           DISPLAY '***************************************'.
+           DISPLAY 'CNT-READ-PS       ==>'   CNT-READ-PS.
+           DISPLAY 'CNT-WRITE-PS      ==>'   CNT-WRITE-PS.
+           DISPLAY 'CNT-ERROR-PS      ==>'   CNT-ERROR-PS.
+           DISPLAY 'CNT-SKIP-PS       ==>'   CNT-SKIP-PS.
+           DISPLAY '***************************************'.
+           DISPLAY 'CNT-READ-PI       ==>'   CNT-READ-PI.
+           DISPLAY 'CNT-WRITE-PI      ==>'   CNT-WRITE-PI.
+           DISPLAY 'CNT-ERROR-PI      ==>'   CNT-ERROR-PI.
+           DISPLAY 'CNT-SKIP-PI       ==>'   CNT-SKIP-PI.
+           DISPLAY '***************************************'.
+           DISPLAY 'CNT-READ-GS       ==>'   CNT-READ-GS.
+           DISPLAY 'CNT-WRITE-GS      ==>'   CNT-WRITE-GS.
+           DISPLAY 'CNT-ERROR-GS      ==>'   CNT-ERROR-GS.
+           DISPLAY 'CNT-SKIP-GS       ==>'   CNT-SKIP-GS.
+           DISPLAY '***************************************'.
+           DISPLAY 'CNT-READ-GI       ==>'   CNT-READ-GI.
+           DISPLAY 'CNT-WRITE-GI      ==>'   CNT-WRITE-GI.
+           DISPLAY 'CNT-ERROR-GI      ==>'   CNT-ERROR-GI.
+           DISPLAY 'CNT-SKIP-GI       ==>'   CNT-SKIP-GI.
+           DISPLAY '***************************************'.
+
+           CLOSE    GEYAK-F
+                    JSINKYE-F
+                    PSIN-F
+                    PIBKM-F
+                    GSIN-F
+                    GIBKM-F
+                    OUTFIL-F.
+       9000-TERMINATE-EXIT.                EXIT.
+      *****************************************************************
+      *       B O T T O M       O F        P R O G R A M.             *
+      *****************************************************************

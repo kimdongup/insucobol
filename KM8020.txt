@@ -1,0 +1,100 @@
+//KERM8020 JOB (KER),'KER04',CLASS=G,MSGCLASS=X,MSGLEVEL=(1,1)          
+//STEP1 EXEC YCOBBAT,MBR=K11M8020                                       
+//COB.SYSIN DD *                                                        
+PROCESS TEST(STMT,SYM)                                                  
+      *=================================*                               
+       IDENTIFICATION          DIVISION.                                
+       PROGRAM-ID.             K11M8020.                                
+       ENVIRONMENT             DIVISION.                                
+       DATA                    DIVISION.                                
+       WORKING-STORAGE         SECTION.                                 
+      *------------ (2000.1. 9) ------*                                 
+       01  WK-REC.                                                      
+          02  MANGI-DATE              PIC 9(8).                         
+          02  NABGI-DATE              PIC 9(8).                         
+          02  NB                      PIC 9(2).                         
+          02  N1                      PIC 9(7).                         
+          02  N2                      PIC 9(7).                         
+          02  A-YMD                   PIC 9(8).                         
+          02  A-YMD-RE             REDEFINES     A-YMD.                 
+              03  A-YY                PIC 9(4).                         
+              03  A-MM                PIC 9(2).                         
+              03  A-DD                PIC 9(2).                         
+          02  Z-YMD                   PIC 9(8).                         
+          02  Z-RE                 REDEFINES     Z-YMD.                 
+              03  Z-YY                PIC 9(4).                         
+              03  Z-MM                PIC 9(2).                         
+              03  Z-DD                PIC 9(2).                         
+          02  M-YMD                   PIC 9(8).                         
+          02  M-YMD-RE             REDEFINES     M-YMD.                 
+             03  M-YM                 PIC 9(6).                         
+             03  M-DD                 PIC 9(2).                         
+       01  TABLE-DATE.                                                  
+           02  TAB-DATA.                                                
+               03  FILL  PIC X(24)   VALUE  '312831303130313130313031'. 
+           02  TAB-RE      REDEFINES    TAB-DATA.                       
+               03  TD      OCCURS  12    PIC 9(2).                      
+      *--------------------------------*                                
+       LINKAGE                 SECTION.                                 
+      *--------------------------------*                                
+       01  LNK-REC.                                                     
+          02  LNK-START-YMD           PIC 9(8).                         
+          02  LNK-END-YMD             PIC 9(8).                         
+          02  LNK-LNAB-YM             PIC 9(6).                         
+          02  LNK-NABBANG             PIC 9(1).                         
+          02  LNK-NABGI               PIC 9(2).                         
+          02  LNK-MANGI               PIC 9(2).                         
+          02  LNK-HOI                 PIC 9(3).                         
+          02  LNK-CODE                PIC 9(1).                         
+          02  LNK-OUT.                                                  
+             03  GNG-YM.                                                
+                 04  GNG-Y          PIC 9(2).                           
+                 04  GNG-M          PIC 9(2).                           
+             03  DIV-YM.                                                
+                 04  DIV-Y          PIC 9(2).                           
+                 04  DIV-M          PIC 9(2).                           
+             03  SHOI               PIC 9(3).                           
+             03  MIG                PIC 9(2).                           
+      *-----------------------------------------------------*           
+       PROCEDURE               DIVISION   USING  LNK-REC.               
+      *-----------------------------------------------------*           
+           MOVE     ZERO    TO  LNK-OUT  WK-REC.                        
+
+           IF LNK-NABBANG = 9   MOVE   ZERO        TO   NB  ELSE        
+           IF LNK-NABBANG = 8   MOVE   12          TO   NB  ELSE        
+                                MOVE   LNK-NABBANG TO   NB.             
+
+           MOVE    LNK-END-YMD         TO       Z-YMD.                  
+           MOVE    LNK-START-YMD       TO       A-YMD.                  
+           MOVE    LNK-LNAB-YM         TO       M-YM.                   
+           MOVE    A-DD                TO       M-DD.                   
+
+           COMPUTE  MANGI-DATE = LNK-START-YMD + LNK-MANGI * 10000.     
+           COMPUTE  NABGI-DATE = LNK-START-YMD + LNK-NABGI * 10000.     
+           IF  Z-YMD > MANGI-DATE    MOVE  MANGI-DATE  TO  Z-YMD.       
+           IF NOT (LNK-HOI * NB  < LNK-NABGI * 12)                      
+               IF  NOT  NABGI-DATE  >  Z-YMD                            
+                                MOVE   9   TO   LNK-CODE
+                  IF LNK-HOI * NB  > LNK-NABGI * 12                     
+                        COMPUTE  LNK-HOI = LNK-NABGI * 12 / NB.         
+
+           IF   LNK-CODE  < 8
+              IF   M-YMD < Z-YMD     MOVE   M-YMD   TO  Z-YMD.
+
+           IF   Z-DD < A-DD
+             IF   Z-DD < TD(Z-MM)
+                     SUBTRACT  1   FROM  Z-MM.
+
+           COMPUTE  N1 = (Z-YY - A-YY) * 12 + Z-MM - A-MM.              
+           MOVE     N1        TO    N2.                                 
+           DIVIDE  N1  BY  12  GIVING  GNG-Y   REMAINDER  GNG-M.        
+           MOVE    GNG-Y       TO      DIV-Y.
+           MOVE    GNG-M       TO      DIV-M.
+           IF   LNK-CODE  <  9         ADD     1    TO   GNG-M.
+           IF   LNK-CODE  <  8                                          
+             IF  GNG-Y * 12 + GNG-M  <  LNK-HOI    * NB                 
+                    COMPUTE  N2 = (LNK-HOI * NB) - (GNG-Y * 12 + GNG-M) 
+                    DIVIDE   N2  BY  NB  GIVING  SHOI REMAINDER  MIG    
+           ELSE     MOVE     ZERO    TO  SHOI      MIG.                 
+       999-RETURN.                                                      
+           GOBACK.                                                      

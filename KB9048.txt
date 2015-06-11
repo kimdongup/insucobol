@@ -1,0 +1,38 @@
+//KERB9048 JOB (KER),'KER00',CLASS=G,MSGCLASS=X,MSGLEVEL=(1,1)          
+//S1 EXEC YSRCCAT,MBR=K00B9048                                          
+//C.SYSUT1 DD *                                                         
+           02  KI-JEUNGBEON              PIC 9(7).                      
+           02  KI-BOJONG                 PIC 9(4).                      
+           02  KI-BOJONG-T               PIC 9(4).                      
+           02  KI-BSMG                   PIC 9(2).                      
+           02  KI-GYE-YMD               PIC 9(8).                       
+           02  KI-GYE-YMD-RE           REDEFINES   KI-GYE-YMD.          
+               03  KI-GYE-YY             PIC 9(4).                      
+               03  KI-GYE-MM             PIC 9(2).                      
+               03  KI-GYE-DD             PIC 9(2).                      
+           02  KI-BAL-YMD               PIC 9(8).                       
+           02  KI-BAL-YMD-RE           REDEFINES   KI-BAL-YMD.          
+               03  KI-BAL-YY             PIC 9(4).                      
+               03  KI-BAL-MM             PIC 9(2).                      
+               03  KI-BAL-DD             PIC 9(2).                      
+           02  KI-DIV-YM                 PIC 9(4).                      
+           02  KI-DIV-YM-RE           REDEFINES   KI-DIV-YM.            
+               03  KI-DIV-YY             PIC 9(2).                      
+               03  KI-DIV-MM             PIC 9(2).                      
+           02  KI-JIGB-YMD               PIC 9(8).                      
+           02  KI-JIGB-YMD-RE         REDEFINES   KI-JIGB-YMD.          
+               04  KI-JIGB-YM            PIC 9(6).                      
+               04  KI-JIGB-YM-RE      REDEFINES   KI-JIGB-YM.           
+                   05  KI-JIGB-YY        PIC 9(4).                      
+                   05  KI-JIGB-MM        PIC 9(2).                      
+               04  KI-JIGB-DD            PIC 9(2).                      
+           02  KI-CODE                   PIC 9(1).                      
+           02  KI-IYUL                   PIC 9(4).                      
+           02  KI-HG-WON                 PIC S9(9)     COMP-3.          
+           02  KI-SH-WON                 PIC S9(9)     COMP-3.          
+           02  KI-IH-WON                 PIC S9(9)     COMP-3.          
+           02  KI-JG-WON                 PIC S9(9)     COMP-3.          
+           02  KI-HG-WONRI               PIC S9(9)     COMP-3.          
+           02  KI-SH-WONRI               PIC S9(9)     COMP-3.          
+           02  KI-IH-WONRI               PIC S9(9)     COMP-3.          
+           02  KI-JG-WONRI               PIC S9(9)     COMP-3.          

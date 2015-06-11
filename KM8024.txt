@@ -1,0 +1,740 @@
+//KERM8024 JOB (KER),'KER00',CLASS=S,MSGCLASS=X,MSGLEVEL=(1,1)          
+//STEP1 EXEC YCOBBAT,MBR=K00M8024                                       
+//COB.SYSIN DD *                                                        
+PROCESS TEST(STMT,SYM)                                                  
+      *===============================================*                 
+      *= 하나로（태평양）다기능　보험료적립금　계산=*               
+      *===============================================*                 
+       IDENTIFICATION        DIVISION.                                  
+       PROGRAM-ID.           K00M8024.                                  
+       ENVIRONMENT           DIVISION.                                  
+       DATA                  DIVISION.                                  
+       WORKING-STORAGE       SECTION.                                   
+      *=====================================*                           
+       01  REC-WORK.                                                    
+991125   02  EDAILL                      PIC 9(8).                      
+  .      02  EDAILL-RE                REDEFINES    EDAILL.              
+  .          03  EDA-YY                  PIC 9(4).                      
+  .          03  EDA-MM                  PIC 9(2).                      
+  .          03  EDA-DD                  PIC 9(2).                      
+  .      02  WKILL                       PIC 9(8).                      
+  .      02  WKILL-RE                 REDEFINES    WKILL.               
+  .          03  YY                      PIC 9(4).                      
+  .          03  MM                      PIC 9(2).                      
+  .          03  DD                      PIC 9(2).                      
+         02  WK-ENGDANG-YMD             PIC 9(8).                       
+         02  WK-ENGDANG-YMD-RE       REDEFINES    WK-ENGDANG-YMD.       
+             03  WK-ENGDANG-YY           PIC 9(4).                      
+             03  WK-ENGDANG-MM           PIC 9(2).                      
+             03  WK-ENGDANG-DD           PIC 9(2).                      
+         02  WK-NABIB-YMD               PIC 9(8).                       
+         02  WK-NABIB-YMD-RE         REDEFINES    WK-NABIB-YMD.         
+             03  WK-NABIB-YY             PIC 9(4).                      
+             03  WK-NABIB-MM             PIC 9(2).                      
+             03  WK-NABIB-DD             PIC 9(2).                      
+         02  WK-JIGB-YMD                PIC 9(8).                       
+         02  WK-JIGB-YMD-RE          REDEFINES    WK-JIGB-YMD.          
+             03  WK-JIGB-YY              PIC 9(4).                      
+             03  WK-JIGB-MM              PIC 9(2).                      
+             03  WK-JIGB-DD              PIC 9(2).                      
+         02  WK-NEXT-YMD                PIC 9(8).                       
+         02  WK-NEXT-YMD-RE          REDEFINES    WK-NEXT-YMD.          
+             03  WK-NEXT-YY              PIC 9(4).                      
+             03  WK-NEXT-MM              PIC 9(2).                      
+             03  WK-NEXT-DD              PIC 9(2).                      
+         02  WK-YEAREND-YMD             PIC 9(8).                       
+         02  WK-YEAREND-YMD-RE       REDEFINES    WK-YEAREND-YMD.       
+             03  WK-YEAREND-YY           PIC 9(4).                      
+             03  WK-YEAREND-MM           PIC 9(2).                      
+             03  WK-YEAREND-DD           PIC 9(2).                      
+         02  WK-FROM-DATE                PIC 9(8).                      
+         02  WK-FROM-DATE-RE          REDEFINES    WK-FROM-DATE.        
+             03  WK-FROM-YY              PIC 9(4).                      
+             03  WK-FROM-MM              PIC 9(2).                      
+             03  WK-FROM-DD              PIC 9(2).                      
+         02  WK-TO-DATE                  PIC 9(8).                      
+         02  WK-TO-DATE-RE            REDEFINES    WK-TO-DATE.          
+             03  WK-TO-YY                PIC 9(4).                      
+             03  WK-TO-MM                PIC 9(2).                      
+             03  WK-TO-DD                PIC 9(2).                      
+         02  WK-SILHYO-YMD              PIC 9(8).                       
+         02  WK-SILHYO-YMD-RE        REDEFINES    WK-SILHYO-YMD.        
+             03  WK-SILHYO-YY            PIC 9(4).                      
+             03  WK-SILHYO-MM            PIC 9(2).                      
+             03  WK-SILHYO-DD            PIC 9(2).                      
+         02  WK-YMD                     PIC 9(8).                       
+         02  WK-YMD-RE               REDEFINES    WK-YMD.               
+             03  WK-YY                   PIC 9(4).                      
+             03  WK-MM                   PIC 9(2).                      
+             03  WK-DD                   PIC 9(2).                      
+                                                                        
+         02  Z                           PIC 9(1).                      
+         02  C                           PIC 9(2).                      
+         02  H                           PIC 9(1).                      
+         02  I                           PIC 9(1).                      
+         02  J                           PIC 9(1).                      
+         02  M                           PIC S9(5).                     
+         02  HH                          PIC 9(3).                      
+         02  II                          PIC 9(3).                      
+         02  JJ                          PIC 9(3).                      
+         02  M1                          PIC 9(3).                      
+         02  M2                          PIC 9(4).                      
+         02  KK                          PIC 9(3).                      
+         02  LL                          PIC 9(3).                      
+         02  PP                          PIC 9(3).                      
+         02  SW                          PIC X(3).                      
+         02  YM-SW                       PIC 9(1).                      
+         02  IJA2                        PIC 9V9(4).                    
+         02  IJA                         PIC 9V9(4).                    
+         02  NB                          PIC 9(2).                      
+         02  YXXX                        PIC ZZZZ,ZZZ,ZZ9.              
+         02  W-WON-GM                    PIC ZZZZZZZZZZ.ZZZZZZZ.        
+         02  W-GM                        PIC ZZZZZZZZZZ.ZZZZZZZ.        
+         02  ZJA                         PIC ZZ.ZZZZZZ.                 
+         02  W-YY                        PIC ZZ.ZZZZZZ.                 
+         02  WK-ILSU                     PIC S9(7).                     
+         02  WK-1YEAR                    PIC S9(3).                     
+         02  WK-ALPHA                    PIC S9(5).                     
+         02  WK-IYUL                     PIC 9V9(4).                    
+991125   02  IU                          PIC  9(7).                     
+  .      02  SA                          PIC  9(9).                     
+  .      02  WK-VT-TT1                   PIC S9(9).                     
+  .      02  WK-VT-YY1                   PIC S9(9).                     
+  .      02  WK-VT-TT2                   PIC S9(9).                     
+  .      02  WK-VT-YY2                   PIC S9(9).                     
+  .      02  WK-WT-TT1                   PIC S9(9).                     
+  .      02  WK-WT-YY1                   PIC S9(9).                     
+  .      02  WONRI-GM2                   PIC Z,ZZZ,ZZZ,ZZ9.             
+  .      02  WONRI-GM1                   PIC S9(9)V9(7).                
+         02  GIGAN-IYUL                  PIC S9(4)V9(9).                
+         02  WK-BOLYO                    PIC 9(9)V9(7).                 
+991125   02  VT-BOLYO                    PIC S9(7)V9(1).                
+         02  KG-BOLYO                    PIC 9(7)V9(1).                 
+         02  WK-PURE-PT                  PIC 9(8)V9(3).                 
+991125   02  WONRI-GM                    PIC S9(8)V9(7).                
+  .      02  WON-GM                      PIC S9(8)V9(7).                
+         02  WK-IJA                      PIC 9(5)V9(5).                 
+         02  VT-CHUGA-IJA                PIC 9(7).                      
+         02  WK-HABGYE-VT                PIC S9(8)V9(5).                
+         02  WK-GIBONGM-YEAR             PIC S9(8)V9(5).                
+         02  WK-VT-YEAR                  PIC S9(8)V9(5).                
+991125   02  VT-YEAR                     PIC S9(9)V9(7).                
+  .      02  IJAS                        PIC S9(7)V9(7).                
+         02  WK-JEOKRIB-BOLYO-ADD.                                      
+             03  JEOKRIB-MI-BOLYO        PIC S9(7)V9(7).                
+             03  JEOKRIB-IJA             PIC S9(7)V9(7).                
+             03  JEOKRIB-BOLYO           PIC S9(7)V9(7).                
+991125       03  JEOKRIB-P               PIC Z,ZZZ,ZZZ,ZZ9.             
+         02  YUN-YEAR-CHECK              PIC 9(4).                      
+             88  YUN-YEAR89       VALUE  1980  1984  1988               
+                                         1992  1996  2000.              
+       01  REC-GIGAN.                                                   
+           02  FROM-DATE.                                               
+               03  FROM-YY               PIC 9(4).                      
+               03  FROM-MM               PIC 9(2).                      
+               03  FROM-DD               PIC 9(2).                      
+           02  TO-DATE.                                                 
+               03  TO-YY                 PIC 9(4).                      
+               03  TO-MM                 PIC 9(2).                      
+               03  TO-DD                 PIC 9(2).                      
+           02  TAB-GIGAN                 PIC S9(5).                     
+           02  TAB-SW                    PIC 9(1).                      
+      ****************************************************************  
+       01  PREMIUM-TABLE-CHANGE.                                        
+         02  PREMIUM-TABLE1.                                            
+ 5- 9      03 FILL PIC X(30) VALUE '000000000000000000000000067737'.    
+    5      03 FILL PIC X(30) VALUE '001341003998007925015574000000'.    
+ 7- 9      03 FILL PIC X(30) VALUE '000000000000000000000000076258'.    
+    5      03 FILL PIC X(30) VALUE '001509004501008922017533000000'.    
+    7      03 FILL PIC X(30) VALUE '001153003438006815013393000000'.    
+10- 9      03 FILL PIC X(30) VALUE '000000000000000000000000077796'.    
+    5      03 FILL PIC X(30) VALUE '001540004592009102017887000000'.    
+   10      03 FILL PIC X(30) VALUE '000908002707005365010543000000'.    
+15- 9      03 FILL PIC X(30) VALUE '000000000000000000000000099565'.    
+    5      03 FILL PIC X(30) VALUE '001971005877011649022892000000'.    
+   10      03 FILL PIC X(30) VALUE '001162003464006866013493000000'.    
+20- 9      03 FILL PIC X(30) VALUE '000000000000000000000000103753'.    
+    5      03 FILL PIC X(30) VALUE '002054006124012139023855000000'.    
+   10      03 FILL PIC X(30) VALUE '001210003610007155014061000000'.    
+         02  PREMIUM-TABLE2.                                            
+ 5- 9      03 FILL PIC X(30) VALUE '000000000000000000000000070229'.    
+    5      03 FILL PIC X(30) VALUE '001360004060008057015868000000'.    
+ 7- 9      03 FILL PIC X(30) VALUE '000000000000000000000000079847'.    
+    5      03 FILL PIC X(30) VALUE '001547004616009160018041000000'.    
+    7      03 FILL PIC X(30) VALUE '001172003498006941013670000000'.    
+10- 9      03 FILL PIC X(30) VALUE '000000000000000000000000082935'.    
+    5      03 FILL PIC X(30) VALUE '001607004795009515018739000000'.    
+   10      03 FILL PIC X(30) VALUE '000929002772005500010833000000'.    
+15- 9      03 FILL PIC X(30) VALUE '000000000000000000000000109717'.    
+    5      03 FILL PIC X(30) VALUE '002125006343012587024790000000'.    
+   10      03 FILL PIC X(30) VALUE '001229003667007276014331000000'.    
+20- 9      03 FILL PIC X(30) VALUE '000000000000000000000000116160'.    
+    5      03 FILL PIC X(30) VALUE '002250006715013326026246000000'.    
+   10      03 FILL PIC X(30) VALUE '001301003882007704015172000000'.    
+       01  TABLE-PREMIUM       REDEFINES  PREMIUM-TABLE-CHANGE.         
+         02  PR-TAB-OC         OCCURS   2  TIMES.                       
+           03  PR-TAB-GU       OCCURS  14  TIMES.                       
+             04  PR-TB         OCCURS   5  TIMES   PIC 9(6).            
+       01  TA-IYUL-CHANGE.                                              
+        02  TA-IYUL-CH1.                                                
+         03 FILL PIC X(17) VALUE '19981015-19990201'.                   
+         03 FILL PIC X(36) VALUE '-06500-10500-11000-11500-12000-12500'.
+         03 FILL PIC X(17) VALUE '19990201-19990501'.                   
+         03 FILL PIC X(36) VALUE '-06500-08000-08500-09000-09500-10000'.
+         03 FILL PIC X(17) VALUE '19990501-99999999'.                   
+         03 FILL PIC X(36) VALUE '-06500-07000-07500-08000-08500-09000'.
+        02  TA-IYUL-CH2.                                                
+         03 FILL PIC X(17) VALUE '19990401-19990501'.                   
+         03 FILL PIC X(36) VALUE '-05000-08000-08500-09000-09500-10000'.
+         03 FILL PIC X(17) VALUE '19990501-99999999'.                   
+         03 FILL PIC X(36) VALUE '-05000-07000-07500-08000-08500-09000'.
+         03 FILL PIC X(17) VALUE '19990501-99999999'.                   
+         03 FILL PIC X(36) VALUE '-05000-07000-07500-08000-08500-09000'.
+       01  TA-IYUL-RE             REDEFINES    TA-IYUL-CHANGE.          
+         02  TA-IYULCH-OC         OCCURS   2   TIMES.                   
+           03  TA-IYUL-YMD-OC     OCCURS   3   TIMES.                   
+               04  TA-F-YMD              PIC 9(8).                      
+               04  FILLER                 PIC X(1).                     
+               04  TA-T-YMD              PIC 9(8).                      
+               04  TA-IYUL-OC     OCCURS   6   TIMES.                   
+                   05  FILLER             PIC  X(1).                    
+                   05  TA-IYUL            PIC  9(5).                    
+      *================================*                                
+       LINKAGE                 SECTION.                                 
+      *================================*                                
+       01  REC-7600.                                                    
+                         COPY  K00B9007.                                
+       EJECT                                                            
+      *========================================================*        
+       PROCEDURE               DIVISION     USING    REC-7600.          
+      *========================================================*        
+      *+++++++++*                                                       
+       000-BODY.                                                        
+      *+++++++++*                                                       
+           MOVE    ZERO    TO     KG-VT-TT       KG-WT-TT               
+                                  KG-SEON-BOLYO  KG-SEON-IJA            
+                                  KG-WT-YY       KG-VT-YY.              
+           MOVE    ZERO    TO     REC-WORK       KG-ILSU  REC-GIGAN.    
+      *--------------------------------------------------------------*  
+           IF  KG-GYE-YMD  >  19990331   MOVE   2   TO   Z              
+           ELSE                          MOVE   1   TO   Z.             
+           MOVE    KG-GYE-YMD  TO      WK-YMD.                          
+           PERFORM         090-YMD-MAKE.                                
+      *--------------------------------------------------------------*  
+           PERFORM         091-IYUL-SEARCH.                             
+           MOVE     1      TO       LL.                                 
+           PERFORM         990-BOLYO-SEARCH.                            
+           IF   KG-NABBANG (1)  =  9                                    
+                      PERFORM      100-ILSINAB-CONTROL                  
+           ELSE       PERFORM      200-JEONGINAB-CONTROL.               
+991125     MOVE   ZERO   TO   JEOKRIB-BOLYO.                            
+  .        PERFORM   300-DAMOKJEOK-CONTROL.                             
+  .        PERFORM   300-MATCH-RTN.                                     
+           GOBACK.                                                      
+      *------------*                                                    
+       090-YMD-MAKE.                                                    
+      *------------*                                                    
+           MOVE      WK-YMD            TO   WK-YEAREND-YMD.             
+           ADD       1                  TO   WK-YEAREND-YY.             
+           MOVE      WK-YEAREND-YY      TO   YUN-YEAR-CHECK.            
+           IF  WK-YEAREND-MM  = 2  AND  WK-YEAREND-DD = 29              
+               IF   YUN-YEAR89          MOVE    29  TO  WK-YEAREND-DD   
+               ELSE                     MOVE    28  TO  WK-YEAREND-DD.  
+           MOVE      WK-YMD            TO   FROM-DATE.                  
+           MOVE      WK-YEAREND-YMD    TO   TO-DATE.                    
+           MOVE         1               TO   TAB-SW.                    
+           PERFORM   900-GIGAN-COMPUTE.                                 
+           MOVE      TAB-GIGAN          TO   WK-1YEAR.                  
+           IF        TAB-GIGAN  > 365                                   
+                     MOVE      365      TO   WK-1YEAR.                  
+      *----------------*                                                
+       091-IYUL-SEARCH.                                                 
+      *----------------*                                                
+           IF  KG-GUBUN  =  1 OR 4          MOVE  6   TO  H             
+           ELSE                                                         
+              IF  KG-PAST-YY  =  ZERO       MOVE  1   TO  H   ELSE      
+              IF  KG-PAST-YY  =   1         MOVE  2   TO  H   ELSE      
+              IF  KG-PAST-YY  =   2         MOVE  3   TO  H   ELSE      
+              IF  KG-PAST-YY  =   3         MOVE  4   TO  H   ELSE      
+              IF  KG-PAST-YY  =   4         MOVE  5   TO  H   ELSE      
+                                            MOVE  6   TO  H.            
+           MOVE    ZERO    TO     C.                                    
+           PERFORM    091-1-SEARCH.                                     
+      *------------*                                                    
+       091-1-SEARCH.                                                    
+      *------------*                                                    
+           ADD         1       TO      C.                               
+           IF  KG-GYE-YMD > TA-T-YMD(Z C)   GO   TO   091-1-SEARCH.     
+           MOVE    TA-IYUL(Z C H)               TO        KG-IYUL.      
+           DIVIDE  TA-IYUL(Z C H)  BY  100000   GIVING    IJA2.         
+           IF  KG-GYE-YMD  >  19990331                                  
+                      DIVIDE  6500  BY  100000  GIVING  WK-IYUL         
+           ELSE                                                         
+                      DIVIDE  7500  BY  100000  GIVING  WK-IYUL.        
+      *====================*                                            
+       100-ILSINAB-CONTROL.                                             
+      *====================*                                            
+           MOVE     'BUR'                        TO   SW.               
+           MOVE     VT-BOLYO                     TO   WON-GM.           
+           MOVE     KG-NABIB-YMD (1)            TO   WK-FROM-DATE.      
+           IF  WK-YEAREND-YMD > KG-JIGB-YMD                             
+                    MOVE       KG-JIGB-YMD      TO   WK-TO-DATE         
+                    PERFORM    910-SIMPLE-BURI                          
+           ELSE     MOVE       WK-YEAREND-YMD   TO   WK-TO-DATE         
+                    MOVE       1                 TO   YM-SW             
+                    PERFORM    910-SIMPLE-BURI                          
+                    MOVE       KG-JIGB-YMD      TO   WK-JIGB-YMD        
+                    PERFORM    920-COMPOUND-BURI.                       
+                                                                        
+991125     COMPUTE  WK-VT-TT1   ROUNDED = WONRI-GM   * KG-BOGEUM / 100. 
+  .        MOVE     WK-VT-TT1   TO    WK-WT-TT1.                        
+  .        COMPUTE  WK-VT-YY1   ROUNDED = WK-VT-YEAR * KG-BOGEUM / 100. 
+  .        MOVE     WK-VT-YY1   TO    WK-WT-YY1.                        
+      *++++++++++++++++++++++*                                          
+       200-JEONGINAB-CONTROL.                                           
+      *++++++++++++++++++++++*                                          
+           IF KG-GUBUN > 2        PERFORM  290-SILHYO-CHECK.            
+           PERFORM  210-JEONGINAB-CHEORI   VARYING  LL    FROM 1  BY 1  
+                                           UNTIL  LL > KG-SEG-CNT.      
+           COMPUTE  KG-SEON-BOLYO  ROUNDED  =  JEOKRIB-MI-BOLYO         
+                                            *  KG-BOGEUM  /  100.       
+           COMPUTE  KG-SEON-IJA    ROUNDED  =  JEOKRIB-IJA              
+                                            *  KG-BOGEUM  /  100.       
+991125     COMPUTE  WK-VT-TT1      ROUNDED  =  JEOKRIB-BOLYO            
+                                            *  KG-BOGEUM  /  100.       
+991125     COMPUTE  WK-VT-YY1      ROUNDED  =  WK-VT-YEAR               
+                                            *  KG-BOGEUM  /  100.       
+      *-------------------------------------------------------*         
+           IF   KG-MANGI  =   5      MOVE   3600  TO  WK-ALPHA  ELSE    
+           IF   KG-MANGI  =   7      MOVE   7300  TO  WK-ALPHA  ELSE    
+           IF   KG-MANGI  =  10      MOVE   7600  TO  WK-ALPHA  ELSE    
+           IF   KG-MANGI  =  15      MOVE   9800  TO  WK-ALPHA  ELSE    
+                                     MOVE  10400  TO  WK-ALPHA.         
+           IF   KG-NABGI  > 7                                           
+              IF   KG-GUBUN = 1 OR 2 MOVE  7  TO  KG-NABGI.             
+           IF   KG-NABGI  > 7                                           
+              IF   KG-PAST-YM > 212  MOVE  7  TO  KG-NABGI.             
+                                                                        
+           COMPUTE  PP = (KG-NABGI - KG-PAST-YY) * 12 - KG-PAST-MM.     
+           COMPUTE  LL = (KG-NABGI - KG-PAST-YY) * 12.                  
+           COMPUTE  KK =  KG-NABGI * 12.                                
+      *-------------------------------------------------------*         
+           IF  KG-GUBUN = 1 OR  KG-PAST-YY  NOT <  KG-NABGI             
+                  MOVE       ZERO      TO      PP   LL.                 
+           COMPUTE  WK-HABGYE-VT   ROUNDED  =  JEOKRIB-BOLYO            
+                                            -  (WK-ALPHA * PP / KK).    
+           COMPUTE  WK-WT-TT1      ROUNDED  =  WK-HABGYE-VT             
+                                            *  KG-BOGEUM / 100.         
+           IF  WK-VT-YEAR  >  ZERO                                      
+               COMPUTE WK-VT-YEAR ROUNDED   =  WK-VT-YEAR               
+                                            - (WK-ALPHA * LL / KK)      
+           ELSE   MOVE       ZERO      TO      WK-VT-YEAR.              
+991125     COMPUTE  WK-WT-YY1   ROUNDED     =  WK-VT-YEAR               
+                                            *  KG-BOGEUM / 100.         
+      *++++++++++++++++++++++*                                          
+991125 300-DAMOKJEOK-CONTROL.                                           
+      *++++++++++++++++++++++*                                          
+           IF KG-GUBUN > 2    PERFORM    290-SILHYO-CHECK.              
+           COMPUTE  KG-SEG-CNT  =  KG-PAST-YY *  2.                     
+           IF  KG-PAST-MM  >  5    ADD  1  TO  KG-SEG-CNT.              
+           PERFORM  300-DAMOKJEOK-CHEORI THRU 300-EXIT  VARYING  LL     
+                                FROM 1 BY 1  UNTIL  LL > KG-SEG-CNT.    
+           COMPUTE  WK-VT-TT2      ROUNDED  =  JEOKRIB-BOLYO * 1.       
+           COMPUTE  WK-VT-YY2      ROUNDED  =  VT-YEAR       * 1.       
+      *====================*                                            
+991125 300-DAMOKJEOK-CHEORI.                                            
+      *====================*                                            
+           MOVE     ZERO                  TO   YM-SW.                   
+           PERFORM    990-BOLYO-SEARCH.                                 
+           IF   KG-MANGI  =  5 OR 7                                     
+             IF   LL  <  2   MOVE   ZERO   TO   VT-BOLYO                
+             ELSE            COMPUTE  VT-BOLYO  =  ZERO  -  SA          
+           ELSE  IF   KG-MANGI  =  10                                   
+             IF   LL  <  4   MOVE   ZERO   TO   VT-BOLYO                
+             ELSE            COMPUTE  VT-BOLYO  =  ZERO  -  SA          
+           ELSE                                                         
+             IF   LL  <  6   MOVE   ZERO   TO   VT-BOLYO                
+             ELSE            COMPUTE  VT-BOLYO  =  ZERO  -  SA.         
+           PERFORM  300-HAEDANGIL-CHECK.                                
+           MOVE  EDAILL  TO  KG-NABIB-YMD(LL).                          
+           COMPUTE  IU = (KG-NABIB-YY(LL) - KG-GYE-YY) * 12             
+                       + KG-NABIB-MM(LL) - KG-GYE-MM.                   
+           IF  KG-NABIB-DD(LL) < KG-GYE-DD                              
+                                SUBTRACT   1   FROM  IU.                
+           DIVIDE   IU  BY 12 GIVING  M1 REMAINDER   M2.                
+991125     MOVE     KG-NABIB-YMD(LL)    TO    WK-YMD.                   
+           COMPUTE  YY  =   KG-GYE-YY + M1.                             
+           PERFORM  090-YMD-MAKE.                                       
+           MOVE     VT-BOLYO       TO   WON-GM.                         
+                                                                        
+991125     PERFORM      300-DAMOKJEOK-COMPUTE.                          
+                                                                        
+           COMPUTE    VT-YEAR        =   VT-YEAR       +  WONRI-GM1.    
+           COMPUTE    JEOKRIB-BOLYO  =   JEOKRIB-BOLYO +  WONRI-GM.     
+           MOVE       WONRI-GM       TO  WONRI-GM2.                     
+           MOVE       JEOKRIB-BOLYO  TO  JEOKRIB-P.                     
+           MOVE       ZERO           TO  IJAS  KG-CODE  WONRI-GM1.      
+       300-EXIT.    EXIT.                                               
+      *--------------*                                                  
+991125 300-MATCH-RTN.                                                   
+      *--------------*                                                  
+           COMPUTE  KG-VT-TT   =   WK-VT-TT1  +  WK-VT-TT2.             
+           COMPUTE  KG-WT-TT   =   WK-WT-TT1  +  WK-VT-TT2.             
+           COMPUTE  KG-VT-YY   =   WK-VT-YY1  +  WK-VT-YY2.             
+           COMPUTE  KG-WT-YY   =   WK-WT-YY1  +  WK-VT-YY2.             
+      *====================*                                            
+       210-JEONGINAB-CHEORI.                                            
+      *====================*                                            
+           MOVE     ZERO                   TO    YM-SW.                 
+           IF  KG-NABBANG (LL) NOT  =  KG-NABBANG(1)                    
+                      PERFORM          990-BOLYO-SEARCH.                
+      *-----------------------------------------------------------*     
+           IF    KG-NABBANG(LL) =  8                                    
+                    MOVE   12               TO    NB                    
+           ELSE     MOVE   KG-NABBANG(LL)   TO    NB.                   
+           COMPUTE  WK-ILSU  = ( KG-GYE-YY * 12  + KG-GYE-MM)           
+                             + (NB * (KG-NABIB-HOI(LL) - 1)).           
+           DIVIDE   WK-ILSU    BY  12   GIVING    WK-ENGDANG-YY         
+                                     REMAINDER    WK-ENGDANG-MM.        
+           IF    WK-ENGDANG-MM   =   ZERO                               
+                    MOVE       12        TO   WK-ENGDANG-MM             
+                    SUBTRACT    1      FROM   WK-ENGDANG-YY.            
+           MOVE     KG-GYE-DD            TO   WK-ENGDANG-DD.            
+           MOVE     WK-ENGDANG-YY        TO   YUN-YEAR-CHECK.           
+           IF  KG-GYE-DD  >  28                                         
+               IF  WK-ENGDANG-MM  = 02                                  
+                   IF  YUN-YEAR89   MOVE   29   TO  WK-ENGDANG-DD       
+                   ELSE             MOVE   28   TO  WK-ENGDANG-DD.      
+           IF  KG-GYE-DD  =  31                                         
+               IF  WK-ENGDANG-MM  = 04 OR 06 OR 09 OR 11                
+                                    MOVE   30   TO  WK-ENGDANG-DD.      
+      *--------------------------------------------------------------*  
+           IF  KG-NABIB-YMD(LL)     <  WK-ENGDANG-YMD                   
+                      PERFORM          221-SEONNAB-WOL                  
+           ELSE       MOVE     VT-BOLYO   TO    WON-GM.                 
+           COMPUTE WK-ILSU = ( KG-NABIB-YY(LL) - KG-GYE-YY) * 12        
+                           + KG-NABIB-MM(LL) - KG-GYE-MM.               
+           IF    KG-NABIB-DD (LL)  <  KG-GYE-DD                         
+                    SUBTRACT        1     FROM   WK-ILSU.               
+           DIVIDE   WK-ILSU    BY  12   GIVING   M1   REMAINDER   M2.   
+           MOVE     KG-GYE-YMD          TO    WK-YMD.                   
+           IF    M1  > ZERO                                             
+                 COMPUTE  WK-YY  =  KG-GYE-YY + M1.                     
+           PERFORM            090-YMD-MAKE.                             
+                                                                        
+           MOVE       WON-GM     TO     KG-ILSU   WK-PURE-PT.           
+      *--------------------------------------------------------------*  
+           IF   WK-ENGDANG-YMD  >  KG-JIGB-YMD                          
+                      PERFORM      212-SEONIJA-COMPUTE                  
+           ELSE       PERFORM      211-JUNBIGM-COMPUTE.                 
+           IF   YM-SW  >  ZERO                                          
+                      COMPUTE  WK-VT-YEAR  = WK-VT-YEAR + WONRI-GM.     
+           COMPUTE    JEOKRIB-BOLYO    =  JEOKRIB-BOLYO + WONRI-GM.     
+           MOVE       ZERO          TO    WK-IJA.                       
+           MOVE  JEOKRIB-BOLYO TO  YXXX.                                
+      *--------------------*                                            
+       211-JUNBIGM-COMPUTE.                                             
+      *--------------------*                                            
+           IF   KG-NABIB-YMD (LL)  <  WK-ENGDANG-YMD                    
+                IF   NOT  WK-YEAREND-YMD  >  WK-ENGDANG-YMD             
+                                PERFORM    291-COMPUTE-BURI             
+                ELSE            PERFORM    292-COMPUTE-BURI             
+           ELSE                                                         
+                IF   NOT  WK-YEAREND-YMD  >  KG-JIGB-YMD                
+                                PERFORM    293-COMPUTE-BURI             
+                ELSE            PERFORM    294-COMPUTE-BURI.            
+      *----------------------*                                          
+991125 300-DAMOKJEOK-COMPUTE.                                           
+      *----------------------*                                          
+           IF   NOT  WK-YEAREND-YMD  >  KG-JIGB-YMD                     
+                           PERFORM    293-COMPUTE-BURI                  
+           ELSE            PERFORM    294-COMPUTE-BURI.                 
+      *-------------------*                                             
+       212-SEONIJA-COMPUTE.                                             
+      *-------------------*                                             
+           MOVE     WK-BOLYO       TO       WON-GM.                     
+           IF   KG-JIGB-YMD  >  WK-YEAREND-YMD                          
+                                PERFORM    295-COMPUTE-BURI             
+           ELSE                 PERFORM    296-COMPUTE-BURI.            
+           COMPUTE  WK-IJA  ROUNDED  =  WONRI-GM  -  WK-BOLYO.          
+           MOVE     ZERO           TO   WONRI-GM      YM-SW.            
+           COMPUTE  JEOKRIB-MI-BOLYO  ROUNDED  =  JEOKRIB-MI-BOLYO      
+                                               +  WK-BOLYO.             
+           ADD      WK-IJA         TO   JEOKRIB-IJA.                    
+      *----------------*                                                
+       221-SEONNAB-WOL.                                                 
+      *----------------*                                                
+           COMPUTE  M  = (WK-ENGDANG-YY * 12 + WK-ENGDANG-MM)           
+                       - (KG-NABIB-YY(LL) * 12 + KG-NABIB-MM(LL)).      
+           IF   KG-NABIB-DD (LL)   >  WK-ENGDANG-DD                     
+                                      SUBTRACT  1   FROM   M.           
+           IF   KG-NABBANG  (LL)   =  1                                 
+                     COMPUTE   M   =   M  -  1.                         
+           IF   M    NEGATIVE      MOVE  ZERO   TO  M.                  
+           DIVIDE    M   BY  NB  GIVING   M1   REMAINDER  M2.           
+           IF  M1 >  1                                                  
+                     COMPUTE  WK-BOLYO  ROUNDED   =   KG-BOLYO / (1 + M1
+                                                  *   WK-IYUL  / 12)    
+                     COMPUTE  WK-BOLYO  ROUNDED   =   WK-BOLYO          
+                                                  /   KG-BOGEUM * 100   
+               IF  NOT WK-ENGDANG-YMD < KG-JIGB-YMD                     
+                     MOVE     WK-BOLYO           TO   WON-GM            
+               ELSE                                                     
+                     MOVE     WK-ENGDANG-YMD    TO   KG-NABIB-YMD(LL)   
+                     MOVE     VT-BOLYO           TO   WON-GM            
+           ELSE      COMPUTE  WON-GM   ROUNDED    =   KG-BOLYO  *  100  
+                                                  /   KG-BOGEUM         
+                     MOVE     WON-GM             TO   WK-BOLYO.         
+           MOVE      WON-GM   TO   WK-PURE-PT.                          
+      *--------------------*                                            
+991125 300-HAEDANGIL-CHECK.                                             
+      *--------------------*                                            
+           MOVE    6    TO    NB.                                       
+           COMPUTE IU = KG-GYE-YY * 12 + KG-GYE-MM + NB * LL.           
+           DIVIDE  IU    BY  12   GIVING       EDA-YY                   
+                                  REMAINDER    EDA-MM.                  
+           IF     EDA-MM  =  ZERO                                       
+                       ADD      -1       TO  EDA-YY                     
+                       MOVE     12       TO  EDA-MM.                    
+           MOVE     KG-GYE-DD            TO  EDA-DD.                    
+           MOVE     EDA-YY               TO  YUN-YEAR-CHECK.            
+           IF     KG-GYE-DD  >  28                                      
+              IF    EDA-MM   =  02                                      
+                 IF   YUN-YEAR89   MOVE   29   TO  EDA-DD               
+                 ELSE              MOVE   28   TO  EDA-DD.              
+           IF     KG-GYE-DD  =  31                                      
+              IF    EDA-MM   =  04 OR 06 OR 09 OR 11                    
+                                   MOVE   30   TO  EDA-DD.              
+           MOVE     ZERO    TO     YM-SW.                               
+      *-----------------*                                               
+       280-MANGI-CHANGE.                                                
+      *-----------------*                                               
+           MOVE      KG-GYE-YMD                TO   WK-JIGB-YMD.        
+           ADD       KG-GYE-YY    KG-MANGI GIVING   WK-JIGB-YY.         
+           MOVE      WK-JIGB-YY                TO   YUN-YEAR-CHECK.     
+           IF  WK-JIGB-MM  = 2  AND  WK-JIGB-DD = 29                    
+              IF   YUN-YEAR89      MOVE    29  TO  WK-JIGB-DD           
+              ELSE                 MOVE    28  TO  WK-JIGB-DD.          
+           IF  KG-JIGB-YMD  >  WK-JIGB-YMD                              
+                   MOVE       WK-JIGB-YMD      TO   KG-JIGB-YMD.        
+      *----------------*                                                
+       290-SILHYO-CHECK.                                                
+      *----------------*                                                
+           COMPUTE  WK-SILHYO-YY  =   KG-LNAB-YY.                       
+           COMPUTE  WK-SILHYO-MM  =  KG-LNAB-MM + 3.                    
+           IF   WK-SILHYO-MM > 12                                       
+                     COMPUTE   WK-SILHYO-MM   =   WK-SILHYO-MM  - 12    
+                     COMPUTE   WK-SILHYO-YY   =   WK-SILHYO-YY  + 1.    
+           MOVE      01                  TO   WK-SILHYO-DD.             
+           IF  KG-JIGB-YMD  >  WK-SILHYO-YMD                            
+                     MOVE  WK-SILHYO-YMD TO   KG-JIGB-YMD.              
+      *-----------------*                                               
+       291-COMPUTE-BURI.                                                
+      *-----------------*                                               
+           MOVE       KG-NABIB-YMD(LL)   TO   WK-FROM-DATE.             
+           MOVE       WK-YEAREND-YMD     TO   WK-TO-DATE.               
+           MOVE       'YEJ'               TO   SW.                      
+           PERFORM    910-SIMPLE-BURI.                                  
+           MOVE       WK-ENGDANG-YMD     TO   WK-JIGB-YMD.              
+           PERFORM    921-COMPOUND-BURI.                                
+           COMPUTE    WON-GM     ROUNDED  =    WONRI-GM  -  WK-PURE-PT  
+                                          +    VT-BOLYO.                
+           MOVE       WK-ENGDANG-YMD     TO   WK-FROM-DATE.             
+           MOVE       'BUR'               TO   SW.                      
+           IF    KG-JIGB-YMD  >  WK-NEXT-YMD                            
+                      MOVE       WK-NEXT-YMD   TO   WK-TO-DATE          
+                      PERFORM    910-SIMPLE-BURI                        
+                      MOVE       WK-NEXT-YMD   TO   WK-YEAREND-YMD      
+                      MOVE       KG-JIGB-YMD   TO   WK-JIGB-YMD         
+                      PERFORM    920-COMPOUND-BURI                      
+           ELSE                                                         
+                      MOVE       KG-JIGB-YMD   TO   WK-TO-DATE          
+                      PERFORM    910-SIMPLE-BURI.                       
+      *-----------------*                                               
+       292-COMPUTE-BURI.                                                
+      *-----------------*                                               
+           MOVE       KG-NABIB-YMD(LL)   TO   WK-FROM-DATE.             
+           MOVE       WK-ENGDANG-YMD     TO   WK-TO-DATE.               
+           MOVE       'YEJ'               TO   SW.                      
+           PERFORM    910-SIMPLE-BURI.                                  
+           MOVE       'BUR'               TO   SW.                      
+           MOVE       WK-ENGDANG-YMD     TO   WK-FROM-DATE.             
+           COMPUTE    WON-GM     ROUNDED  =   WONRI-GM  -  WK-PURE-PT   
+                                          +   VT-BOLYO.                 
+           IF  KG-JIGB-YMD  >  WK-YEAREND-YMD                           
+                      MOVE       WK-YEAREND-YMD  TO   WK-TO-DATE        
+                      PERFORM    910-SIMPLE-BURI                        
+                      MOVE       KG-JIGB-YMD     TO   WK-JIGB-YMD       
+                      PERFORM    920-COMPOUND-BURI                      
+           ELSE                                                         
+                      MOVE       KG-JIGB-YMD     TO   WK-TO-DATE        
+                      PERFORM    910-SIMPLE-BURI.                       
+      *-----------------*                                               
+       293-COMPUTE-BURI.                                                
+      *-----------------*                                               
+           MOVE       KG-NABIB-YMD(LL)   TO   WK-FROM-DATE.             
+           MOVE       WK-YEAREND-YMD     TO   WK-TO-DATE.               
+           MOVE       VT-BOLYO            TO   WON-GM.                  
+           MOVE       'BUR'               TO   SW.                      
+           PERFORM    910-SIMPLE-BURI.                                  
+           MOVE       KG-JIGB-YMD        TO   WK-JIGB-YMD.              
+           PERFORM    920-COMPOUND-BURI.                                
+      *-----------------*                                               
+       294-COMPUTE-BURI.                                                
+      *-----------------*                                               
+           MOVE       KG-NABIB-YMD(LL)   TO   WK-FROM-DATE.             
+           MOVE       KG-JIGB-YMD        TO   WK-TO-DATE.               
+           MOVE       VT-BOLYO            TO   WON-GM.                  
+           MOVE       'BUR'               TO   SW.                      
+           PERFORM    910-SIMPLE-BURI.                                  
+      *-----------------*                                               
+       295-COMPUTE-BURI.                                                
+      *-----------------*                                               
+           MOVE       KG-NABIB-YMD(LL)   TO   WK-FROM-DATE.             
+           MOVE       WK-YEAREND-YMD     TO   WK-TO-DATE.               
+           MOVE       'YEJ'               TO   SW.                      
+           PERFORM    910-SIMPLE-BURI.                                  
+           MOVE       KG-JIGB-YMD        TO   WK-JIGB-YMD.              
+           PERFORM    920-COMPOUND-BURI.                                
+      *-----------------*                                               
+       296-COMPUTE-BURI.                                                
+      *-----------------*                                               
+           MOVE       KG-NABIB-YMD(LL)   TO   WK-FROM-DATE.             
+           MOVE       KG-JIGB-YMD        TO   WK-TO-DATE.               
+           MOVE       'YEJ'               TO   SW.                      
+           PERFORM    910-SIMPLE-BURI.                                  
+      *------------------*                                              
+       900-GIGAN-COMPUTE.                                               
+      *------------------*                                              
+           CALL       'K11M8009'     USING     REC-GIGAN.               
+           MOVE       TAB-SW         TO        KG-CODE.                 
+      *----------------*                                                
+       910-SIMPLE-BURI.                                                 
+      *----------------*                                                
+           MOVE       ZERO           TO        C     GIGAN-IYUL.        
+           PERFORM    940-IYUL-SEARCH-2  THRU  949-EXIT.                
+                                                                        
+           COMPUTE    WONRI-GM   ROUNDED    =  WON-GM * (1 + GIGAN-IYUL 
+                                            /  WK-1YEAR).               
+                                                                        
+           MOVE  WON-GM   TO W-WON-GM   MOVE WONRI-GM TO W-GM.          
+      *-----------------*                                               
+       920-COMPOUND-BURI.                                               
+      *-----------------*                                               
+           MOVE       WK-YEAREND-YMD  TO   WK-NEXT-YMD  WK-NABIB-YMD.   
+           ADD        1                TO   WK-NEXT-YY.                 
+           MOVE       WK-NEXT-YY       TO   YUN-YEAR-CHECK.             
+           IF KG-GYE-MM  = 2                                            
+              IF KG-GYE-DD  = 29                                        
+                 IF   YUN-YEAR89       MOVE    29  TO  WK-NEXT-DD       
+                 ELSE                  MOVE    28  TO  WK-NEXT-DD.      
+           MOVE       WK-NABIB-YMD    TO   FROM-DATE  WK-FROM-DATE.     
+           MOVE       WK-NEXT-YMD     TO   TO-DATE.                     
+           PERFORM    900-GIGAN-COMPUTE.                                
+           MOVE       TAB-GIGAN        TO   WK-1YEAR.                   
+           IF        TAB-GIGAN  > 365                                   
+                     MOVE      365      TO   WK-1YEAR.                  
+           MOVE       1                TO   YM-SW.                      
+           IF    WK-JIGB-YMD  <   WK-NEXT-YMD                           
+                      MOVE    WK-JIGB-YMD  TO   WK-YEAREND-YMD          
+                      MOVE    KG-JIGB-YMD  TO   WK-JIGB-YMD             
+           ELSE                                                         
+                IF  KG-JIGB-YMD > WK-NEXT-YMD                           
+                      MOVE    WK-NEXT-YMD  TO   WK-YEAREND-YMD          
+                ELSE  MOVE    KG-JIGB-YMD  TO   WK-YEAREND-YMD.         
+           MOVE       WONRI-GM        TO   WON-GM.                      
+           MOVE       WK-YEAREND-YMD     TO   WK-TO-DATE.               
+           PERFORM    910-SIMPLE-BURI.                                  
+           IF    WK-JIGB-YMD  >  WK-YEAREND-YMD                         
+                      GO          TO      920-COMPOUND-BURI.            
+      *-----------------*                                               
+       921-COMPOUND-BURI.                                               
+      *-----------------*                                               
+           MOVE       WK-YEAREND-YMD  TO   WK-NEXT-YMD  WK-NABIB-YMD.   
+           ADD        1                TO   WK-NEXT-YY.                 
+           MOVE       WK-NEXT-YY       TO   YUN-YEAR-CHECK.             
+           IF KG-GYE-MM  = 2                                            
+              IF KG-GYE-DD  = 29                                        
+                 IF   YUN-YEAR89       MOVE    29  TO  WK-NEXT-DD       
+                 ELSE                  MOVE    28  TO  WK-NEXT-DD.      
+           MOVE       WK-NABIB-YMD    TO   FROM-DATE  WK-FROM-DATE.     
+           MOVE       WK-NEXT-YMD     TO   TO-DATE.                     
+           PERFORM    900-GIGAN-COMPUTE.                                
+           MOVE       TAB-GIGAN        TO   WK-1YEAR.                   
+           IF        TAB-GIGAN  > 365                                   
+                     MOVE      365      TO   WK-1YEAR.                  
+           MOVE       1                TO   YM-SW.                      
+           MOVE       WONRI-GM         TO   WON-GM.                     
+           MOVE       WK-YEAREND-YMD  TO   WK-TO-DATE.                  
+           PERFORM    910-SIMPLE-BURI.                                  
+      *-----------------*                                               
+       940-IYUL-SEARCH-2.                                               
+      *-----------------*                                               
+           ADD       1          TO        C.                            
+           IF  WK-FROM-DATE  >  TA-T-YMD (Z C)                          
+                     GO         TO        940-IYUL-SEARCH-2.            
+           IF  WK-TO-DATE    >  TA-T-YMD (Z C)                          
+                     MOVE  WK-FROM-DATE     TO   FROM-DATE              
+                     MOVE  TA-T-YMD (Z C)  TO   TO-DATE                 
+           ELSE                                                         
+                     MOVE  WK-FROM-DATE     TO   FROM-DATE              
+                     MOVE  WK-TO-DATE       TO   TO-DATE.               
+           PERFORM   900-GIGAN-COMPUTE.                                 
+           MOVE      TA-IYUL(Z C H)    TO           KG-IYUL.            
+           DIVIDE    TA-IYUL(Z C H)    BY  100000   GIVING  IJA2.       
+           IF  KG-GYE-YMD  >  19990331                                  
+                      DIVIDE  6500  BY  100000  GIVING  WK-IYUL         
+           ELSE                                                         
+                      DIVIDE  7500  BY  100000  GIVING  WK-IYUL.        
+           IF  SW   = 'YEJ'            MOVE     WK-IYUL    TO    IJA    
+           ELSE                        MOVE     IJA2       TO    IJA.   
+           COMPUTE   GIGAN-IYUL  ROUNDED    =  GIGAN-IYUL               
+                                            +  TAB-GIGAN  * IJA.        
+                                                                        
+           MOVE   IJA TO ZJA.    MOVE  GIGAN-IYUL  TO W-YY.             
+                                                                        
+           IF  WK-TO-DATE  >  TA-T-YMD (Z C)   NEXT    SENTENCE         
+           ELSE      GO   TO     949-EXIT.                              
+           MOVE      TA-T-YMD (Z C)       TO   WK-FROM-DATE.            
+           GO   TO   940-IYUL-SEARCH-2.                                 
+      *---------*                                                       
+       949-EXIT.                                                        
+      *---------*                                                       
+           EXIT.                                                        
+      *-----------------*                                               
+       990-BOLYO-SEARCH.                                                
+      *-----------------*                                               
+           IF  KG-GYE-YMD  >  19990331  MOVE   2    TO  HH              
+           ELSE                          MOVE   1    TO  HH.            
+           IF  KG-MANGI  =  5                                           
+             IF  KG-NABBANG(LL) =  9     MOVE   1    TO  II   ELSE      
+                                         MOVE   2    TO  II.            
+           IF  KG-MANGI  =  7                                           
+             IF  KG-NABBANG(LL) =  9     MOVE   3    TO  II             
+             ELSE                                                       
+               IF  KG-NABGI  =  5        MOVE   4    TO  II   ELSE      
+                                         MOVE   5    TO  II.            
+           IF  KG-MANGI  =  10                                          
+             IF  KG-NABBANG(LL) =  9     MOVE   6    TO  II             
+             ELSE                                                       
+               IF  KG-NABGI  =  5        MOVE   7    TO  II   ELSE      
+                                         MOVE   8    TO  II.            
+           IF  KG-MANGI  =  15                                          
+             IF  KG-NABBANG(LL) =  9     MOVE   9    TO  II             
+             ELSE                                                       
+               IF  KG-NABGI  =  5        MOVE  10    TO  II   ELSE      
+                                         MOVE  11    TO  II.            
+           IF  KG-MANGI  =  20                                          
+             IF  KG-NABBANG(LL) =  9     MOVE  12    TO  II             
+             ELSE                                                       
+               IF  KG-NABGI  =  5        MOVE  13    TO  II   ELSE      
+                                         MOVE  14    TO  II.            
+           IF  KG-NABBANG(LL) =  1       MOVE   1    TO  JJ   ELSE      
+           IF  KG-NABBANG(LL) =  3       MOVE   2    TO  JJ   ELSE      
+           IF  KG-NABBANG(LL) =  6       MOVE   3    TO  JJ   ELSE      
+           IF  KG-NABBANG(LL) =  8       MOVE   4    TO  JJ   ELSE      
+                                         MOVE   5    TO  JJ.            
+991125     COMPUTE   SA   =   500000  *  KG-BOGEUM  /  10000.           
+           MOVE      PR-TB (HH II JJ)     TO     VT-BOLYO.              
+           MOVE      VT-BOLYO             TO     KG-ILSU.               
+           MOVE      KG-BOLYO1            TO     KG-BOLYO.              

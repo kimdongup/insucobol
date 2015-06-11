@@ -1,0 +1,60 @@
+//KERB9015 JOB (KER),'KER00',CLASS=K,MSGCLASS=X,MSGLEVEL=(1,1)          
+//S1 EXEC YSRCCAT,MBR=K00B9015                                          
+//C.SYSUT1 DD *                                                         
+      *----------------( 2000.2. 20 )------------------*                
+ 8         02  K1-JOSA-YMD                PIC 9(8).                     
+           02  K1-JOSA-YMD-RE          REDEFINES   K1-JOSA-YMD.         
+               03  K1-JOSA-YM             PIC 9(6).                     
+               03  K1-JOSA-YM-RE       REDEFINES   K1-JOSA-YM.          
+                   04  K1-JOSA-YY         PIC 9(4).                     
+                   04  K1-JOSA-MM         PIC 9(2).                     
+               03  K1-JOSA-DD             PIC 9(2).                     
+15         02  K1-JEUNGBEON               PIC 9(7).                     
+16         02  K1-JT                      PIC 9(1).                     
+20         02  K1-BOJONG-T                PIC 9(4).                     
+28         02  K1-GYE-YMD                 PIC 9(8).                     
+ .         02  K1-GYE-YMD-RE           REDEFINES   K1-GYE-YMD.          
+               03  K1-GYE-YM              PIC 9(6).                     
+               03  K1-GYE-YM-RE        REDEFINES   K1-GYE-YM.           
+                   04  K1-GYE-YY          PIC 9(4).                     
+                   04  K1-GYE-MM          PIC 9(2).                     
+               03  K1-GYE-DD              PIC 9(2).                     
+30         02  K1-BSMG                    PIC 9(2).                     
+32         02  K1-0-9                     PIC 9(2).                     
+33         02  K1-GITAGUBUN-CODE          PIC 9(1).                     
+36         02  K1-BOJONG                  PIC 9(4).                     
+38         02  K1-NABGI                   PIC 9(2).                     
+40         02  K1-MANGI                   PIC 9(2).                     
+41         02  K1-NABBANG                 PIC 9(1).                     
+43         02  K1-PINAI                   PIC 9(2).                     
+44         02  K1-PISEX                   PIC 9(1).                     
+46         02  K1-GYENAI                  PIC 9(2).                     
+47         02  K1-GYESEX                  PIC 9(1).                     
+51         02  K1-GNGWA-YM                PIC 9(4).                     
+           02  K1-GNGWA-YM-RE        REDEFINES   K1-GNGWA-YM.           
+               03  K1-GNGWA-YY            PIC 9(2).                     
+               03  K1-GNGWA-MM            PIC 9(2).                     
+53         02  K1-MIGNGWA-MM              PIC 9(2).                     
+57         02  K1-BOGEUM                  PIC S9(7)    COMP-3.          
+62         02  K1-JIGBS                   PIC S9(9)    COMP-3.          
+           02  K1-VT-KEY.                                               
+66             03  K1-VT-BOJONG           PIC 9(4).                     
+67             03  K1-VT-GUBUN            PIC 9(1).                     
+69             03  K1-VT-PINAI            PIC 9(2).                     
+71             03  K1-VT-NABGI            PIC 9(2).                     
+73             03  K1-VT-MANGI            PIC 9(2).                     
+74             03  K1-VT-NABBANG          PIC 9(1).                     
+76             03  K1-VT-GYEONGGWA        PIC 9(2).                     
+77         02  K1-VT-SEX                  PIC 9(1).                     
+81         02  K1-IYUL                    PIC S9(5)    COMP-3.          
+84         02  K1-ALPHA                   PIC S9(5)    COMP-3.          
+           02  K1-VT-TABLE.                                             
+108            03  K1-VT-TAB         OCCURS   3.                        
+                   04  K1-VT              PIC S9(7)    COMP-3.          
+                   04  K1-VT1             PIC S9(7)    COMP-3.          
+112            03  K1-PB                  PIC S9(7)    COMP-3.          
+116            03  K1-MHSS                PIC S9(7)    COMP-3.          
+118        02  K1-YNGM-AGE                PIC 9(2).                     
+119        02  K1-SUGM-CODE               PIC 9(1).                     
+124        02  K1-FILLER                  PIC 9(5).                     
+129        02  K1-MIJIGB-IJA              PIC S9(9)    COMP-3.          

@@ -1,0 +1,752 @@
+//KERC4501  JOB (KER),'KER00',CLASS=G,MSGCLASS=X,MSGLEVEL=(1,1)         
+//STEP1     EXEC YDBBAT,MBR=K11C4501                                    
+//COB.SYSIN DD *                                                        
+PROCESS TEST(NONE,SYM)                                                  
+      *============================================================*    
+      *   CREATION  DATE : 1999. 6. 11
+      *============================================================*    
+       IDENTIFICATION          DIVISION.                                
+       PROGRAM-ID.             K11C4501                                 
+       ENVIRONMENT             DIVISION.                                
+       CONFIGURATION           SECTION.                                 
+       INPUT-OUTPUT            SECTION.                                 
+       FILE-CONTROL.                                                    
+           SELECT FILE-IN      ASSIGN  TO  UT-3420-FILEIN.              
+           SELECT FILE-OUT     ASSIGN  TO  DA-3380-FILEOUT.             
+       DATA                    DIVISION.                                
+       FILE                    SECTION.                                 
+       FD  FILE-IN          RECORDING  MODE       IS   F                
+                            LABEL      RECORD     IS    STANDARD        
+                            BLOCK      CONTAINS   300   RECORDS         
+                            RECORD     CONTAINS   105   CHARACTERS.     
+       01  REC-IN.                                                      
+           02  IN-COD.                                                  
+               03  IN-COD1             PIC 9(2).                        
+               03  IN-COD2             PIC 9(3).                        
+           02  IN-IN                   PIC X(100).                      
+
+       FD  FILE-OUT         RECORDING  MODE       IS   F                
+                            LABEL      RECORD     IS   STANDARD         
+                            BLOCK      CONTAINS   100  RECORDS          
+9904                        RECORD     CONTAINS   134  CHARACTERS.      
+       01  REC-OUT      PIC X(134).                                     
+      *--------------------------------*                                
+       WORKING-STORAGE         SECTION.                                 
+      *--------------------------------*                                
+       01  C-USER-ID     PIC  X(8)  VALUE   'PHOENIX'.                  
+       01  KS-REC.          COPY    K11B9103  SUPPRESS.                 
+       01  WBA.                                                         
+                            COPY    KBBOJ88   SUPPRESS.                 
+           02  WK-BOLYO             PIC S9(09).                         
+           02  WK-POST.                                                 
+               03  WK-POST-1        PIC 9(3).                           
+               03  WK-POST-2        PIC 9(3).                           
+           02  MANGI-DATE           PIC 9(8).                           
+           02  NABGI-DATE           PIC 9(8).                           
+           02  WK-JIYEOG            PIC 9(2).                           
+           02  WK-SUNSU             PIC 9(3).                           
+           02  WK-TO                PIC 9(3).                           
+           02  WK-GNG-YM          PIC 9(4).                             
+           02  WK-GNG            REDEFINES   WK-GNG-YM.                 
+               03  WK-GNG-YY      PIC 9(2).                             
+               03  WK-GNG-MM      PIC 9(2).                             
+981007     02  N                    PIC 9(4).                           
+981007     02  NB                   PIC 9(4).                           
+           02  NABGI                PIC 9(4).                           
+           02  WK-DATE              PIC S9(8).                          
+980216     02  G-YMD                PIC  9(8).                          
+           02  G-YMD-RE          REDEFINES   G-YMD.                     
+               03  G-YM             PIC  9(6).                          
+               03  G-YM-RE       REDEFINES   G-YM.                      
+                   04  G-YY          PIC  9(4).                         
+                   04  G-MM          PIC  9(2).                         
+               03  G-DD              PIC  9(2).                         
+           02  L-YMD                 PIC  9(8).                         
+           02  L-YMD-RE           REDEFINES   L-YMD.                    
+               03  L-YM              PIC  9(6).                         
+               03  L-YM-RE        REDEFINES   L-YM.                     
+                   04  L-YY          PIC  9(4).                         
+                   04  L-MM          PIC  9(2).                         
+               03  L-DD              PIC  9(2).                         
+           02  M-YMD                 PIC  9(8).                         
+           02  M-YMD-RE           REDEFINES   M-YMD.                    
+               03  M-YM              PIC  9(6).                         
+               03  M-YM-RE        REDEFINES   M-YM.                     
+                   04  M-YY          PIC  9(4).                         
+                   04  M-MM          PIC  9(2).                         
+               03  M-DD              PIC  9(2).                         
+           02  MS1                   PIC S9(8).                         
+           02  MS2                   PIC S9(8).                         
+           02  MS                    PIC S9(8).                         
+           02  MOK1                  PIC  9(8).                         
+           02  MOK2                  PIC  9(8).                         
+           02  I                     PIC  9(3).                         
+           02  J                     PIC  9(3).                         
+           02  WK-BBB                PIC  9(1).                         
+           02  WK-CCC                PIC  9(1).                         
+           02  JN                    PIC  9(1).                         
+970729     02  JNM                   PIC  9(3).                         
+       01  REC-SUB.                                                     
+          03  MKA-CTRDT-REDEFINE.                                       
+             05  MKA-CTR-YMD         PIC  9(08).                        
+             05  MKA-CTR-YMD-RE    REDEFINES  MKA-CTR-YMD.              
+                07  MKA-CTR-YM       PIC  9(06).                        
+                07  MKA-CTR-YM-RE  REDEFINES  MKA-CTR-YM.               
+                   09  MKA-CTR-Y     PIC  9(04).                        
+                   09  MKA-CTR-M     PIC  9(02).                        
+                07  MKA-CTR-D        PIC  9(02).                        
+          03  MKA-LPRO-DATE-REDEFINE.                                   
+             05  MKA-LPRO-YMD        PIC  9(08).                        
+             05  MKA-LPRO-YMD-RE   REDEFINES  MKA-LPRO-YMD.             
+                07  MKA-LPRO-YM      PIC  9(06).                        
+                07  MKA-LPRO-YM-RE REDEFINES  MKA-LPRO-YM.              
+                   09  MKA-LPRO-Y    PIC  9(04).                        
+                   09  MKA-LPRO-M    PIC  9(02).                        
+                07  MKA-LPRO-D       PIC  9(02).                        
+       01  REC-CNT.                                                     
+           02  CNT-INN            PIC S9(09).                           
+           02  CNT-IN1            PIC S9(09).                           
+           02  CNT-IN2            PIC S9(09).                           
+           02  CNT-OUT2           PIC S9(09).                           
+           02  CNT-OUT            PIC S9(09).                           
+           02  G3-CNT             PIC S9(05).                           
+           02  G3-RYO             PIC S9(12).                           
+           02  S2-CNT             PIC S9(05).                           
+           02  S2-RYO             PIC S9(12).                           
+           02  S3-CNT             PIC S9(05).                           
+           02  S3-RYO             PIC S9(12).                           
+           02  T2-CNT             PIC S9(05).                           
+           02  T2-RYO             PIC S9(12).                           
+           02  T3-CNT             PIC S9(05).                           
+           02  T3-RYO             PIC S9(12).                           
+           02  X1-CNT             PIC S9(05).                           
+           02  X1-RYO             PIC S9(12).                           
+           02  TOT-P              PIC S9(12).                           
+           02  DIS-RYO            PIC ---,---,---,--9.                  
+      *  ---------------------------------------------------------------
+      *   MASTER  DB  ; 150 DB                                          
+-INC             DVMKA                                                  
+199802*   MASTER   HISTORY  ; 159 DB                                    
+      *          거치전환으로　인해　１９９８．１월　생성               
+-INC             DVRKA                                                  
+      *   IB-GEUM                                                       
+                   COPY   MKBREC SUPPRESS.                              
+      *   BYUN-GYUNG                                                    
+                   COPY   MKJREC SUPPRESS.                              
+      *   JI-GEUB                                                       
+-INC             DVM2B                                                  
+      *   POST-NO                                                       
+-INC       DVMN4                                                        
+                                                                        
+      *  ---------------------------------------------------------------
+      *    COPY     K11B9900  SUPPRESS.                                 
+       01  WK-TABLE.                                                    
+           02  WK-TAB            OCCURS   10.                           
+              03  WK-TK-BOJ         PIC   9(4).                         
+              03  WK-TK-S           PIC   9(7).                         
+              03  WK-TK-P           PIC   9(9).                         
+       01  REC-SAVE.                                                    
+      *  레코드　길이가　８００바이트짜리를　８개로　분할             
+           02  SV-MASTER.                                               
+                03  SV-MKA        OCCURS   8  PIC X(100).               
+      *  ＭＫＢ（６０），Ｍ２Ｃ（７０）：최근　１년간의　사항         
+           02  SV-NABIB            OCCURS  24  PIC X(100).              
+980724     02  SV-BUHAL            OCCURS  24  PIC X(100).              
+      *  ＭＫＪ（２２０）；１００바이트로　분할하여　최근　５회의     
+      *                  ；　변경사항을　조회                         
+           02  SV-CHANGE           OCCURS   5.                          
+             03  SV-CH           OCCURS   3  PIC X(100).                
+           02  SV-ANUITY           OCCURS   5  PIC X(100).              
+      *  Ｍ２Ｂ（２７７）；１００바이트식　１０회의　사항             
+           02  SV-JIGB             OCCURS  10.                          
+               03  SV-JGB            OCCURS   3  PIC X(100).            
+      *  ＭＫＬ（５０）：최근　２년간의　사항                         
+           02  SV-BAE              OCCURS   5  PIC X(100).              
+      *  Ｍ２Ｌ（５０）：최근　２년간의　사항                         
+           02   SV-JAYUNAB          OCCURS  24  PIC X(100).             
+      *  ---------------------------------------------------------------
+      *    COPY     K11B9024  SUPPRESS.                                 
+       01  YMD-TABLE.                                                   
+           02  SYSTEM-DATE.                                             
+               03  SYSTAM-YY           PIC 9(4).                        
+               03  SYSTEM-MM           PIC 9(2).                        
+               03  SYSTEM-DD           PIC 9(2).                        
+           02  CURRENT-YMD.                                             
+               03  CURRENT-YY          PIC 9(4).                        
+               03  CURRENT-MM          PIC 9(2).                        
+               03  CURRENT-DD          PIC 9(2).                        
+           02  ACC-YMD                 PIC 9(8).                        
+           02  ACPT-YMD         REDEFINES   ACC-YMD.                    
+               03  ACC-YM          PIC 9(6).                            
+               03  ACC-YM-RE    REDEFINES   ACC-YM.                     
+                   04  ACC-YY      PIC 9(4).                            
+                   04  ACC-MM          PIC 9(2).                        
+               03  ACC-DD              PIC 9(2).                        
+      *  ---------------------------------------------------------------
+       01  REC-SWITCH.                                                  
+           02  FILE-EOF-SWITCH       PIC X(3)    VALUE  'NO '.          
+            88  FILE-EOF           VALUE 'YES'.                         
+           02  FIRST-DATA-SWITCH      PIC X(3)    VALUE  'YES'.         
+            88  FIRST-DATA          VALUE  'YES'.                       
+
+       01  ZZ-DLDB.                                                     
+           03  ZZ-DLDB-HW-DBID      PIC S9(04) COMP.                    
+           03  FILLER  REDEFINES    ZZ-DLDB-HW-DBID.                    
+               05  ZZ-DLDB-DBID     PIC  X(02).                         
+           COPY     PLISTDA   SUPPRESS.                                 
+           COPY     PLIWCOM   SUPPRESS.                                 
+                                                                        
+      *=========================================================*       
+      *=         COD1 COD2      COD1 COD2                               
+      *=  MKA    01010      -    01080  요금　마스터                    
+      *=  TKA    01010      -    01080  소멸　계약건                    
+      *=  MKB    02010      -    02240  입금                            
+      *=  MKC    03010      -    03240  부활                            
+      *=  MKD    04010                  선납                            
+      *=  MKJ    05010                  변경                            
+      *=  M2A    06010                  사망연금                        
+      *=  M2B    07010                  지급                            
+      *=  M2C    08010                  암　상품의　입원                
+      *=  M2D    09010                  일반상품의　입원                
+      *=  MKL    11010                  자유납입                        
+      *=========================================================*       
+       PROCEDURE               DIVISION.                                
+      *=========================================================*       
+           ENTRY  'DBMSCBL'.                                            
+           OPEN    INPUT    FILE-IN                                     
+                   OUTPUT   FILE-OUT.                                   
+           INITIALIZE       REC-SAVE  WK-TABLE   KS-REC    REC-CNT      
+                            KS-ALPHA   KS-BETA   KS-GAMMA  WBA.         
+
+           MOVE   FUNCTION CURRENT-DATE(1:8)  TO   CURRENT-YMD.         
+           MOVE   CURRENT-YY    TO      ACC-YY.                         
+           MOVE   31            TO      ACC-DD.                         
+           ADD    CURRENT-MM -1  GIVING  ACC-MM.                        
+           IF  ACC-MM = ZERO     MOVE    12  TO  ACC-MM                 
+                                 ADD     -1  TO  ACC-YY.                
+
+           DISPLAY   '  ***   CURRENT-DATE  =  '  CURRENT-YMD.          
+           DISPLAY   '  ***   ACC-YM       =  '  ACC-YM.                
+      *-----------------------------------------------------------*     
+           MOVE    ZERO   TO  KS-ALPHA  KS-BETA  KS-GAMMA KS-BOGEUM     
+                              KS-BOLYO  KS-HABBOLYO  KS-GUNSU.          
+           PERFORM   110-READ-SELECT.                                   
+           PERFORM   100-CONTROL  UNTIL  FILE-EOF.                      
+           CLOSE     FILE-IN                                            
+                     FILE-OUT.                                          
+           DISPLAY   '========================================='.       
+           DISPLAY   '** RECORD   MUM   = ' CNT-INN.                    
+           DISPLAY   '** ROOT     GYE   = ' CNT-IN1.                    
+           DISPLAY   '** JUN-DATA GYE   = ' CNT-IN2.                    
+           DISPLAY   '** OUT-PUT        = ' CNT-OUT.                    
+           DISPLAY   '** OUT-PUT2       = ' CNT-OUT2.                   
+           DISPLAY   '========================================='.       
+           MOVE       G3-RYO    TO   DIS-RYO.                           
+           DISPLAY   '** WANNAB    G3 = ' G3-CNT ' * ' DIS-RYO.         
+           IF S2-RYO  > ZERO   OR S3-RYO > ZERO                         
+                 MOVE     S2-RYO   TO   DIS-RYO                         
+                 DISPLAY  '** SUNSU     S2 = ' S2-CNT ' * ' DIS-RYO.    
+                 MOVE     S3-RYO   TO   DIS-RYO                         
+                 DISPLAY  '** SUNSU     S3 = ' S3-CNT ' * ' DIS-RYO     
+                 COMPUTE  S3-RYO    =   S3-RYO +  S2-RYO                
+                 MOVE     S3-RYO   TO   DIS-RYO                         
+                 DISPLAY  '-----------------------------------------'   
+                 DISPLAY  '** SUNSU    GYE =  * * '   ' * ' DIS-RYO     
+                 DISPLAY  '-----------------------------------------'.  
+           IF T2-RYO > ZERO  OR T3-RYO > ZERO                           
+                 MOVE     T2-RYO   TO   DIS-RYO                         
+                 DISPLAY  '** JUN-SUNSU T2 = ' T2-CNT ' * ' DIS-RYO     
+                 MOVE     T3-RYO   TO   DIS-RYO                         
+                 DISPLAY  '** JUN-SUNSU T3 = ' T3-CNT ' * ' DIS-RYO     
+                 COMPUTE  T3-RYO    =   T3-RYO +  T2-RYO                
+                 MOVE     T3-RYO   TO   DIS-RYO                         
+                 DISPLAY  '-----------------------------------------'   
+                 DISPLAY  '** JUN-SUNSU GYE = * * '   ' * ' DIS-RYO.    
+                 DISPLAY  '-----------------------------------------'.  
+980216*    IF X1-RYO > ZERO                                             
+.                MOVE     X1-RYO   TO   DIS-RYO                         
+.                DISPLAY  '** GEOCHI JUNWHAN ' X1-CNT ' * ' DIS-RYO.    
+                 DISPLAY  '-----------------------------------------'.  
+.                MOVE     TOT-P    TO   DIS-RYO                         
+.                DISPLAY  '** TOTAL  BOLYO          '  ' * ' DIS-RYO.   
+           DISPLAY        '========================================='.  
+           GOBACK.                                                      
+                                                                        
+       100-CONTROL.                                                     
+           PERFORM  120-DATA-CHEORI THRU 129-CLEAR.                     
+           PERFORM  110-READ-SELECT.                                    
+
+
+      *----------------*                                                
+       110-READ-SELECT.                                                 
+      *----------------*                                                
+           READ  FILE-IN   END       MOVE 'YES' TO  FILE-EOF-SWITCH.    
+           IF NOT FILE-EOF                                              
+                                     ADD   1    TO  CNT-INN             
+              IF  IN-COD = '01010'   ADD   1    TO  CNT-IN1             
+              ELSE                                                      
+                IF  (IN-COD1 = 3 OR 4 OR 6) OR (IN-COD1 > 7)            
+                                      GO        TO  110-READ-SELECT.    
+           IF NOT FILE-EOF                                              
+              IF  FIRST-DATA         PERFORM    990-BOGWON-CHEORI       
+                                     MOVE 'NO ' TO  FIRST-DATA-SWITCH   
+                                     GO         TO  110-READ-SELECT     
+              ELSE  IF NOT IN-COD = '01010'                             
+                                     PERFORM    990-BOGWON-CHEORI       
+                                     GO         TO   110-READ-SELECT.   
+      *----------------*                                                
+       120-DATA-CHEORI.                                                 
+      *----------------*                                                
+           MOVE   SV-MASTER     TO    MKA-REC.                          
+           MOVE   MKA-LPRO-DATE TO    MKA-LPRO-YMD.                     
+           MOVE   MKA-INSCOD    TO    KS-BOJONG WK-BOJONG.              
+           IF  MKA-GJUNWHAN-DATE > ZERO                                 
+              IF  MKA-GJUNWHAN-CODE = ZERO                              
+                           DISPLAY 'GJUNWHAN ERR 1: POL = '  MKA-POLNO. 
+           IF  MKA-GJUNWHAN-DATE = ZERO                                 
+              IF  MKA-GJUNWHAN-CODE > ZERO                              
+                           DISPLAY 'GJUNWHAN ERR 2 POL = '  MKA-POLNO.  
+           IF MKA-GJUNWHAN-DATE > ACC-YMD                               
+                MOVE ZERO TO MKA-GJUNWHAN-DATE  MKA-GJUNWHAN-CODE.      
+           IF  MKA-GJUNWHAN-CODE > ZERO                                 
+                  MOVE  MKA-GJUNWHAN-DATE   TO  MKA-CTRDT               
+                                                G-YMD.                  
+      * -----------------------------------------------------------     
+           IF  MKA-CTRDT  + MKA-INSPRD * 10000  < ACC-YMD               
+                                          GO  TO  129-CLEAR.            
+           MOVE  MKA-CTRDT   TO   MKA-CTR-YMD.                          
+           IF  MKA-CTR-YM  > ACC-YM      GO  TO  129-CLEAR.             
+                                                                        
+철회     IF  MKA-KEEPCOD = 9                                            
+반송       IF (MKA-LPRO-Y  - ACC-YY) * 12 + MKA-LPRO-M  - ACC-MM > 1    
+                       MOVE    ZERO     TO    MKA-KEEPCOD    ELSE       
+             IF (MKA-LPRO-Y  - ACC-YY) * 12 + MKA-LPRO-M  - ACC-MM = 1  
+  .   *  청약철회　기간　고려　                                         
+                 IF MKA-LPRO-D  >  15                                   
+                       MOVE    ZERO     TO    MKA-KEEPCOD.              
+
+           IF  MKA-KEEPCOD = 8          MOVE  ZERO  TO MKA-KEEPCOD.     
+           IF  MKA-KEEPCOD = 9          GO       TO   129-CLEAR.        
+           IF  MKA-KEEPCOD > ZERO                                       
+               IF  MKA-LPRO-DATE(1:6) < ACC-YM   GO TO  129-CLEAR       
+               ELSE          MOVE     ZERO  TO  I
+                             PERFORM        JIGB-SEG-SEARCH.            
+                    IF  MKA-KEEPCOD > ZERO       GO   TO  129-CLEAR.    
+           IF  MKA-LPAY-DATE > ACC-YMD  MOVE    ZERO   TO  I            
+                                        PERFORM     HWANWON-CHEORI.     
+           MOVE    SV-CHANGE(1)   TO    MKJ-REC.                        
+           IF  MKJ-BYEONKYEONG-DATE > ACC-YMD                           
+                   MOVE     1                TO    I                    
+                   PERFORM  GYEYAG-HWANWON   THRU  GYEYAG-EXIT.         
+  .        IF  MKA-GJUNWHAN-CODE > ZERO                                 
+  .             IF   MKA-GJUNWHAN-DATE < ACC-YMD + 1                    
+  .              IF  ACC-YM = G-YM                                      
+  .                  PERFORM      GONGTONG-SAHANG                       
+  .                  MOVE  'X1'   TO  KS-IDONG                          
+  .                  MOVE   1     TO  KS-HOISU                          
+  .                                   KS-FROMHOISU KS-TOHOISU           
+  .                  MOVE  ZERO   TO  KS-SS-CODE                        
+  .                  PERFORM   WRITE-RTN.                               
+  .   * -----------------------------------------------------------     
+           IF  MKA-KEEPCOD > ZERO    GO        TO   129-CLEAR.          
+                                                                        
+           IF  NOHOO                                                    
+              IF  MKA-KEEPCOD = 1                                       
+                      COMPUTE  MKA-INSPRD = MKA-YUNGUM-AGE              
+                                          - MKA-INSAGE          ELSE    
+                                                                        
+              IF  WK-BOJONG = 2010 OR 2015 OR 2110 OR 2115 OR 2210 OR   
+                              2215 OR 2255 OR 2370 OR 2375 OR 2490 OR   
+                              2495                                      
+                      COMPUTE MKA-INSPRD = MKA-YUNGUM-AGE               
+                                         - MKA-INSAGE + 10      ELSE    
+             IF  WK-BOJONG = 2011 OR 2016 OR 2111 OR 2116 OR 2211 OR    
+                             2216 OR 2256 OR 2371 OR 2376 OR 2491 OR    
+                             2496                                       
+                      COMPUTE MKA-INSPRD = MKA-YUNGUM-AGE               
+                                         - MKA-INSAGE + 15      ELSE    
+           IF  WK-BOJONG = 2012 OR 2017 OR 2112 OR 2117 OR 2212 OR      
+                           2217 OR 2257 OR 2372 OR 2377 OR 2492 OR      
+                           2497                                         
+                      COMPUTE MKA-INSPRD = MKA-YUNGUM-AGE               
+                                         - MKA-INSAGE + 20.             
+           MOVE   ZERO  TO  MKA-PAYCOD.                                 
+           IF  MKA-PAYMD = 9       MOVE   1          TO  MKA-PAYPRD.    
+           IF  MKA-IMCOD = 2       MOVE   699        TO  MKA-PAYCOD.    
+           IF  MKA-PAYMD = 8 OR 9  MOVE   12         TO  N              
+           ELSE                    MOVE   MKA-PAYMD  TO  N.             
+           IF  MKA-PAYMD = 9  OR (MKA-LPCNT * N + 1 > MKA-PAYPRD * 12)  
+                                  MOVE   700  TO  MKA-PAYCOD            
+              IF MKA-CTR-YM + MKA-PAYPRD * 100 > ACC-YM                 
+                                  MOVE   ZERO TO  MKA-PAYCOD.           
+                                                                        
+           MOVE     1    TO     WK-BBB.                                 
+           IF (MKA-LPYY * 12 + MKA-LPMM) < (ACC-YY * 12 + ACC-MM - 2)   
+                                MOVE   2   TO   WK-BBB.                 
+           IF  MKA-PAYCOD  > 698                                        
+               IF  MKA-CTR-YM + MKA-INSPRD * 100    < ACC-YM            
+                                MOVE   3   TO   WK-BBB                  
+               ELSE             MOVE   1   TO   WK-BBB.                 
+           IF   WK-BBB > 1     GO  TO  129-CLEAR.                       
+                                                                        
+                                                                        
+           MOVE    MKA-KEEPCOD    TO    WK-CCC.                         
+           IF  MKA-IMCOD > ZERO  MOVE  8 TO  WK-CCC.                    
+           IF  WK-CCC   =  ZERO                                         
+               IF  MKA-CTR-YM  + MKA-PAYPRD * 100  < ACC-YM             
+                   IF  MKA-PAYCOD > 698      MOVE  7   TO  WK-CCC.      
+           IF  WK-CCC   =  7                                            
+               IF  MKA-PAYMD = 9                                        
+                  IF  MKA-CTR-YM  < ACC-YM + 100                        
+                                    NEXT            SENTENCE            
+                  ELSE              MOVE  ZERO  TO  WK-CCC.             
+           IF  WK-CCC = 7                                               
+               PERFORM   WANNAB-CHEORI  THRU WAN-EXIT                   
+               GO  TO   129-CLEAR.                                      
+           MOVE   ZERO      TO  WK-SUNSU.                               
+           IF  MKA-PAYMD  < 9                                           
+               PERFORM   SUNSU-GUBUN                                    
+               IF  WK-SUNSU > ZERO                                      
+                    PERFORM   SUNSU-CHEORI.                             
+                                                                        
+      *----------*                                                      
+       129-CLEAR.                                                       
+      *----------*                                                      
+           INITIALIZE        REC-SAVE   M2B-REC.                        
+           PERFORM           990-BOGWON-CHEORI.                         
+      *---------------------------------------------------------------* 
+       991-SIDO-CONVERT.                                                
+           MOVE    MKA-ZIP           TO        MN4-POST-NO.             
+           MOVE    SPACE             TO        MN4-RA-STATUS-CODE.      
+           MOVE    119               TO        ZZ-DLDB-HW-DBID.         
+           MOVE    ZZ-DLDB-DBID      TO        MN4-RA-DBID.             
+           MOVE   'MN4'              TO        MN4-RA-FILE.             
+           MOVE   'MN4K2'            TO        MN4-RA-KEY-NAME.         
+           MOVE    MN4-KEY           TO        MN4-MN4K2-RA-KEY.        
+           MOVE   'REDKX'            TO        MN4-RA-FUNCTION.         
+           CALL   'DBNTRY'        USING        C-USER-ID                
+                                               MN4-REQUEST-AREA         
+                                               MN4-REC                  
+                                               MN4-ELEMENT-LIST.        
+                                                                        
+9708  *울산　추가　９７．８월　（１６）．예외처리는　서울로             
+           IF MN4-RA-STATUS-CODE   =  SPACE OR ZERO                     
+               IF MN4-SIDO-CODE  NUMERIC                                
+                   IF MN4-SIDO-CODE > 0 AND MN4-SIDO-CODE < 17          
+                                MOVE   MN4-SIDO-CODE  TO  KS-JIYEOG     
+                   ELSE                                                 
+                                MOVE   01             TO  KS-JIYEOG     
+               ELSE             MOVE   01             TO  KS-JIYEOG     
+                           DISPLAY 'MN4-SIDO NOT NUMERIC ' MN4-SIDO-CODE
+981011*    ELSE          DISPLAY 'SIDO D/B STATUS = ' W-DB-STATUS       
+           ELSE          MOVE   01             TO  KS-JIYEOG.           
+           MOVE   KS-JIYEOG  TO  WK-JIYEOG.                             
+                                                                        
+      *--------------*                                                  
+       WANNAB-CHEORI.                                                   
+      *--------------*                                                  
+           MOVE 'G'      TO   KS-IDONG-A.                               
+           MOVE  3       TO   KS-IDONG-B.                               
+           PERFORM            GONGTONG-SAHANG.                          
+           MOVE  ZERO    TO   KS-SS-CODE.                               
+           MOVE    1     TO   KS-HOISU.                                 
+           MOVE      MKA-LPCNT  TO    KS-FROMHOISU    KS-TOHOISU.       
+           PERFORM   WRITE-RTN.                                         
+       WAN-EXIT.  EXIT.                                                 
+                                                                        
+      *------------*                                                    
+       SUNSU-GUBUN.                                                     
+      *------------*                                                    
+           IF  MKA-PAYMD =  9      MOVE   ZERO          TO  NB   ELSE   
+           IF  MKA-PAYMD =  8      MOVE   ZERO          TO  NB   ELSE   
+                                   MOVE   MKA-PAYMD     TO  NB.         
+981011     MOVE    MKA-CTRDT          TO  G-YMD.                        
+           MOVE    ACC-YMD            TO  L-YMD.                        
+           MOVE    MKA-LPYM           TO       M-YM.                    
+           MOVE    G-DD               TO       M-DD.                    
+
+           COMPUTE  MANGI-DATE = G-YMD + MKA-INSPRD * 10000.            
+           COMPUTE  NABGI-DATE = G-YMD + MKA-PAYPRD * 10000.            
+           IF  L-YMD > MANGI-DATE    MOVE  MANGI-DATE  TO  L-YMD.       
+           IF NOT (MKA-LPCNT * NB  < MKA-PAYPRD * 12)                   
+               IF  NOT  NABGI-DATE  >  L-YMD                            
+                                MOVE   9   TO   WK-CCC
+                  IF MKA-LPCNT * NB  > PAYPRD-NABGI * 12                
+                        COMPUTE  MKA-LPCNT = MKA-PAYPRD * 12 / NB.      
+           IF MKA-PAYMD = 9    MOVE  9   TO  WK-CCC.                    
+
+           IF   WK-CCC  < 8
+              IF   M-YMD < L-YMD     MOVE   M-YMD   TO  L-YMD.
+
+           COMPUTE  MS1 = (L-YY - G-YY) * 12 + L-MM - G-MM.             
+           DIVIDE  MS1  BY  12  GIVING  WK-GNG-YY  REMAINDER  WK-GNG-MM.
+           IF   WK-CCC  <  9                                            
+                 ADD     1    TO   WK-GNG-MM.
+           IF   WK-CCC  <  8                                            
+             IF  WK-GNG-YY * 12 + WK-GNG-MM  <  MKA-LPCNT  * NB         
+                    COMPUTE  MS1 = (MKA-LPCNT * NB) - (WK-GNG-YY * 12   
+                                                  -  WK-GNG-MM)         
+                    DIVIDE   MS1  BY  NB  GIVING  WK-SUNSU              
+           ELSE     MOVE     ZERO    TO  WK-SUNSU.                      
+      *------------*                                                    
+       SUNSU-CHEORI.                                                    
+      *------------*                                                    
+           MOVE     ZERO         TO   KS-SS-CODE.                       
+           MOVE     MKA-LPCNT    TO   WK-TO.                            
+           COMPUTE  KS-FROMHOISU = MKA-LPCNT  - WK-SUNSU  + 1.          
+           COMPUTE  MS = KS-FROMHOISU * N.                              
+           DIVIDE  MS   BY  12  GIVING  MS1   REMAINDER  MS2.           
+           IF  MS2 > ZERO           ADD   1   TO  MS1.                  
+           COMPUTE   MS = MS1 * 12 / N.                                 
+           PERFORM        121-JOJEONG-CHEORI.                           
+      *-------------------*                                             
+       121-JOJEONG-CHEORI.                                              
+      *-------------------*                                             
+           IF  MS <  WK-TO                                              
+                 MOVE     MS      TO   KS-TOHOISU                       
+                 PERFORM          121-1-SUNSU-WRITE                     
+                 ADD      MS   1  GIVING   KS-FROMHOISU                 
+                 COMPUTE  MS  =   KS-FROMHOISU + 12 / N - 1             
+                 GO               TO   121-JOJEONG-CHEORI.              
+           MOVE       WK-TO       TO   KS-TOHOISU.                      
+           PERFORM                121-1-SUNSU-WRITE.                    
+      *------------------*                                              
+       121-1-SUNSU-WRITE.                                               
+      *------------------*                                              
+           MOVE    'S'   TO   KS-IDONG-A.                               
+           PERFORM            GONGTONG-SAHANG.                          
+           IF  KS-TOHOISU * N    < 13   MOVE    2   TO  KS-IDONG-B      
+           ELSE                         MOVE    3   TO  KS-IDONG-B.     
+           COMPUTE   KS-HOISU  =  KS-TOHOISU - KS-FROMHOISU + 1.        
+           PERFORM   WRITE-RTN.                                         
+                                                                        
+      *----------------*                                                
+       GONGTONG-SAHANG.                                                 
+      *----------------*                                                
+           MOVE   MKA-INSTPS1    TO  WK-TK-BOJ(1).                      
+           MOVE   MKA-INSTPS2    TO  WK-TK-BOJ(2).                      
+           MOVE   MKA-INSTPS3    TO  WK-TK-BOJ(3).                      
+           MOVE   MKA-INSTPS4    TO  WK-TK-BOJ(4).                      
+           MOVE   MKA-INSTPS5    TO  WK-TK-BOJ(5).                      
+           MOVE   MKA-INSTPS6    TO  WK-TK-BOJ(6).                      
+           MOVE   MKA-S2         TO  WK-TK-S (1).                       
+           MOVE   MKA-S3         TO  WK-TK-S (2).                       
+           MOVE   MKA-S4         TO  WK-TK-S (3).                       
+           MOVE   MKA-S5         TO  WK-TK-S (4).                       
+           MOVE   MKA-S6         TO  WK-TK-S (5).                       
+           MOVE   MKA-S7         TO  WK-TK-S (6).                       
+           MOVE   MKA-P2         TO  WK-TK-P (1).                       
+           MOVE   MKA-P3         TO  WK-TK-P (2).                       
+           MOVE   MKA-P4         TO  WK-TK-P (3).                       
+           MOVE   MKA-P5         TO  WK-TK-P (4).                       
+           MOVE   MKA-P6         TO  WK-TK-P (5).                       
+           MOVE   MKA-P7         TO  WK-TK-P (6).                       
+           MOVE   ACC-YM         TO  KS-JOSA-YM.                        
+           MOVE   MKA-POLNO      TO  KS-JEUNGBEON.                      
+           MOVE   1              TO  KS-JJK.                            
+           MOVE   MKA-JUN-CODE   TO  KS-YUN-CODE.                       
+           MOVE   MKA-INSCOD     TO  KS-BOJONG    WK-BOJONG.            
+           MOVE   MKA-INSTPM     TO  KS-BOJONG-T.                       
+           MOVE   MKA-CTRDT      TO  KS-GYEYAG-YMD.                     
+           MOVE   MKA-INSPRD     TO  KS-MANGI.                          
+           MOVE   MKA-PAYMD      TO  KS-NABBANG.                        
+           MOVE   MKA-COLMD      TO  KS-SUGEUMCODE.                     
+           IF   MKA-PAYMD  =  9  MOVE  ZERO        TO  KS-NABGI         
+           ELSE                  MOVE  MKA-PAYPRD  TO  KS-NABGI.        
+                                                                        
+           IF     MKA-JINDAN = 2          MOVE  3  TO  KS-JINDAN        
+           ELSE   IF  MKA-JINDAN = ZERO   MOVE  1  TO  KS-JINDAN        
+                  ELSE                    MOVE  2  TO  KS-JINDAN.       
+                                                                        
+           MOVE   MKA-CTRAGE       TO     KS-GYENAI.                    
+           MOVE   MKA-CTRREG2      TO     KS-GYESEX.                    
+           IF  NOT  GYOYUK-BOJ  MOVE  MKA-INSAGE     TO  KS-PINAI       
+                                MOVE  MKA-INSREG2    TO  KS-PISEX       
+           ELSE                 MOVE  MKA-CHILDSAGE  TO  KS-PINAI       
+                                MOVE  MKA-CHILDREG2  TO  KS-PISEX       
+                                MOVE  MKA-INSAGE     TO  KS-GYENAI      
+                                MOVE  MKA-INSREG2    TO  KS-GYESEX      
+              IF  MKA-CHILDSAGE  > 30                                   
+                       COMPUTE KS-PINAI = MKA-CHILDSAGE  -  16 ELSE     
+              IF  MKA-CHILDSAGE  > 20                                   
+                       COMPUTE KS-PINAI = MKA-CHILDSAGE  -  9  ELSE     
+              IF  MKA-CHILDSAGE  > 10                                   
+                       COMPUTE KS-PINAI = MKA-CHILDSAGE  -  5.          
+                                                                        
+           DIVIDE MKA-CTROCC BY 10  GIVING   KS-JIGEOP.                 
+                                                                        
+980922*  수금．입금설계사　코드　추가　                                 
+  .        MOVE   MKA-DSTAGT    TO  KS-MOJIBJA.                         
+  .        MOVE   MKA-COLAGT    TO  KS-SUGEUMJA.                        
+                                                                        
+           DIVIDE MKA-CTROCC BY 10  GIVING   KS-JIGEOP.                 
+           IF  WK-POST-1 = MKA-ZIP1     MOVE  WK-JIYEOG TO  KS-JIYEOG   
+           ELSE                         PERFORM    991-SIDO-CONVERT     
+                                        MOVE  MKA-ZIP   TO  WK-POST.    
+
+           MOVE  MKA-PAYPRD  TO  NABGI.                                 
+           IF    NABGI = ZERO         MOVE    1   TO   NABGI            
+           ELSE                                                         
+               IF  NABGI > 10   MOVE  10  TO   NABGI.                   
+
+           IF GMRI-LINK                                                 
+                 COMPUTE  KS-BOGEUM = (MKA-P1 * NABGI * 12) / (N * 1000)
+           ELSE  COMPUTE  KS-BOGEUM = MKA-S1 * 10.                      
+
+           MOVE   MKA-P1         TO   KS-BOLYO.                         
+           MOVE   MKA-DSTAGC     TO   KS-MOJIBGIGWAN.                   
+           MOVE   MKA-COLAGC     TO   KS-SUGEUMGIGWAN.                  
+           MOVE   MKA-YUNGUM-AGE TO   KS-YUN-AGE.                       
+           MOVE   MKA-DANNO      TO   KS-DANCHE-NO.                     
+      *개인요금단체번호는　직역단체번호임　                             
+      *----------*                                                      
+       WRITE-RTN.                                                       
+      *----------*                                                      
+           PERFORM  DISPLAY-RTN.                                        
+           PERFORM  DB-TK-RTN   VARYING  I FROM  1 BY  1 UNTIL  I > 6.  
+      *----------*                                                      
+       DB-TK-RTN.                                                       
+      *----------*                                                      
+           IF  WK-TK-P(I)  IS NOT NUMERIC   MOVE  ZERO  TO WK-TK-P(I).  
+           IF  WK-TK-S(I)  IS NOT NUMERIC   MOVE  ZERO  TO WK-TK-S(I).  
+           MOVE    2       TO     KS-JJK.                               
+
+           IF   WK-TK-P(I) > ZERO                                       
+               MOVE  WK-TK-P (I)      TO   KS-BOLYO                     
+               MOVE  WK-TK-BOJ(I)     TO   KS-BOJONG-T                  
+990415                                     WK-BOJONG-T                  
+  .   *       IF  KS-IDONG-A = 'S'                                      
+  .   *                     PERFORM   TK-MYEONJE-RTN.                   
+      *    IF   WK-TK-P(I) > ZERO                                       
+               COMPUTE   KS-BOGEUM   =  WK-TK-S (I) * 10                
+               PERFORM   DISPLAY-RTN.                                   
+      *------------*                                                    
+      *TK-MYEONJE-RTN.                                                  
+      *------------*                                                    
+  .   *    IF   MKA-IMCOD = 3                                           
+  .   *        IF  TK-JANGSU-AM OR TK-JANGSUBAEUJA                      
+  .   *              MOVE   'H'         TO  KS-IDONG-A                  
+  .   *              DISPLAY '특약　납입면제'                           
+  .   *                   KS-JEUNGBEON ' ' KS-BOJONG-T                  
+  .   *                   ' ' MKA-IMCOD.                                
+  .   *    IF   MKA-IMCOD = 4                                           
+  .   *        IF  TK-JANGSU-AM                                         
+  .   *              MOVE   'H'         TO  KS-IDONG-A                  
+  .   *              DISPLAY '특약　납입면제'                           
+  .   *                      KS-JEUNGBEON ' ' KS-BOJONG-T               
+  .   *                      ' ' MKA-IMCOD.                             
+      *------------*                                                    
+       DISPLAY-RTN.                                                     
+      *------------*                                                    
+990415     COMPUTE   KS-HABBOLYO =  KS-BOLYO *  KS-HOISU.               
+           MOVE      KS-HABBOLYO    TO   WK-BOLYO.                      
+           IF  KS-IDONG-A = 'S'                                         
+              IF   KS-JOSA-MM = 3                                       
+                     COMPUTE  KS-HABBOLYO = KS-HABBOLYO * (-1)          
+                     COMPUTE  KS-BOLYO = KS-BOLYO * (-1)                
+              ELSE   MOVE   ZERO  TO   KS-HABBOLYO.                     
+           IF  KS-IDONG-A = 'X' OR 'G'                                  
+                     MOVE   ZERO  TO   KS-HABBOLYO.                     
+           IF   KS-IDONG = 'X1'    ADD  WK-BOLYO  TO  X1-RYO            
+                                   ADD  1         TO  X1-CNT.           
+           IF   KS-IDONG = 'G3'    ADD  WK-BOLYO  TO  G3-RYO            
+               IF   KS-JJK = 1     ADD  1         TO  G3-CNT.           
+           IF  KS-IDONG = 'S2'     ADD  WK-BOLYO  TO  S2-RYO            
+               IF   KS-JJK = 1     ADD  1         TO  S2-CNT.           
+           IF  KS-IDONG = 'S3'     ADD  WK-BOLYO  TO  S3-RYO            
+               IF   KS-JJK = 1     ADD  1         TO  S3-CNT.           
+           ADD      1              TO   CNT-OUT.                        
+           ADD     KS-HABBOLYO     TO   TOT-P.                          
+           WRITE    REC-OUT     FROM     KS-REC.                        
+      *---------------*                                                 
+       HWANWON-CHEORI.                                                  
+      *---------------*                                                 
+           ADD    1     TO    I.                                        
+           MOVE   SV-NABIB (I)    TO    MKB-REC.                        
+           IF MKB-COL-DATE > ACC-YMD   GO  TO   HWANWON-CHEORI.         
+           MOVE   MKB-LCOLYM      TO    MKA-LPYM.                       
+           MOVE   MKB-PAYCNT      TO    MKA-LPCNT.                      
+           MOVE   MKB-PAYMD       TO    MKA-PAYMD.                      
+           MOVE   MKB-COL-DATE    TO    MKA-LPAY-DATE.                  
+           MOVE   ZERO            TO    I.                              
+      *----------------*                                                
+       JIGB-SEG-SEARCH.                                                 
+      *----------------*                                                
+           ADD    1      TO   I.                                        
+           MOVE  SV-JIGB(I)   TO  M2B-REC.                              
+           IF   (M2B-SAYU  = 8800 OR 8462)   OR                         
+                (M2B-SAYU < 8100 AND  M2B-SAYU > 8010)                  
+                             GO           TO  JIGB-SEG-SEARCH.          
+           IF  NOT MKA-POLNO = M2B-POLNO                                
+               IF (MKA-KEEPCOD = 3 OR 4)  AND  M2B-DATE = ZERO          
+                    MOVE    MKA-LPRO-DATE TO   M2B-DATE.                
+           IF  M2B-DATE > ACC-YMD                                       
+                     MOVE     ZERO        TO    MKA-KEEPCOD.            
+           MOVE    ZERO   TO   I.                                       
+      *---------------*                                                 
+       GYEYAG-HWANWON.                                                  
+      *---------------*                                                 
+           ADD    1   TO     I     COMPUTE J = I - 1.                   
+           MOVE   SV-CHANGE(I)     TO   MKJ-REC.                        
+           IF  MKJ-BYEONKYEONG-DATE > ACC-YMD   GO TO  GYEYAG-HWANWON.  
+           MOVE   SV-CHANGE (J)    TO   MKJ-REC.                        
+                                                                        
+           IF  MKJ-BYEONKYEONG-DATE = ZERO      GO TO  GYEYAG-EXIT.     
+           IF  MKJ-GUBUN-CODE6  > ZERO                                  
+                  MOVE   MKJ-CHEOJONG-HOESU      TO   MKA-LPCNT         
+                  MOVE   MKJ-CHEOJONG-WEOLDO     TO   MKA-LPYM.         
+           MOVE   MKJ-BOJONG       TO   MKA-INSCOD.                     
+           MOVE   MKJ-NAPKI        TO   MKA-PAYPRD.                     
+           MOVE   MKJ-BOKI         TO   MKA-INSPRD.                     
+           MOVE   MKJ-NAPBANG      TO   MKA-PAYMD.                      
+           MOVE   MKJ-S1           TO   MKA-S1.                         
+           MOVE   MKJ-S2           TO   MKA-S2.                         
+           MOVE   MKJ-S3           TO   MKA-S3.                         
+           MOVE   MKJ-S4           TO   MKA-S4.                         
+           MOVE   MKJ-S5           TO   MKA-S5.                         
+           MOVE   MKJ-S6           TO   MKA-S6.                         
+           MOVE   MKJ-P1           TO   MKA-P1.                         
+           MOVE   MKJ-P2           TO   MKA-P2.                         
+           MOVE   MKJ-P3           TO   MKA-P3.                         
+           MOVE   MKJ-P4           TO   MKA-P4.                         
+           MOVE   MKJ-P5           TO   MKA-P5.                         
+           MOVE   MKJ-P6           TO   MKA-P6.                         
+           ADD    MKJ-P1 MKJ-P2 MKJ-P3 MKJ-P4 MKJ-P5 MKJ-P6             
+                              GIVING   MKA-PRMM.                        
+           MOVE   ZERO  TO    I.                                        
+       GYEYAG-EXIT.     EXIT.                                           
+                                                                        
+      * ----------------------------------------------------------------
+      *         COPY     K11B9901.                                      
+      *---------------------*                                           
+       990-BOGWON-CHEORI.                                               
+      *---------------------*                                           
+           DIVIDE  IN-COD2  BY  10  GIVING  I  REMAINDER J.             
+           IF  IN-COD1   =   1                                          
+              IF  I > 8    DISPLAY 'ERR(MASTER D/B). ' I ' ' IN-COD2    
+              ELSE         MOVE    IN-IN  TO   SV-MKA(I).               
+           IF IN-COD1   =   2                                           
+              IF  I < 25   MOVE    IN-IN  TO   SV-NABIB (I).            
+980724     IF IN-COD1   =   3                                           
+  .           IF  I < 25   MOVE    IN-IN  TO   SV-BUHAL (I).            
+           IF IN-COD1   =   5                                           
+              IF  I < 6                                                 
+                IF  J < 4    MOVE    IN-IN  TO   SV-CH (I  J).          
+           IF IN-COD1   =   6                                           
+              IF  I > 10   NEXT                SENTENCE                 
+              ELSE         MOVE    IN-IN  TO   SV-ANUITY (I).           
+           IF IN-COD1   =   7                                           
+              IF  I > 10   NEXT                SENTENCE                 
+              ELSE  IF  J < 4                                           
+                           MOVE    IN-IN  TO   SV-JGB (I  J)            
+                    ELSE   DISPLAY ' JIGB   J ERR = ' IN-COD2.          
+           IF IN-COD1   =  10                                           
+              IF  I > 5    NEXT                SENTENCE                 
+                ELSE           MOVE    IN-IN  TO   SV-BAE (I).          
+           IF IN-COD1   =  11                                           
+              IF  I < 25   MOVE    IN-IN  TO   SV-JAYUNAB (I)           
+                           MOVE    1      TO   JN                       
+                           MOVE    I      TO   JNM.                     
+           MOVE  ZERO    TO    I    J.                                  
+      * --------------  END OF FILE ------------------------------------
+                                                                        

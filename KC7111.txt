@@ -1,0 +1,72 @@
+//KERC7111 JOB (KER),'KER01',CLASS=G,MSGCLASS=X,MSGLEVEL=(1,1)          
+//STEP1 EXEC YCOBBAT,MBR=KC7111                                         
+//COB.SYSIN DD *                                                        
+      *---------------------------------*                               
+       IDENTIFICATION          DIVISION.                                
+      *---------------------------------*                               
+       PROGRAM-ID.             KC7111.                                  
+      *---------------------------------------------*                   
+      *REMARKS.                CHECK LIST SELECTION.                    
+      *---------------------------------------------*                   
+       ENVIRONMENT             DIVISION.                                
+       CONFIGURATION           SECTION.                                 
+       INPUT-OUTPUT            SECTION.                                 
+       FILE-CONTROL.                                                    
+           SELECT  FILE-IN    ASSIGN  TO  FILEIN.                       
+           SELECT  FILE-OUT   ASSIGN  TO  FILEOUT.                      
+       DATA                   DIVISION.                                 
+       FILE                   SECTION.                                  
+       FD  FILE-IN            RECORDING   MODE        IS  F             
+                              LABEL       RECORD          STANDARD      
+                              BLOCK       CONTAINS    50  RECORDS       
+                              RECORD      CONTAINS   283  CHARACTERS.   
+       01  REC-IN.     COPY KB9018.                                     
+       FD  FILE-OUT           RECORDING   MODE        IS  F             
+                              LABEL       RECORDS         STANDARD      
+                              BLOCK       CONTAINS    50  RECORDS       
+                              RECORD      CONTAINS   283  CHARACTERS.   
+       01  REC-OUT            PIC  X(283).                              
+      *-----------------------*                                         
+       WORKING-STORAGE SECTION.                                         
+      *-----------------------*                                         
+       01  D-BSMG    PIC 9(4).                                          
+           88  BSMG      VALUE    1  3  7.                              
+       01  D-NABGI    PIC 9(2).                                         
+           88  NABGI      VALUE   0  3  5  10 20 22 25.                 
+       01  D-MANGI    PIC 9(2).                                         
+           88  MANGI      VALUE   1  3  5  10 20 22 25 99.              
+       01  D-PINAI    PIC 9(2).                                         
+           88  PINAI      VALUE   0 35 45.                              
+       01  WORK-SPACE.                                                  
+           02  CNT-IN                  PIC 9(7).                        
+           02  CNT-OUT                 PIC 9(7).                        
+           02  CNT-D                   PIC 9(3).                        
+           02  SW                      PIC 9.                           
+      *=========================*                                       
+       PROCEDURE       DIVISION.                                        
+      *=========================*                                       
+           OPEN    INPUT   FILE-IN     OUTPUT  FILE-OUT.                
+           MOVE    ZERO    TO          WORK-SPACE.                      
+      *--------*                                                        
+       READ-RTN.                                                        
+      *--------*                                                        
+           READ    FILE-IN      END   GO  TO  LAST-RTN.                 
+           ADD     1            TO    CNT-IN.                           
+           MOVE    K4-BSMG      TO    D-BSMG.                           
+           IF   NOT BSMG        GO    TO      READ-RTN.                 
+           IF   K4-JT  = 1                                              
+                        ADD     1     TO      CNT-D.                    
+           IF   CNT-D = 150                                             
+                        ADD    1          TO   CNT-OUT                  
+                        WRITE  REC-OUT  FROM   REC-IN.                  
+           IF   CNT-D > 400    MOVE     ZERO   TO  CNT-D.               
+           GO                  TO   READ-RTN.                           
+      *--------*                                                        
+       LAST-RTN.                                                        
+      *--------*                                                        
+           CLOSE     FILE-IN    FILE-OUT.                               
+           DISPLAY    '     *=================================*'.       
+           DISPLAY    '     *   FILE-IN   TOTAL  =  '  CNT-IN.          
+           DISPLAY    '     *   FILE-OUT  TOTAL  =  '  CNT-OUT.         
+           DISPLAY    '     *=================================*'.       
+           STOP RUN.                                                    

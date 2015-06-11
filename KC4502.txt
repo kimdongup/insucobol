@@ -1,0 +1,668 @@
+//KERC4502 JOB (KER),'KER06',CLASS=K,MSGCLASS=X,MSGLEVEL=(1,1)          
+//STEP1 EXEC YCOBBAT,MBR=K11C4502                                       
+//COB.SYSIN DD *                                                        
+PROCESS TEST(NONE,SYM)                                                  
+      *============================================================*    
+      *=  프로그램　작성  1999.06.11                            =*      
+      *=  INPUT FILE : 400 BYTE   10 BLOCK                        =*    
+      *=       LAYOUT : CYHSS10    U1HDO4 : MHSS10P               =*    
+      *============================================================*    
+       IDENTIFICATION                  DIVISION.                        
+      *========================================*                        
+       PROGRAM-ID.                     K11C4502.                        
+       ENVIRONMENT                     DIVISION.                        
+       CONFIGURATION                   SECTION.                         
+       INPUT-OUTPUT                    SECTION.                         
+       FILE-CONTROL.                                                    
+           SELECT  FILE-IN   ASSIGN  TO  FILEIN.                        
+           SELECT  FILE-OUT  ASSIGN  TO  FILEOUT.                       
+      *=================================*                               
+       DATA                    DIVISION.                                
+      *=================================*                               
+       FILE                    SECTION.                                 
+      *--------------------------------*                                
+       FD  FILE-IN         RECORDING     MODE  IS   F                   
+                           LABEL   RECORD      IS   STANDARD            
+                           BLOCK   CONTAINS    50   RECORDS             
+                           RECORD  CONTAINS   400   CHARACTERS.         
+           COPY        CYHSS10  SUPPRESS.                               
+                                                                        
+       FD  FILE-OUT        RECORDING     MODE       IS   F              
+                           LABEL         RECORD          STANDARD       
+                           BLOCK         CONTAINS   100  RECORDS        
+                           RECORD        CONTAINS   134  CHARACTERS.    
+       01  REC-OUT     PIC X(134).                                      
+       EJECT                                                            
+      *=================================*                               
+       WORKING-STORAGE         SECTION.                                 
+      *=================================*                               
+      *-------------------------------*                                 
+      *      MEMORY      GROUP        *                                 
+      *-------------------------------*                                 
+       01  KS-REC.                                                      
+                     COPY    K11B9103    SUPPRESS.                      
+                                                                        
+       01  REC-WORK.                                                    
+                     COPY    KBBOJ88     SUPPRESS.                      
+           02  KK                   PIC 9(05).                          
+           02  LL                   PIC 9(03).                          
+           02  MM                   PIC 9(03).                          
+           02  NABGI                PIC 9(03).                          
+           02  W-T                  PIC 9(03).                          
+           02  WK-BOLYO             PIC S9(09).                         
+           02  WK-ADDIS             PIC S9(12).                         
+990415     02  WK-P                 PIC  9(09).                         
+990415     02  WK-NAM               PIC  9(09).                         
+990415     02  TK-MYUNJE-P          PIC S9(09).                         
+   .       02  TK-MYUNJE-FLAG       PIC  9(03).                         
+   .       02  JU-IDONG-A           PIC  X(01).                         
+           02  WK-H-BOLYO           PIC S9(09).                         
+           02  WK-IJA               PIC 9(07).                          
+           02  I                    PIC 9(3).                           
+           02  J                    PIC 9(3).                           
+           02  N                    PIC 9(2).                           
+           02  ACC-YM.                                                  
+               03  ACC-YY           PIC 9(4).                           
+               03  ACC-MM           PIC 9(2).                           
+       01  REC-HALIN.                                                   
+           02  WK-HALIN             PIC S9(9).                          
+           02  WK-HOISU             PIC 9(5).                           
+           02  WK-JJK               PIC 9(2).                           
+       01  REC-CNT.                                                     
+           02  CNT-IN               PIC 9(7).                           
+           02  CNT-OUT              PIC 9(7).                           
+           02  A-CNT        OCCURS  3  PIC 9(7).                        
+           02  B-CNT        OCCURS  3  PIC 9(7).                        
+           02  C-CNT        OCCURS  3  PIC 9(7).                        
+           02  D-CNT        OCCURS  3  PIC 9(7).                        
+           02  E-CNT        OCCURS  3  PIC 9(7).                        
+           02  F-CNT        OCCURS  3  PIC 9(7).                        
+           02  G-CNT        OCCURS  3  PIC 9(7).                        
+           02  H-CNT        OCCURS  3  PIC 9(7).                        
+           02  I-CNT        OCCURS  3  PIC 9(7).                        
+           02  J-CNT        OCCURS  3  PIC 9(7).                        
+           02  K-CNT        OCCURS  3  PIC 9(7).                        
+           02  L-CNT        OCCURS  3  PIC 9(7).                        
+           02  M-CNT        OCCURS  3  PIC 9(7).                        
+           02  N-CNT        OCCURS  3  PIC 9(7).                        
+           02  O-CNT        OCCURS  3  PIC 9(7).                        
+           02  P-CNT        OCCURS  3  PIC 9(7).                        
+           02  S-CNT        OCCURS  3  PIC 9(7).                        
+           02  T-CNT        OCCURS  3  PIC 9(7).                        
+           02  X-CNT        OCCURS  3  PIC 9(7).                        
+           02  A-BOLYO      OCCURS  3  PIC S9(12).                      
+           02  B-BOLYO      OCCURS  3  PIC S9(12).                      
+           02  C-BOLYO      OCCURS  3  PIC S9(12).                      
+           02  D-BOLYO      OCCURS  3  PIC S9(12).                      
+           02  E-BOLYO      OCCURS  3  PIC S9(12).                      
+           02  F-BOLYO      OCCURS  3  PIC S9(12).                      
+           02  G-BOLYO      OCCURS  3  PIC S9(12).                      
+           02  H-BOLYO      OCCURS  3  PIC S9(12).                      
+           02  I-BOLYO      OCCURS  3  PIC S9(12).                      
+           02  J-BOLYO      OCCURS  3  PIC S9(12).                      
+           02  K-BOLYO      OCCURS  3  PIC S9(12).                      
+           02  L-BOLYO      OCCURS  3  PIC S9(12).                      
+           02  M-BOLYO      OCCURS  3  PIC S9(12).                      
+           02  N-BOLYO      OCCURS  3  PIC S9(12).                      
+           02  O-BOLYO      OCCURS  3  PIC S9(12).                      
+           02  P-BOLYO      OCCURS  3  PIC S9(12).                      
+           02  S-BOLYO      OCCURS  3  PIC S9(12).                      
+           02  T-BOLYO      OCCURS  3  PIC S9(12).                      
+           02  X-BOLYO      OCCURS  3  PIC S9(12).                      
+           02  TT-BOLYO             PIC S9(12).                         
+           02  HOISU                PIC S9(07).                         
+           02  DIS-BOLYO            PIC ----,---,---,--9.               
+                                                                        
+       01  WK-TABLE.                                                    
+           02  WK-TAB            OCCURS   6.                            
+              03  TA-BOJ            PIC   9(4).                         
+              03  TA-S              PIC   9(7).                         
+              03  TA-P              PIC   9(9).                         
+                                                                        
+       01  CURRENT-YMD.                                                 
+           02  CURRENT-YY           PIC 9(4).                           
+           02  CURRENT-MM           PIC 9(2).                           
+           02  CURRENT-DD           PIC 9(2).                           
+                                                                        
+       01  REC-SWITCH.                                                  
+         02  FILE-EOF-SWITCH        PIC X(3)    VALUE 'NO '.            
+             88  FILE-EOF           VALUE 'YES'.                        
+         02  FIRST-DATA-SWITCH      PIC X(3)    VALUE 'YES'.            
+             88  FIRST-DATA         VALUE 'YES'.                        
+      *=================================*                               
+       PROCEDURE               DIVISION.                                
+      *=================================*                               
+           OPEN    INPUT    FILE-IN                                     
+                   OUTPUT   FILE-OUT.                                   
+           INITIALIZE   WK-TABLE  KS-REC   REC-CNT  REC-WORK            
+                        KS-ALPHA  KS-BETA  KS-GAMMA KS-BOGEUM           
+                        KS-HABBOLYO  KS-GUNSU   REC-HALIN.              
+           MOVE   FUNCTION CURRENT-DATE(1:8)  TO   CURRENT-YMD.         
+           MOVE   CURRENT-YY      TO      ACC-YY.                       
+           MOVE   CURRENT-MM      TO      ACC-MM.                       
+           ADD    -1              TO      ACC-MM.                       
+           IF   ACC-MM  =  ZERO    MOVE   12    TO    ACC-MM            
+                                   ADD    -1    TO    ACC-YY.           
+           DISPLAY   ' ***  CURRENT-DATE = '  CURRENT-YMD.              
+           DISPLAY   ' ***  ACC-YM      = '  ACC-YM.                    
+           PERFORM 110-READ-SELECT.                                     
+           PERFORM 100-PG-CONTROL  UNTIL FILE-EOF.                      
+           CLOSE     FILE-IN    FILE-OUT.                               
+           DISPLAY   '***********************************************'. 
+           DISPLAY   '**  IN-PUT  COUNT  =  ' CNT-IN.                   
+           DISPLAY   '**  OUT-PUT COUNT  =  ' CNT-OUT.                  
+           DISPLAY   '-----------------------------------------------'. 
+           MOVE      A-BOLYO(1)   TO   DIS-BOLYO.                       
+           DISPLAY   '** SINGYEYAK A1   =  ' A-CNT(1) ' * ' DIS-BOLYO.  
+           MOVE      A-BOLYO(2)   TO   DIS-BOLYO.                       
+           DISPLAY   '**           A2   =  ' A-CNT(2) ' * ' DIS-BOLYO.  
+           MOVE      A-BOLYO(3)   TO   DIS-BOLYO.                       
+           DISPLAY   '**           A3   =  ' A-CNT(3) ' * ' DIS-BOLYO.  
+           COMPUTE   A-BOLYO(3) = A-BOLYO(1) + A-BOLYO(2) + A-BOLYO(3). 
+           MOVE      A-BOLYO(3)   TO   DIS-BOLYO.                       
+           DISPLAY   '------------------------------------------------'.
+           DISPLAY   '**  SINGYEYAG GYE   =       '   ' $ ' DIS-BOLYO.  
+           DISPLAY   '------------------------------------------------'.
+           MOVE      B-BOLYO(2)   TO   DIS-BOLYO.                       
+           DISPLAY   '** YOGM      B2   =  ' B-CNT(2) ' * ' DIS-BOLYO.  
+           MOVE      B-BOLYO(3)   TO   DIS-BOLYO.                       
+           DISPLAY   '**           B3   =  ' B-CNT(3) ' * ' DIS-BOLYO.  
+           COMPUTE   B-BOLYO(3) = B-BOLYO(1) + B-BOLYO(2) + B-BOLYO(3). 
+           MOVE      B-BOLYO(3)   TO   DIS-BOLYO.                       
+           DISPLAY   '------------------------------------------------'.
+           DISPLAY   '**  YOGEUM    GYE   =       '   ' $ ' DIS-BOLYO.  
+           DISPLAY   '------------------------------------------------'.
+           MOVE      C-BOLYO(1)   TO   DIS-BOLYO.                       
+           DISPLAY   '** COOLING   C1   =  ' C-CNT(1) ' * ' DIS-BOLYO.  
+           MOVE      C-BOLYO(2)   TO   DIS-BOLYO.                       
+           DISPLAY   '**           C2   =  ' C-CNT(2) ' * ' DIS-BOLYO.  
+           MOVE      C-BOLYO(3)   TO   DIS-BOLYO.                       
+           DISPLAY   '**           C3   =  ' C-CNT(3) ' * ' DIS-BOLYO.  
+           COMPUTE   C-BOLYO(3) = C-BOLYO(1) + C-BOLYO(2) + C-BOLYO(3). 
+           MOVE      C-BOLYO(3)   TO   DIS-BOLYO.                       
+           DISPLAY   '------------------------------------------------'.
+           DISPLAY   '**  COOLING   GYE   =       '   ' $ ' DIS-BOLYO.  
+           DISPLAY   '------------------------------------------------'.
+      *    MOVE      D-BOLYO(2)   TO   DIS-BOLYO.                       
+      *    DISPLAY   '** BUHWAL    D2   =  ' D-CNT(2) ' * ' DIS-BOLYO.  
+      *    MOVE      D-BOLYO(3)   TO   DIS-BOLYO.                       
+      *    DISPLAY   '**           D3   =  ' D-CNT(3) ' * ' DIS-BOLYO.  
+      *    COMPUTE   D-BOLYO(3) = D-BOLYO(1) + D-BOLYO(2) + D-BOLYO(3). 
+      *    MOVE      D-BOLYO(3)   TO   DIS-BOLYO.                       
+      *    DISPLAY   '------------------------------------------------'.
+      *    DISPLAY   '**  BUHWAL    GYE   =       '   ' $ ' DIS-BOLYO.  
+      *    DISPLAY   '------------------------------------------------'.
+           MOVE      E-BOLYO(2)   TO   DIS-BOLYO.                       
+           DISPLAY   '** MINAP     E2   =  ' E-CNT(2) ' * ' DIS-BOLYO.  
+           MOVE      E-BOLYO(3)   TO   DIS-BOLYO.                       
+           DISPLAY   '**           E3   =  ' E-CNT(3) ' * ' DIS-BOLYO.  
+           COMPUTE   E-BOLYO(3) = E-BOLYO(1) + E-BOLYO(2) + E-BOLYO(3). 
+           MOVE      E-BOLYO(3)   TO   DIS-BOLYO.                       
+           DISPLAY   '------------------------------------------------'.
+           DISPLAY   '**  MINAP     GYE   =       '   ' $ ' DIS-BOLYO.  
+           DISPLAY   '------------------------------------------------'.
+           MOVE      F-BOLYO(1)   TO   DIS-BOLYO.                       
+           DISPLAY   '** VT-CHA    F1   =  ' F-CNT(1) ' * ' DIS-BOLYO.  
+           MOVE      F-BOLYO(2)   TO   DIS-BOLYO.                       
+           DISPLAY   '**           F2   =  ' F-CNT(2) ' * ' DIS-BOLYO.  
+           MOVE      F-BOLYO(3)   TO   DIS-BOLYO.                       
+           DISPLAY   '**           F3   =  ' F-CNT(3) ' * ' DIS-BOLYO.  
+           COMPUTE   F-BOLYO(3) = F-BOLYO(1) + F-BOLYO(2) + F-BOLYO(3). 
+           MOVE      F-BOLYO(3)   TO   DIS-BOLYO.                       
+           DISPLAY   '------------------------------------------------'.
+           DISPLAY   '**  VT-CHA    GYE   =       '   ' $ ' DIS-BOLYO.  
+           DISPLAY   '------------------------------------------------'.
+           MOVE      H-BOLYO(2)   TO   DIS-BOLYO.                       
+           DISPLAY   '** MYUNJE    H2   =  ' H-CNT(2) ' * ' DIS-BOLYO.  
+           MOVE      H-BOLYO(3)   TO   DIS-BOLYO.                       
+           DISPLAY   '**           H3   =  ' H-CNT(3) ' * ' DIS-BOLYO.  
+           COMPUTE   H-BOLYO(3) = H-BOLYO(1) + H-BOLYO(2) + H-BOLYO(3). 
+           MOVE      H-BOLYO(3)   TO   DIS-BOLYO.                       
+           DISPLAY   '------------------------------------------------'.
+           DISPLAY   '**  MYUNJE     GYE  =       '   ' $ ' DIS-BOLYO.  
+           DISPLAY   '------------------------------------------------'.
+           MOVE      I-BOLYO(1)   TO   DIS-BOLYO.                       
+           DISPLAY   '** P-HALIN   I1   =  ' I-CNT(1) ' * ' DIS-BOLYO.  
+           MOVE      I-BOLYO(2)   TO   DIS-BOLYO.                       
+           DISPLAY   '**           I2   =  ' I-CNT(2) ' * ' DIS-BOLYO.  
+           MOVE      I-BOLYO(3)   TO   DIS-BOLYO.                       
+           DISPLAY   '**           I3   =  ' I-CNT(3) ' * ' DIS-BOLYO.  
+           COMPUTE   I-BOLYO(3) = I-BOLYO(1) + I-BOLYO(2) + I-BOLYO(3). 
+           MOVE      I-BOLYO(3)   TO   DIS-BOLYO.                       
+           DISPLAY   '------------------------------------------------'.
+           DISPLAY   '**  P-HALIN   GYE   =       '   ' $ ' DIS-BOLYO.  
+      *    DISPLAY   '------------------------------------------------'.
+      *    MOVE      J-BOLYO(1)   TO   DIS-BOLYO.                       
+      *    DISPLAY   '** BANSONG   J1   =  ' J-CNT(1) ' * ' DIS-BOLYO.  
+      *    MOVE      J-BOLYO(2)   TO   DIS-BOLYO.                       
+      *    DISPLAY   '**           J2   =  ' J-CNT(2) ' * ' DIS-BOLYO.  
+      *    MOVE      J-BOLYO(3)   TO   DIS-BOLYO.                       
+      *    DISPLAY   '**           J3   =  ' J-CNT(3) ' * ' DIS-BOLYO.  
+      *    COMPUTE   J-BOLYO(3) = J-BOLYO(1) + J-BOLYO(2) + J-BOLYO(3). 
+      *    MOVE      J-BOLYO(3)   TO   DIS-BOLYO.                       
+      *    DISPLAY   '------------------------------------------------'.
+      *    DISPLAY   '**  BAN-COOL  GYE   =       '   ' $ ' DIS-BOLYO.  
+      *    DISPLAY   '------------------------------------------------'.
+      *    MOVE      K-BOLYO(2)   TO   DIS-BOLYO.                       
+      *    DISPLAY   '** P-CHUISO  K2   =  ' K-CNT(2) ' * ' DIS-BOLYO.  
+      *    MOVE      K-BOLYO(3)   TO   DIS-BOLYO.                       
+      *    DISPLAY   '**           K3   =  ' K-CNT(3) ' * ' DIS-BOLYO.  
+      *    COMPUTE   K-BOLYO(3) = K-BOLYO(1) + K-BOLYO(2) + K-BOLYO(3). 
+      *    MOVE      K-BOLYO(3)   TO   DIS-BOLYO.                       
+      *    DISPLAY   '------------------------------------------------'.
+      *    DISPLAY   '**  P-CHUISO  GYE   =       '   ' $ ' DIS-BOLYO.  
+      *    DISPLAY   '------------------------------------------------'.
+           MOVE      M-BOLYO(2)   TO   DIS-BOLYO.                       
+           DISPLAY   '** JAYU-NAP  M2   =  ' M-CNT(2) ' * ' DIS-BOLYO.  
+           MOVE      M-BOLYO(3)   TO   DIS-BOLYO.                       
+           DISPLAY   '**           M3   =  ' M-CNT(3) ' * ' DIS-BOLYO.  
+           COMPUTE   M-BOLYO(3) = M-BOLYO(1) + M-BOLYO(2) + M-BOLYO(3). 
+           MOVE      M-BOLYO(3)   TO   DIS-BOLYO.                       
+           DISPLAY   '------------------------------------------------'.
+           DISPLAY   '**  JAYU-NAB   GYE  =       '   ' $ ' DIS-BOLYO.  
+           DISPLAY   '------------------------------------------------'.
+           MOVE      TT-BOLYO   TO   DIS-BOLYO.                         
+           DISPLAY   '************************************************'.
+           DISPLAY   '**  7,8,9  ADDIS    =       '   ' $ ' WK-ADDIS.   
+           DISPLAY   '************************************************'.
+           DISPLAY   '************************************************'.
+           DISPLAY   '**  TOTAL    BOLYO  =       '   ' $ ' DIS-BOLYO.  
+           DISPLAY   '************************************************'.
+           STOP    RUN.                                                 
+      *---------------*                                                 
+       100-PG-CONTROL.                                                  
+      *---------------*                                                 
+           PERFORM 120-DATA-CHEORI.                                     
+           PERFORM 110-READ-SELECT.                                     
+      *----------------*                                                
+       110-READ-SELECT.                                                 
+      *----------------*                                                
+           READ   FILE-IN   AT  END  MOVE 'YES' TO FILE-EOF-SWITCH.     
+           IF  NOT FILE-EOF                                             
+                       ADD    1    TO   CNT-IN.                         
+
+      *----------------*                                                
+       120-DATA-CHEORI.                                                 
+      *----------------*                                                
+           IF     HS10-BLPCNT = ZERO     MOVE  1  TO  HS10-BLPCNT.      
+           IF     HS10-PAYSF > 800                                      
+              IF  HS10-PAYMD  =  9                                      
+                     MOVE      1     TO   HS10-PAYSF   HS10-PAYST       
+              ELSE                                                      
+                     COMPUTE  HS10-PAYSF = HS10-BLPCNT + 1              
+                     MOVE     HS10-PAYSF   TO   HS10-PAYST.             
+           IF     HS10-PAYSF > HS10-PAYST                               
+                     MOVE     HS10-PAYSF   TO  HS10-PAYST.              
+           MOVE    ZERO    TO   TK-MYUNJE-P  TK-MYUNJE-FLAG.            
+
+           COMPUTE  HS10-SPREM  =  HS10-SPREM                           
+                                   / (HS10-PAYST - HS10-PAYSF + 1).     
+           COMPUTE  HS10-ADDIS = HS10-ADDIS * -1.                       
+           IF HS10-RD1 =  7 OR 8 OR 9                                   
+                        COMPUTE  HS10-ADDIS = HS10-ADDIS * -1.          
+           IF HS10-RD1 =  7 OR 8 OR 9                                   
+                ADD   HS10-ADDIS  TO  WK-ADDIS                          
+              IF HS10-SPREM < ZERO                                      
+      *       DISPLAY ' - SPREM = ' HS10-SPREM ' ADDIS = ' HS10-ADDIS   
+      *               ' P1    = ' HS10-P1                               
+                             COMPUTE  HS10-SPREM = HS10-SPREM * -1      
+990524*                      COMPUTE  HS10-ADDIS = HS10-ADDIS * -1      
+              ELSE                                                      
+             DISPLAY ' + SPREM = ' HS10-SPREM ' ADDIS = ' HS10-ADDIS    
+                     ' P1    = ' HS10-P1.                               
+
+           IF  HS10-PAYMD > 7       MOVE  12          TO  N             
+           ELSE                     MOVE  HS10-PAYMD  TO  N.            
+           PERFORM                  GONGTONG-SAHANG.                    
+
+      *===할인코드================================================*   
+      * 개인=> 1:자동이체 2:급여이체  3 :단체취급 9 :선납 *   
+      * 단체=> 4:단체할인 5:고액할인  6 :우량단체할인       *   
+      *=============================================================*   
+           MOVE       HS10-RD1  TO   KS-RD-CODE.                        
+           IF   HS10-HALIN-CODE > 4                                     
+               IF   HS10-HALIN-CODE < 9  DISPLAY ' RD ERR => '          
+                                    HS10-RD1.                           
+           MOVE  HS10-ADDIS   TO   WK-IJA.                              
+           IF   HS10-HALIN-CODE > ZERO                                  
+               IF   HS10-HALIN-CODE < 7                                 
+                         MOVE    HS10-HALIN-CODE   TO   KS-SS-CODE      
+                         PERFORM  190-HALIN-CHEORI                      
+               ELSE      MOVE  ZERO  TO  HS10-ADDIS                     
+           ELSE          MOVE  ZERO  TO  HS10-ADDIS                     
+                         MOVE  ZERO  TO  KS-SS-CODE.                    
+      *  ===============================================================
+      *  RD1   １：신계약　　　　２：계속　　３：부활                   
+      *        ４：추징금．반제금　　　　　　５：면제                   
+      *        ６：미납　　　　　７：반송　　８：착오정정（수보취소）   
+      *        ９：청약철회　　　０：선수　　Ａ：자유납입               
+      *  ===============================================================
+           IF   HS10-RD1 =  '1'    PERFORM  120-1-SINGYEYAK     ELSE    
+           IF   HS10-RD1 =  '2'    PERFORM  120-2-YOGEUM        ELSE    
+           IF   HS10-RD1 =  '3'    PERFORM  120-3-BUHWAL        ELSE    
+           IF   HS10-RD1 =  '4'    PERFORM  120-4-VT-CHA        ELSE    
+           IF   HS10-RD1 =  '5'    PERFORM  120-5-ILSI-MYUNJE   ELSE    
+           IF   HS10-RD1 =  '6'    PERFORM  120-6-MINAB         ELSE    
+           IF   HS10-RD1 =  '7'    PERFORM  120-7-P-BANSONG     ELSE    
+990524     IF   HS10-RD1 =  '8'    PERFORM  120-8-SUBO-CHUISO   ELSE    
+           IF   HS10-RD1 =  '9'    PERFORM  120-9-COOLING-OFF   ELSE    
+      *    IF   HS10-RD1 =  '7' OR '8' OR '9'                           
+      *                            PERFORM  120-9-COOLING-OFF   ELSE    
+           IF   HS10-RD1 =  'A'    PERFORM  120-10-FREE-NABIB   ELSE    
+                       DISPLAY  ' RD-COD ERR : POL = ' HS10-POLNO       
+                                              '  RD1:' HS10-RD1.        
+      *  ====(IDONG-A)==================================================
+      *  A :신계약      B :정상수금     C :청약철회 D :부　활           
+      *  E :부　활      F : VT차        G :완　납   H :일시면제         
+      *  I : 수금할인   J :반송（철회） K :수보취소 L :                 
+      *  M :자유납입    N :               O :           P :             
+      *  S :당월선수    T :전월선수     X :거치전환건                   
+      *  ===============================================================
+
+      *--------------*                                                  
+       120-1-SINGYEYAK.                                                 
+      *--------------*                                                  
+           MOVE  'A'    TO   KS-IDONG-A.                                
+           MOVE   1     TO   KS-FROMHOISU  KS-TOHOISU.                  
+           PERFORM           WRITE-RTN.                                 
+           IF  HS10-APRMCNT  >  0  OR  HS10-PAYST > 1                   
+                   MOVE       2            TO     HS10-PAYSF            
+                   PERFORM    SSSSS-HOISU  THRU   HOISU-EXIT.           
+      *------------*                                                    
+       120-2-YOGEUM.                                                    
+      *------------*                                                    
+           MOVE  'B'    TO    KS-IDONG-A.                               
+           PERFORM    SSSSS-HOISU  THRU   HOISU-EXIT.                   
+      *------------*                                                    
+       120-3-BUHWAL.                                                    
+      *------------*                                                    
+           MOVE  'D'    TO    KS-IDONG-A.                               
+           PERFORM    SSSSS-HOISU  THRU   HOISU-EXIT.                   
+      *-----------*                                                     
+       120-4-VT-CHA.                                                    
+      *-----------*                                                     
+           MOVE     'F'    TO   KS-IDONG-A.                             
+           PERFORM   SSSSS-HOISU  THRU   HOISU-EXIT.                    
+      *-----------------*                                               
+       120-5-ILSI-MYUNJE.                                               
+      *-----------------*                                               
+           MOVE    'H'     TO   KS-IDONG-A.                             
+           PERFORM    SSSSS-HOISU  THRU   HOISU-EXIT.                   
+      *------------*                                                    
+       120-6-MINAB.                                                     
+      *------------*                                                    
+           MOVE    'E'      TO   KS-IDONG-A.                            
+           PERFORM  SSSSS-HOISU  THRU   HOISU-EXIT.                     
+      *-----------------*                                               
+       120-7-P-BANSONG.                                                 
+      *-----------------*                                               
+           MOVE  'J'    TO    KS-IDONG-A.                               
+           IF HS10-PAYSF = 1                                            
+              MOVE   1     TO    KS-FROMHOISU  KS-TOHOISU               
+              PERFORM            WRITE-RTN.                             
+           IF HS10-PAYST > 1                                            
+                   MOVE   2   TO  HS10-PAYSF                            
+                   PERFORM    SSSSS-HOISU  THRU   HOISU-EXIT.           
+      *-----------------*                                               
+990528 120-8-SUBO-CHUISO.                                               
+      *-----------------*                                               
+           MOVE    'K'    TO    KS-IDONG-A.                             
+           PERFORM    SSSSS-HOISU  THRU   HOISU-EXIT.                   
+      *-----------------*                                               
+       120-9-COOLING-OFF.                                               
+      *-----------------*                                               
+           MOVE  'C'    TO    KS-IDONG-A.                               
+      *    MOVE   1     TO    KS-FROMHOISU  KS-TOHOISU.                 
+      *    PERFORM            WRITE-RTN.                                
+      *    IF HS10-PAYST > 1                                            
+      *           MOVE   2   TO  HS10-PAYSF                             
+                  PERFORM    SSSSS-HOISU  THRU   HOISU-EXIT.            
+      *------------------*                                              
+970116 120-10-FREE-NABIB.                                               
+      *------------------*                                              
+           MOVE  'M'    TO   KS-IDONG-A.                                
+           PERFORM    SSSSS-HOISU  THRU   HOISU-EXIT.                   
+      *-----------------*                                               
+       190-HALIN-CHEORI.                                                
+      *-----------------*                                               
+           MOVE  'I'          TO   KS-IDONG-A.                          
+           COMPUTE WK-HOISU = HS10-PAYST - HS10-PAYSF + 1.              
+           DIVIDE HS10-ADDIS  BY WK-HOISU  GIVING        WK-HALIN       
+                                             REMAINDER   WK-NAM.        
+           IF WK-NAM NOT = ZERO   DISPLAY ' POL = ' HS10-POLNO          
+              ' ADDIS ' HS10-ADDIS ' F ' HS10-PAYSF ' T ' HS10-PAYST.   
+           IF  HS10-ADDIS NOT = ZERO                                    
+                  PERFORM    SSSSS-HOISU  THRU   HOISU-EXIT.            
+           MOVE  ZERO         TO   REC-HALIN.                           
+      *--------------*                                                  
+       SSSSS-HOISU.                                                     
+      *--------------*                                                  
+           MOVE     HS10-PAYST     TO     W-T.                          
+           COMPUTE  KK  =  HS10-PAYSF  *  N.                            
+           MOVE     HS10-PAYSF      TO    KS-FROMHOISU.                 
+           DIVIDE   KK   BY  12  GIVING   LL   REMAINDER  MM.           
+           IF  MM > ZERO            ADD   1    TO  LL.                  
+           COMPUTE   KK  =  LL  *  12  /  N.                            
+           PERFORM   121-JOJEONG.                                       
+       HOISU-EXIT.  EXIT.                                               
+       121-JOJEONG.                                                     
+           IF  KK <  W-T                                                
+                 MOVE     KK       TO   KS-TOHOISU                      
+                 PERFORM                WRITE-RTN                       
+                 ADD   KK  1   GIVING   KS-FROMHOISU                    
+                 COMPUTE       KK   =   KS-FROMHOISU + 12 / N - 1       
+                 GO                TO   121-JOJEONG.                    
+           MOVE     W-T   TO   KS-TOHOISU.                             
+           PERFORM             WRITE-RTN.                               
+       121-JOJEONG-EXIT.  EXIT.                                         
+
+
+990520* 　전산실의　수보산출방법
+      *    IF HS10-IMCOD = 3
+      *            COMPUTE STA-BOLYO = CHECK-SPREM - HS10-MYUNJE-AK
+      *    END-IF
+      *    IF (HS10-HALIN-CODE = 1 OR 2 OR 3 OR 4 OR 5 OR 6) AND
+      *       (HS10-RD1 NOT = 4)
+      *            COMPUTE STA-BOLYO = CHECK-SPREM - HS10-ADDIS
+      *    END-IF
+      *    IF HS10-RD1 = 4
+      *       THEN COMPUTE STA-BOLYO = CHECK-SPREM - HS10-ADDIS
+      *    END-IF
+      *    IF HS10-RD1 = 5
+      *       MOVE       ZERO     TO   STA-BOLYO.
+      *    ADD      STA-BOLYO      TO   STA-TOTAL-BOLYO.                
+      *----------------*                                                
+       GONGTONG-SAHANG.                                                 
+      *----------------*                                                
+           MOVE     HS10-POLNO    TO      KS-JEUNGBEON.                 
+           MOVE     HS10-INSCOD   TO      WK-BOJONG.                    
+           MOVE     HS10-INSTP1   TO      TA-BOJ (1).                   
+           MOVE     HS10-INSTP2   TO      TA-BOJ (2).                   
+           MOVE     HS10-INSTP3   TO      TA-BOJ (3).                   
+           MOVE     HS10-INSTP4   TO      TA-BOJ (4).                   
+           MOVE     HS10-INSTP5   TO      TA-BOJ (5).                   
+           MOVE     HS10-INSTP6   TO      TA-BOJ (6).                   
+           MOVE     HS10-S2       TO      TA-S (1).                     
+           MOVE     HS10-S3       TO      TA-S (2).                     
+           MOVE     HS10-S4       TO      TA-S (3).                     
+           MOVE     HS10-S5       TO      TA-S (4).                     
+           MOVE     HS10-S6       TO      TA-S (5).                     
+           MOVE     HS10-S7       TO      TA-S (6).                     
+           MOVE     HS10-P2       TO      TA-P (1).                     
+           MOVE     HS10-P3       TO      TA-P (2).                     
+           MOVE     HS10-P4       TO      TA-P (3).                     
+           MOVE     HS10-P5       TO      TA-P (4).                     
+           MOVE     HS10-P6       TO      TA-P (5).                     
+           MOVE     HS10-P7       TO      TA-P (6).                     
+                                                                        
+990415     IF  HS10-IMCOD  = 3   AND JANGSU-SEOLGYE                     
+  .           MOVE   ZERO   TO   TK-MYUNJE-FLAG     TK-MYUNJE-P         
+  .           PERFORM TEST AFTER  VARYING  I FROM 1 BY 1 UNTIL I = 6    
+  .              IF   TA-P(I) =  HS10-MYUNJE-AK                         
+  .                  MOVE     I           TO      TK-MYUNJE-FLAG        
+  .                  MOVE     TA-P(I)     TO      TK-MYUNJE-P           
+  .                  MOVE     ZERO        TO      TA-P (I)              
+  .              END-IF                                                 
+  .           END-PERFORM                                               
+  .           IF TK-MYUNJE-FLAG = ZERO                                  
+  .              DISPLAY '면제액과　일치하는　특약　없슴'               
+  .                      '　증번'  KS-JEUNGBEON                         
+  .                      '　면제액'  TK-MYUNJE-P.                       
+
+981012     MOVE     ACC-YM        TO     KS-JOSA-YM.                    
+           IF   HS10-INSCOD  < 5000       MOVE   1  TO  KS-SSY   ELSE   
+           IF   HS10-INSCOD  < 6000       MOVE   2  TO  KS-SSY   ELSE   
+                                          MOVE   3  TO  KS-SSY.         
+981016*    비과세　가계저축　　　　　                                   
+  .        IF     HS10-INSCOD = 2260                                    
+  .              MOVE    3     TO     KS-SSY.                           
+           MOVE   HS10-Y-YUN-CODE TO     KS-YUN-CODE.                   
+           MOVE   HS10-INSCOD     TO     KS-BOJONG.                     
+981012     MOVE   HS10-CTRDT      TO     KS-GYEYAG-YMD.                 
+           MOVE   HS10-PAYPRD     TO     KS-NABGI.                      
+           MOVE   HS10-INSPRD     TO     KS-MANGI.                      
+           MOVE   HS10-PAYMD      TO     KS-NABBANG.                    
+           MOVE   HS10-COLMD      TO     KS-SUGEUMCODE.                 
+           IF   HS10-JINDAN = ZERO       MOVE  1  TO  KS-JINDAN         
+           ELSE  IF HS10-JINDAN = 2      MOVE  3  TO  KS-JINDAN         
+                 ELSE                    MOVE  2  TO  KS-JINDAN.        
+           MOVE   HS10-CTRAGE       TO     KS-GYENAI.                   
+           MOVE   HS10-CTRREG2      TO     KS-GYESEX.                   
+           IF  NOT  GYOYUK-BOJ  MOVE  HS10-INSAGE     TO  KS-PINAI      
+                                MOVE  HS10-INSREG2    TO  KS-PISEX      
+           ELSE                 MOVE  HS10-CHILDSAGE  TO  KS-PINAI      
+                                MOVE  HS10-CHILDREG2  TO  KS-PISEX      
+                                MOVE  HS10-INSAGE     TO  KS-GYENAI     
+                                MOVE  HS10-INSREG2    TO  KS-GYESEX     
+              IF  HS10-CHILDSAGE  > 30                                  
+                       COMPUTE KS-PINAI = HS10-CHILDSAGE  -  16 ELSE    
+              IF  HS10-CHILDSAGE  > 20                                  
+                       COMPUTE KS-PINAI = HS10-CHILDSAGE  -  9  ELSE    
+              IF  HS10-CHILDSAGE  > 10                                  
+                       COMPUTE KS-PINAI = HS10-CHILDSAGE  -  5.         
+                                                                        
+970120     IF  HS10-INSCOD  = 5185                                      
+                               MOVE  KS-PISEX   TO  KS-GYESEX           
+                               MOVE  KS-PINAI   TO  KS-GYENAI.          
+                                                                        
+           DIVIDE HS10-CTROCC   BY  10   GIVING   KS-JIGEOP.            
+
+
+980922     MOVE   HS10-DSTAGT       TO     KS-MOJIBJA.                  
+  .        MOVE   HS10-COLAGT       TO     KS-SUGEUMJA.                 
+  .        MOVE   ZERO              TO     KS-DANCHE-NO.                
+           MOVE   HS10-SIDO         TO     KS-JIYEOG.                   
+           MOVE   HS10-DSTAGC       TO     KS-MOJIBGIGWAN.              
+           MOVE   HS10-KCOLAGC      TO     KS-SUGEUMGIGWAN.             
+           MOVE   HS10-YUNGUM-AGE   TO     KS-YUN-AGE.                  
+
+      *----------*                                                      
+       WRITE-RTN.                                                       
+      *----------*                                                      
+           IF   KS-TOHOISU * N < 13                                     
+               IF   KS-TOHOISU  = 1   MOVE    1   TO   KS-IDONG-B       
+               ELSE                   MOVE    2   TO   KS-IDONG-B       
+           ELSE                       MOVE    3   TO   KS-IDONG-B.      
+           MOVE   1             TO     KS-JJK.                          
+           MOVE   HS10-INSTPM   TO     KS-BOJONG-T.                     
+
+           MOVE         HS10-PAYPRD     TO   NABGI.                     
+           IF  NABGI = ZERO   MOVE   1  TO   NABGI.                     
+           IF  NABGI > 10     MOVE  10  TO   NABGI.                     
+           IF GMRI-LINK                                                 
+                 COMPUTE KS-BOGEUM = (HS10-P1 * NABGI * 12) / (N * 1000)
+           ELSE  COMPUTE  KS-BOGEUM = HS10-S1 * 10.                     
+
+           MOVE   HS10-P1       TO  KS-BOLYO.                           
+           IF   KS-IDONG-A = 'F'                                        
+                  COMPUTE   KS-BOLYO  =  HS10-SPREM - WK-IJA.           
+           IF   KS-IDONG-A = 'H'                                        
+             IF  HS10-PAYMD > 1  AND HS10-RD1 = 5                       
+                               MOVE  HS10-SPREM    TO  KS-BOLYO         
+                               MOVE  KS-FROMHOISU TO  KS-TOHOISU.       
+           COMPUTE  KS-HOISU  =  KS-TOHOISU - KS-FROMHOISU + 1.         
+                                                                        
+                                                                        
+           IF KS-IDONG-A = 'I'   MOVE  9           TO  KS-JJK           
+                                 ADD     1         TO  WK-JJK           
+                                 MOVE  WK-HALIN    TO  KS-BOLYO.        
+
+           IF HS10-RD1 =   '7' OR '8' OR '9'                            
+                 COMPUTE   KS-BOLYO = KS-BOLYO * (-1).                  
+970116     IF    NOT  KS-BOLYO  =  ZERO                                 
+  .                       PERFORM    DISPLAY-RTN.                       
+990415     MOVE     KS-IDONG-A     TO      JU-IDONG-A.                  
+
+           IF  NOT  (KS-IDONG-A = 'F' OR 'I')                           
+               PERFORM  DB-TK-RTN  VARYING I FROM 1 BY 1 UNTIL I > 6.   
+
+
+      *----------*                                                      
+       DB-TK-RTN.                                                       
+      *----------*                                                      
+           IF  TA-P(I)  IS NOT NUMERIC   MOVE  ZERO  TO TA-P(I).        
+           IF  TA-S(I)  IS NOT NUMERIC   MOVE  ZERO  TO TA-S(I).        
+           IF  TA-P(I) > ZERO                                           
+990524                  OR  ( HS10-IMCOD = 3 AND TK-MYUNJE-FLAG = I)    
+                                         PERFORM   TK-BOJONG-WRITE.     
+      *----------------*                                                
+       TK-BOJONG-WRITE.                                                 
+      *----------------*                                                
+           MOVE    2            TO     KS-JJK.                          
+           MOVE    TA-BOJ(I)    TO     KS-BOJONG-T                      
+990415                                 WK-BOJONG-T.                     
+  .        MOVE    JU-IDONG-A   TO     KS-IDONG-A.                      
+  .        IF  HS10-IMCOD = 3 AND TK-MYUNJE-FLAG = I                    
+  .            MOVE    'H'          TO     KS-IDONG-A                   
+  .            MOVE  TK-MYUNJE-P    TO     TA-P(I)                      
+  .
+  .            DISPLAY "할인후　특약　납입면제" KS-JEUNGBEON            
+  .                    " 보종"   TA-BOJ(TK-MYUNJE-FLAG)                 
+  .                    " 특약Ｐ" TA-P(TK-MYUNJE-FLAG)                   
+  .        END-IF.                                                      
+
+           MOVE      TA-P(I)      TO        KS-BOLYO.                   
+           COMPUTE   KS-BOGEUM  = TA-S (I)  * 10.                       
+           IF HS10-RD1 =   '7' OR '8' OR '9'                            
+                 COMPUTE   KS-BOLYO = KS-BOLYO * (-1).                  
+           PERFORM            DISPLAY-RTN.                              
+      *------------*                                                    
+       DISPLAY-RTN.                                                     
+      *------------*                                                    
+           COMPUTE   KS-HABBOLYO  =   KS-BOLYO * KS-HOISU.              
+           IF KS-IDONG-A = 'H' MOVE  ZERO   TO KS-HABBOLYO.             
+           IF  KS-IDONG-A = 'I'  MOVE  KS-HABBOLYO TO WK-BOLYO          
+           ELSE                                                         
+             IF  KS-JJK = 1                                             
+                     ADD   KS-HABBOLYO  HS10-ADDIS  GIVING WK-BOLYO     
+                     MOVE   ZERO        TO  HS10-ADDIS                  
+             ELSE    MOVE  KS-HABBOLYO  TO  WK-BOLYO.                   
+                                                                        
+           IF   KS-IDONG-A = 'A' ADD  WK-BOLYO  TO A-BOLYO(KS-IDONG-B)  
+               IF   KS-JJK = 1   ADD  1         TO A-CNT(KS-IDONG-B).   
+           IF   KS-IDONG-A = 'B' OR 'D'                                 
+                                 ADD  WK-BOLYO  TO B-BOLYO(KS-IDONG-B)  
+               IF   KS-JJK = 1   ADD  1         TO B-CNT(KS-IDONG-B).   
+           IF   KS-IDONG-A = 'C' OR 'J' OR 'K'                          
+                                 ADD  WK-BOLYO  TO C-BOLYO(KS-IDONG-B)  
+               IF   KS-JJK = 1   ADD  1         TO C-CNT(KS-IDONG-B).   
+      *    IF   KS-IDONG-A = 'D' ADD  WK-BOLYO  TO D-BOLYO(KS-IDONG-B)  
+      *        IF   KS-JJK = 1   ADD  1         TO D-CNT(KS-IDONG-B).   
+           IF   KS-IDONG-A = 'E' ADD  WK-BOLYO  TO E-BOLYO(KS-IDONG-B)  
+               IF   KS-JJK = 1   ADD  1         TO E-CNT(KS-IDONG-B).   
+           IF   KS-IDONG-A = 'F' ADD  WK-BOLYO  TO F-BOLYO(KS-IDONG-B)  
+               IF   KS-JJK = 1   ADD  1         TO F-CNT(KS-IDONG-B).   
+           IF   KS-IDONG-A = 'H' ADD  WK-BOLYO  TO H-BOLYO(KS-IDONG-B)  
+               IF   KS-JJK = 1   ADD  1         TO H-CNT(KS-IDONG-B).   
+           IF   KS-IDONG-A = 'I' MOVE WK-BOLYO  TO WK-P                 
+                                 ADD  WK-P      TO I-BOLYO(KS-IDONG-B)  
+               IF WK-JJK = 1     ADD  1         TO I-CNT(KS-IDONG-B).   
+      *    IF   KS-IDONG-A = 'J' ADD  WK-BOLYO  TO J-BOLYO(KS-IDONG-B)  
+      *        IF   KS-JJK = 1   ADD  1         TO J-CNT(KS-IDONG-B).   
+      *    IF   KS-IDONG-A = 'K' ADD  WK-BOLYO  TO K-BOLYO(KS-IDONG-B)  
+      *        IF   KS-JJK = 1   ADD  1         TO K-CNT(KS-IDONG-B).   
+           IF   KS-IDONG-A = 'M' ADD  WK-BOLYO  TO M-BOLYO(KS-IDONG-B)  
+               IF   KS-JJK = 1   ADD  1         TO M-CNT(KS-IDONG-B).   
+           ADD      KS-HABBOLYO    TO   TT-BOLYO.                       
+           ADD      1              TO   CNT-OUT.                        
+           WRITE  REC-OUT     FROM  KS-REC.                             

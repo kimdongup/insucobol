@@ -1,0 +1,725 @@
+//KERD501A JOB (KER),'KER04',CLASS=G,MSGCLASS=X,MSGLEVEL=(1,1)
+//STEP1 EXEC YCOBBAT,MBR=KD5001A
+//COB.SYSIN DD *
+PROCESS TEST(NONE,SYM)
+      *================================================================*
+      *=   Y2K변경작업  2000.03.13.
+      *=      이차배당율을　ACCEPT 받음
+      *================================================================*
+       IDENTIFICATION          DIVISION.                                
+       PROGRAM-ID.             KD5001A.
+       ENVIRONMENT             DIVISION.                                
+       CONFIGURATION           SECTION.                                 
+       INPUT-OUTPUT            SECTION.                                 
+       FILE-CONTROL.                                                    
+           SELECT  FILE-IN   ASSIGN  TO  FILEIN.
+           SELECT  FILE-OUT  ASSIGN  TO  FILEOUT.
+      *    새천년어린이　위험보험료(VSAM FILE)
+           SELECT  PR-FILE  ASSIGN  TO  CHILDPR                         
+                            ORGANIZATION       IS  INDEXED              
+                            ACCESS      MODE   IS  DYNAMIC              
+                            RECORD      KEY    IS  PR-KEY               
+                            STATUS             IS  PR-S-WORD.           
+      *=================================*                               
+       DATA                    DIVISION.                                
+       FILE                    SECTION.                                 
+       FD  PR-FILE      LABEL       RECORDS   ARE  STANDARD.            
+       01  PR-REC.
+           02  PR-KEY.
+                  03  PR-BOJONG         PIC 9(4).
+                  03  PR-BOJONG-T       PIC 9(4).
+                  03  PR-NABBANG        PIC 9(1).
+                  03  PR-AGE            PIC 9(2).
+                  03  PR-GNG            PIC 9(2).
+                  03  PR-IYUL           PIC 9(3).
+           02  PR-DATA.
+                 03  PR-M               PIC 9(9).
+                 03  PR-W               PIC 9(9).
+           02  FILLER                   PIC X(6).
+      *---------------------------------*                               
+       FD  FILE-IN     RECORDING   MODE    IS  F
+                       LABEL       RECORD      STANDARD                 
+                       BLOCK       CONTAINS    50  RECORDS              
+980511                 RECORD      CONTAINS   283  CHARACTERS.
+       01  REC-IN.
+             COPY  K00B9018  SUPPRESS.
+
+       FD  FILE-OUT    RECORDING   MODE    IS  F
+                       LABEL       RECORDS ARE STANDARD                 
+                       BLOCK       CONTAINS   100  RECORDS              
+                       RECORD      CONTAINS   148  CHARACTERS.
+       01  REC-DIV.                                                     
+1          02  BD-BSMG                PIC     9(1).                     
+2          02  BD-SSYD                PIC     9(1).
+9          02  BD-JEUNGBEON           PIC     9(7).                     
+13         02  BD-BOJONG              PIC     9(4).                     
+17         02  BD-BOJONG-T            PIC     9(4).                     
+19         02  BD-NABGI               PIC     9(2).                     
+21         02  BD-MANGI               PIC     9(2).                     
+22         02  BD-NABBANG             PIC     9(1).                     
+24         02  BD-PINAI               PIC     9(2).                     
+25         02  BD-PISEX               PIC     9(1).                     
+27         02  BD-GYENAI              PIC     9(2).                     
+28         02  BD-GYESEX              PIC     9(1).                     
+36         02  BD-GYE-YMD             PIC     9(8).                     
+42         02  BD-LNAB-YM             PIC     9(6).                     
+45         02  BD-LNAB-HOISU          PIC     9(3).                     
+49         02  BD-GNGWA-YM            PIC     9(4).                     
+           02  BD-GNGWAYM         REDEFINES   BD-GNGWA-YM.              
+               03  BD-GNGWA-YY       PIC     9(2).
+               03  BD-GNGWA-MM       PIC     9(2).
+53         02  BD-DIV-YM              PIC     9(4).
+57         02  BD-BOGEUM              PIC     S9(7)       COMP-3.       
+62         02  BD-BOLYO               PIC     S9(9)       COMP-3.       
+65         02  BD-IYUL                PIC     S9(5)       COMP-3.       
+68         02  BD-ALPHA               PIC     S9(5)       COMP-3.       
+84         02  BD-VTVT             OCCURS     2.                        
+               03  BD-VT              PIC     S9(7)       COMP-3.
+               03  BD-VT1             PIC     S9(7)       COMP-3.
+88         02  BD-PB                  PIC     S9(7)       COMP-3.
+93         02  BD-HG-WT               PIC     S9(9)       COMP-3.       
+98         02  BD-HG-BAE              PIC     S9(9)       COMP-3.       
+103        02  BD-IH-WT               PIC     S9(9)       COMP-3.       
+107        02  BD-IH-YUL              PIC     S9V9(6)     COMP-3.       
+112        02  BD-IH-BAE              PIC     S9(9)       COMP-3.       
+117        02  BD-JG-BAE              PIC     S9(9)       COMP-3.       
+122        02  BD-SH-PR1              PIC     S9(8)V9     COMP-3.
+126        02  BD-SH-YUL-1            PIC     S9V9(6)     COMP-3.
+131        02  BD-SH-BAE              PIC     S9(9)       COMP-3.       
+133        02  BD-GUN                 PIC      9(2).
+135        02  BD-YUN-AGE             PIC      9(2).
+136        02  BD-JUN-CODE            PIC      9(1).
+141        02  BD-ICHA-GIJUN          PIC      9V9999.
+146        02  BD-SACHA-GIJUN         PIC      9V9999.
+148        02  FILLER                 PIC      X(2).
+      *-----------------------------------------------------------------
+       WORKING-STORAGE         SECTION.                                 
+      *-----------------------------------------------------------------
+       01  PR-S-WORD            PIC  X(2) VALUE SPACE.                  
+       01  REC-BOJONG.                                                  
+                    COPY   KBBOJ88 SUPPRESS.
+      *================================================================*
+      *=         보종코드를　레벨８８로　조건문화　　               =*
+      *=         생명표，납방보종　구분　　　　　　　               =*
+      *================================================================*
+           88  NO-SACHA VALUE 9021 THRU 9023  9031 THRU 9038
+                              9041 THRU 9047  9051 THRU 9069
+                              9071 THRU 9072  9081      9510
+                              9091 THRU 9098  9010 9124 9024
+980327                        9101 THRU 9113  9129 THRU 9130
+                              9131 THRU 9134  9141 THRU 9156
+                              9161 THRU 9166
+                              9180 THRU 9181  9191 THRU 9196
+                              9200 THRU 9205  9210 THRU 9217
+                              9220 THRU 9221  9231      9241
+                              9251      9261  9274 THRU 9281
+980327                        9288 THRU 9295  9301 THRU 9302
+                              9310 THRU 9317  9501 THRU 9504
+980323                        9512 THRU 9513  9627 THRU 9634
+                              9515 THRU 9521  9522 THRU 9527
+                              9528 THRU 9538  9621
+                              9635 THRU 9642  9583      9514
+                              9553 THRU 9564  9567
+980327                        9574 THRU 9575  9576 THRU 9579
+                              9582            9539 THRU 9544
+                              9591      9592  9593 THRU 9604
+980327                        9607 THRU 9616  9568      9569
+                              9545 THRU 9552  9619      9620
+                              9622      9643  9624 THRU 9626
+                              9646 THRU 9654  9660 THRU 9662
+                              9665 THRU 9681  9683      9684
+                              9689 9710 9732  9712 THRU 9715
+                              9733 THRU 9735  9716 THRU 9731
+                              9741 THRU 9744  9747 THRU 9753
+                              9756 THRU 9761  9775 THRU 9780
+                              9765 THRU 9779  9782      9783
+                              9785 THRU 9787            9791
+                              9803      9805  9807 THRU 9812.
+990418* ============================================================ *
+이차*77  ICHA-GIJUN-YUL          PIC 9V9(4)  VALUE 0.0850 .
+사차*77  SACHA-GIJUN-YUL         PIC 9V9(4)  VALUE 0.9900 .
+장기*77  JANGGI-YUJI-YUL1        PIC 9V9(4)  VALUE 0.0000 .
+      *77  JANGGI-YUJI-YUL2        PIC 9V9(4)  VALUE 0.0000 .
+200004*   2000.2.1 정기예금이율
+       77  GIJUN-JEONGI-IYUL       PIC 9V9(4)  VALUE 0.0710 .
+      * ============================================================ *
+       77  SS                      PIC   9(4)  VALUE 100.
+
+       01  ACCEPT-DATA.
+           02 ICHA-GIJUN-YUL         PIC 9V9(4).
+           02 FILLER                 PIC X(4).
+           02 SACHA-GIJUN-YUL        PIC 9V9(4).
+           02 FILLER                 PIC X(4).
+           02 JANGGI-YUJI-YUL1       PIC 9V9(4).
+           02 FILLER                 PIC X(4).
+           02 JANGGI-YUJI-YUL2       PIC 9V9(4).
+       01  WORK-SPACE.                                                  
+           02  DISP-IYUL               PIC --9.999.                     
+           02  GNGWA                   PIC S9(2).                       
+           02  CNT-IN                  PIC 9(7).
+           02  CNT-OUT                 PIC 9(7).                        
+           02  CNT-SELECT              PIC 9(7).                        
+           02  CNT-SKIP                PIC 9(7).                        
+           02  CNT-MANGI               PIC 9(7).                        
+           02  CNT-MIJIGB              PIC 9(7).                        
+           02  CNT-MU                  PIC 9(7).                        
+           02  CNT-MYEUNJE             PIC 9(7).                        
+           02  CHECK                   PIC 9(7).                        
+           02  BD-COUNT                PIC 9(7).                        
+           02  BD-COUNT2               PIC 9(7).                        
+           02  GONGCHING               PIC S9(12).                      
+           02  NAMERJI                 PIC S9(12).                      
+           02  WT-YY                   PIC S9(9)V9.                     
+           02  WK-SH-BAE               PIC S9(12).                      
+           02  WK-IH-BAE               PIC S9(12).                      
+           02  WK-JG-BAE               PIC S9(12).                      
+           02  WK-IJA-MM               PIC S9(3).                       
+980511     02  WK-MM                   PIC 9(2).                        
+           02  J-I                     PIC 9V9(4).
+           02  HG-IYUL                 PIC S9(2)V9(4).
+           02  YUL                     PIC S9(2)V9(4).
+           02  RATE-1                  PIC S9V9(6).                     
+           02  GMRICHA-IYUL            PIC S9V9(6).                     
+           02  ICHA-IYUL               PIC S9V9(6).                     
+  .        02  YAE-IYUL                PIC S9V9(6).                     
+           02  GIGAN                   PIC S9(7).
+           02  I                       PIC 9(3).
+           02  NABGI                   PIC 9(2).                        
+           02  S-ALPHA                 PIC S9(7).                       
+           02  II                      PIC 9(1).
+           02  JJ                      PIC 9(2).
+           02  S-HG-VT                 PIC S9(7).
+           02  ICHA-WT                 PIC S9(9).                       
+           02  JANGGI-WT               PIC S9(9).                       
+           02  HWAG-BAE                PIC S9(9).
+           02  SACHA-BAE               PIC S9(9).
+           02  ICHA-BAE                PIC S9(9).
+           02  JANGGI-BAE              PIC S9(9).
+           02  NOHOO-RATE              PIC 9(12).
+           02  NOHOO-GUN               PIC 9(12).
+           02  ILBAN-RATE              PIC 9(12).
+           02  ILBAN-GUN               PIC 9(12).
+           02  HWAG-COUNT              PIC 9(9).                        
+           02  SACHA-COUNT             PIC 9(9).                        
+           02  ICHA-COUNT              PIC 9(9).                        
+           02  JANGGI-COUNT            PIC 9(9).                        
+           02  HWAG-GEUM               PIC S9(14).                      
+           02  SACHA-GEUM              PIC S9(14).                      
+           02  ICHA-GEUM               PIC S9(14).                      
+           02  JANGGI-GEUM             PIC S9(14).                      
+           02  HWAG-GEUM-P             PIC ZZ,ZZZ,ZZZ,ZZZ.              
+           02  SACHA-GEUM-P            PIC ZZ,ZZZ,ZZZ,ZZZ.              
+           02  ICHA-GEUM-P             PIC ZZ,ZZZ,ZZZ,ZZZ.              
+           02  JANGGI-GEUM-P           PIC ZZ,ZZZ,ZZZ,ZZZ.              
+
+           02  DIV-YMD                 PIC 9(8).                        
+           02  FILLER               REDEFINES   DIV-YMD.
+               03  DIV-YM             PIC 9(6).
+               03  FILLER           REDEFINES   DIV-YM.
+                   04  DIV-YY          PIC 9(4).
+                   04  DIV-MM          PIC 9(2).
+               03  DIV-DD              PIC 9(2).
+           02  WK-F-YMD                PIC 9(8).
+           02  WK-F-YMD-RE           REDEFINES  WK-F-YMD.
+              03  WK-F-YY              PIC 9(4).
+              03  WK-F-MM              PIC 9(2).
+              03  WK-F-DD              PIC 9(2).
+           02  WK-T-YMD                PIC 9(8).
+           02  WK-T-YM-RE            REDEFINES  WK-T-YMD.
+              03  WK-T-YY              PIC 9(4).
+              03  WK-T-MM              PIC 9(2).
+              03  WK-T-DD              PIC 9(2).
+           02  F-YMD                   PIC 9(8).
+           02  F-YMD-RE              REDEFINES  F-YMD.
+              03  F-YY                 PIC 9(4).
+              03  F-MM                 PIC 9(2).
+              03  F-DD                 PIC 9(2).
+           02  T-YMD                   PIC 9(8).
+           02  T-YMD-RE              REDEFINES  T-YMD.
+              03  T-YY                 PIC 9(4).
+              03  T-MM                 PIC 9(2).
+              03  T-DD                 PIC 9(2).
+                                                                        
+       01  TA-GMRI.                                                     
+      *  ［정기예금이율］                                             00
+           02  FILLER  PIC X(23)  VALUE  '19891117-19930126-01000'.
+           02  FILLER  PIC X(23)  VALUE  '19930126-19930326-00900'.
+           02  FILLER  PIC X(23)  VALUE  '19930326-19950101-00850'.
+           02  FILLER  PIC X(23)  VALUE  '19950101-19990101-00900'.
+           02  FILLER  PIC X(23)  VALUE  '19990101-19990201-00870'.
+           02  FILLER  PIC X(23)  VALUE  '19990201-19990401-00830'.
+           02  FILLER  PIC X(23)  VALUE  '19990401-19990501-00790'.
+           02  FILLER  PIC X(23)  VALUE  '19990501-99999999-00710'.
+       01  TA-IYUL-RE         REDEFINES   TA-GMRI.                      
+           02  TA-YULI        OCCURS    8  TIMES.                       
+             03  TA-F                  PIC  9(8).                       
+             03  FILLER                PIC  X(1).                       
+             03  TA-T                  PIC  9(8).                       
+             03  FILLER                PIC  X(1).                       
+             03  T-I                   PIC  9(1)V9(4).                  
+                                                                        
+       01  SACHA-KEY.                                                   
+           02  S-JEUNGBEON             PIC 9(7).                        
+           02  S-JJK                   PIC 9(1).                        
+           02  S-KEY.                                                   
+               03  S-BOJONG            PIC 9(4).                        
+               03  S-GUBUN             PIC 9(1).                        
+               03  S-PINAI             PIC 9(2).                        
+               03  S-NABGI             PIC 9(2).                        
+               03  S-MANGI             PIC 9(2).                        
+               03  S-NABBANG           PIC 9(1).                        
+               03  S-GNGWA-YY          PIC 9(2).
+               03  S-SEX               PIC 9(1).                        
+           02  S-IYUL                  PIC 9V9(3).                      
+           02  S-BOGEUM                PIC S9(7).                       
+           02  S-BOLYO                 PIC S9(9).                       
+           02  S-GYE-YM                PIC 9(6).
+           02  S-VT-0                  PIC S9(7).                       
+           02  S-VTT-0                 PIC S9(7).                       
+           02  S-VT-1                  PIC S9(7).                       
+           02  S-VTT-1                 PIC S9(7).                       
+           02  S-PR1                   PIC S9(9)V9.                     
+           02  S-PR2                   PIC S9(9)V9.                     
+           02  S-QX1                   PIC S9V9(5).                     
+           02  S-QX2                   PIC S9V9(5).                     
+           02  S-EM1                   PIC S9V9(5).                     
+           02  S-EM2                   PIC S9V9(5).                     
+           02  S-LIFETABLE             PIC 9(2).                        
+                                                                        
+       01   FILE-EOF-SWITCH            PIC X(3)  VALUE 'NO '.           
+           88   FILE-EOF               VALUE 'YES'.                     
+
+      *=================================*                               
+       PROCEDURE               DIVISION.                                
+      *=================================*                               
+           OPEN      INPUT    FILE-IN   PR-FILE
+                     OUTPUT   FILE-OUT.
+           MOVE      ZERO     TO  WORK-SPACE  ACCEPT-DATA  SACHA-KEY.
+           ACCEPT    ACCEPT-DATA.
+           PERFORM   110-READ-SELECT.                                   
+           PERFORM   100-CONTROL-PROGRAM   UNTIL  FILE-EOF.             
+           MOVE      HWAG-GEUM       TO   HWAG-GEUM-P.
+           MOVE      SACHA-GEUM      TO   SACHA-GEUM-P.
+           MOVE      ICHA-GEUM       TO   ICHA-GEUM-P.
+           MOVE      JANGGI-GEUM     TO   JANGGI-GEUM-P.
+           MOVE      3               TO   S-JJK.
+           CLOSE     FILE-IN  FILE-OUT  PR-FILE.
+
+           DISPLAY    '     *======================================*'.  
+           MOVE      GIJUN-JEONGI-IYUL     TO DISP-IYUL.
+           DISPLAY    '     *  이차배당　산출시　정기예금이율: '
+                                                       DISP-IYUL.
+           MOVE      ICHA-GIJUN-YUL        TO DISP-IYUL.
+           DISPLAY    '     *  이차　　　기준율  : ' DISP-IYUL.
+           MOVE      SACHA-GIJUN-YUL       TO DISP-IYUL.
+           DISPLAY    '     *  사차　　　기준율  : ' DISP-IYUL.
+           MOVE      JANGGI-YUJI-YUL1      TO DISP-IYUL.
+           DISPLAY    '     *  장기유지　기준율1 : ' DISP-IYUL.
+           MOVE      JANGGI-YUJI-YUL2      TO DISP-IYUL.
+           DISPLAY    '     *  　　　　　기준율2 : ' DISP-IYUL.
+           DISPLAY    '     *======================================*'.
+           DISPLAY    '     * 총　입력건수 : ' CNT-IN.                
+           DISPLAY    '     *   보　　　유 : ' CNT-SELECT.            
+           DISPLAY    '     *   실　　　효 : ' CNT-SKIP.              
+           DISPLAY    '     *   무　배　당 : ' CNT-MU.                
+           DISPLAY    '     *   만기미지급 : ' CNT-MIJIGB.            
+           DISPLAY    '     *   만기대상건 : ' CNT-MANGI.             
+           DISPLAY    '     *   면　제　건 : ' CNT-MYEUNJE.           
+           DISPLAY    '     * 총　출력건수 : ' CNT-OUT.               
+           DISPLAY    '     *======================================*'.
+           DISPLAY    '     *   IN-FILE  TOTAL  =  '  CNT-IN.
+           DISPLAY    '     *   BD-FILE  TOTAL  =  '  BD-COUNT.         
+           DISPLAY    '     *   BD-WRITE TOTAL  =  '  BD-COUNT2.        
+           DISPLAY    '     *                      '.                   
+           DISPLAY    '     *   HWAG     TOTAL  =  '  HWAG-COUNT.       
+           DISPLAY    '     *   HWAG     GEUM   =  '  HWAG-GEUM-P.      
+           DISPLAY    '     *                      '.                   
+           DISPLAY    '     *   SACHA    TOTAL  =  '  SACHA-COUNT.      
+           DISPLAY    '     *   SACHA    GEUM   =  '  SACHA-GEUM-P.     
+           DISPLAY    '     *                      '.                   
+           DISPLAY    '     *   ICHA     TOTAL  =  '  ICHA-COUNT.       
+           DISPLAY    '     *   ICHA     GEUM   =  '  ICHA-GEUM-P.      
+           DISPLAY    '     *                      '.                   
+           DISPLAY    '     *   JANGKI   TOTAL  =  '  JANGGI-COUNT.     
+           DISPLAY    '     *   JANGKI   GEUM   =  '  JANGGI-GEUM-P.    
+           DISPLAY    '     *======================================*'.  
+           STOP RUN.                                                    
+      *--------------------*                                            
+       100-CONTROL-PROGRAM.                                             
+      *--------------------*                                            
+           PERFORM   120-DATA-CHEORI  THRU 129-EXIT.                    
+           PERFORM   110-READ-SELECT.                                   
+      *----------------*                                                
+       110-READ-SELECT.                                                 
+      *----------------*                                                
+           READ  FILE-IN   AT END  MOVE 'YES' TO  FILE-EOF-SWITCH.
+           IF NOT FILE-EOF                                              
+              ADD      1        TO        CNT-IN  CHECK
+      *--　예상액　산출시　　　　　　　                               
+      *       IF  (K4-BSMG = 1 )                                      
+      *--　전산에　넘길때　                                           
+              IF  (K4-BSMG = 1 OR 7 OR 8)                               
+                                          ADD  1     TO   CNT-SELECT    
+              ELSE                        ADD  1     TO   CNT-SKIP
+                                          GO TO      110-READ-SELECT.
+      *------------------*                                              
+       120-DATA-CHEORI.                                                 
+      *------------------*                                              
+           MOVE   K4-BOJONG        TO  WK-BOJONG.                       
+           MOVE   K4-BOJONG-T      TO  WK-BOJONG-T.                     
+           MOVE   ZERO TO HWAG-BAE ICHA-BAE JANGGI-BAE SACHA-BAE
+                          BD-IH-WT BD-HG-WT  S-HG-VT.
+      *=================================================================
+      *= 무배당．만기미지급，면제（주피，종피，주종피사망）　
+      *= 만기도래건은　제외함
+           IF  MU-BOJ                          ADD 1  TO    CNT-MU
+                                               GO     TO    129-EXIT.
+           IF  K4-BSMG = 3                     ADD 1  TO    CNT-MIJIGB  
+                                               GO     TO    129-EXIT.   
+           IF  K4-GNGWA-YY + 1 >= K4-MANGI     ADD 1  TO    CNT-MANGI   
+                                               GO     TO    129-EXIT.   
+           IF  K4-GUBUN1-CODE = 1 OR 2 OR 3    ADD 1  TO    CNT-MYEUNJE 
+                                               GO     TO    129-EXIT.   
+      *=================================================================
+           IF  NOHOO        COMPUTE  BD-YUN-AGE  =  K4-PINAI + K4-MANGI 
+           ELSE             MOVE    ZERO         TO  BD-YUN-AGE.        
+           IF  HANARO OR JIG-JEOCHUK OR T-HANARO
+               IF  K4-BOJONG-T < 9000
+                 IF K4-GYE-YM  < 199904  MOVE   750   TO  K4-IYUL
+                 ELSE                    MOVE   650   TO  K4-IYUL.
+           COMPUTE  YAE-IYUL ROUNDED = K4-IYUL / 10000.
+           MOVE    K4-GYE-YMD      TO  DIV-YMD.                         
+           MOVE    K4-JOSA-YY      TO  DIV-YY.                          
+           IF  K4-GYE-MM  < 4       ADD    1      TO  DIV-YY.           
+
+           MOVE    K4-GNGWA-YY     TO  GNGWA.                           
+           IF  DIV-YY - K4-GYE-YY  =  K4-GNGWA-YY  + 1                  
+                    MOVE       2            TO       II
+           ELSE     MOVE       3            TO       II.
+           MOVE     K4-VT(II)        TO   S-HG-VT.
+
+      *==============　확정배당금　　　===============================
+           IF NOT T-GMRI-LIN1
+              IF   K4-GYE-YMD  > 19970930    NEXT   SENTENCE
+              ELSE
+                 IF   K4-VT (II)   >   ZERO
+                    IF  NOT GNGWA   <   ZERO
+                                PERFORM    121-HWAG-DIV.
+
+      *=============== 위험율차배당금　　=============================
+           IF   DIV-YY - K4-GYE-YY  > ZERO                              
+               IF NO-SACHA             NEXT        SENTENCE
+               ELSE IF NOT T-MILLENIUM-CHILD   PERFORM  122-SACHA-DIV1
+                    ELSE                       PERFORM  122-SACHA-DIV2.
+
+      *=============== 이차　　배당금　　=============================
+           IF  T-GMRI-LIN1
+                               NEXT SENTENCE
+           ELSE
+              IF   DIV-YY - K4-GYE-YY  > ZERO                           
+                                               PERFORM     121-3-WT
+                  IF   ICHA-WT  <  1           NEXT        SENTENCE
+                  ELSE                         PERFORM     123-ICHA-DIV.
+
+      *=============== 장기유지　특별배당=============================
+           IF  DIV-YY - K4-GYE-YY > 5    MOVE   ICHA-WT  TO  JANGGI-WT
+           ELSE                          MOVE   ZERO     TO  JANGGI-WT.
+           IF  DIV-YY - K4-GYE-YY > 5
+               IF T-NOHOO OR T-GABOK OR T-NON-TAX OR T-JIG-JEOCHUK  OR
+980331            T-JIG-UDAESEOLGYE  OR T-NON-UDAEJEOCHUK  OR
+                  T-JAETECH  OR  T-GEOCHI  OR  T-JAETECH-II OR
+990418            T-HANARO
+                                      MOVE  K4-HAIYAG-YY  TO  JANGGI-WT.
+           IF  DIV-YY - K4-GYE-YY > 5
+              COMPUTE  JANGGI-BAE  ROUNDED  =
+                  JANGGI-WT  * (JANGGI-YUJI-YUL1 +
+                 + (DIV-YY - K4-GYE-YY - 6) * JANGGI-YUJI-YUL2 ) / SS
+           ELSE
+              MOVE   ZERO      TO   JANGGI-BAE.                         
+      *---------------------------------------------------------------* 
+           IF NOHOO
+              IF NOT (K4-PINAI + K4-GNGWA-YY < BD-YUN-AGE)
+                 IF K4-JT = 1
+                       MOVE   ZERO  TO  HWAG-BAE  SACHA-BAE  ICHA-BAE
+                                        BD-HG-WT  BD-SH-PR1  BD-IH-WT
+                 ELSE  MOVE   ZERO  TO  HWAG-BAE  SACHA-BAE  ICHA-BAE
+                                        JANGGI-BAE
+                                        BD-HG-WT  BD-SH-PR1  BD-IH-WT.
+      *---------------------------------------------------------------* 
+           IF HWAG-BAE   < ZERO   MOVE   ZERO  TO  HWAG-BAE.            
+           IF SACHA-BAE  < ZERO   MOVE   ZERO  TO  SACHA-BAE.           
+           IF ICHA-BAE   < ZERO   MOVE   ZERO  TO  ICHA-BAE.            
+           IF JANGGI-BAE < ZERO   MOVE   ZERO  TO  JANGGI-BAE.          
+      *---------------------------------------------------------------* 
+           MOVE    HWAG-BAE              TO    BD-HG-BAE.
+           MOVE    SACHA-BAE             TO    BD-SH-BAE.               
+           MOVE    ICHA-BAE              TO    BD-IH-BAE.               
+           MOVE    JANGGI-BAE            TO    BD-JG-BAE.               
+           IF   K4-JT = 1     PERFORM   GUN-SANCHUL                     
+           ELSE               MOVE      ZERO   TO    BD-GUN.            
+           PERFORM    WRITE-RTN THRU WRITE-EXIT.                        
+       129-EXIT.      EXIT.                                             
+
+      *-------------*
+       121-HWAG-DIV.
+      *-------------*
+           IF  GNGWA > 2
+                 IF  K4-NABGI > 7    MOVE   7            TO  NABGI      
+                 ELSE                MOVE   K4-NABGI     TO  NABGI      
+           ELSE  IF  K4-NABGI > 10   MOVE   10           TO  NABGI      
+                 ELSE                MOVE   K4-NABGI     TO  NABGI.     
+           IF  NABGI > GNGWA         MOVE   K4-ALPHA     TO  S-ALPHA    
+           ELSE                      MOVE   ZERO         TO  S-ALPHA.   
+           IF  NABGI  =  ZERO        MOVE   1            TO  NABGI.     
+           IF  NABGI  =  1           MOVE   ZERO         TO  S-ALPHA.   
+           IF  K4-NABBANG = 9        MOVE   ZERO         TO  S-ALPHA.   
+980512     COMPUTE   WT-YY ROUNDED  =  (S-HG-VT - (NABGI - GNGWA)       
+                                   * S-ALPHA  / NABGI).                 
+980512     IF   WT-YY < ZERO          MOVE   ZERO         TO  WT-YY.    
+           ADD       DIV-YY  -1       GIVING  WK-F-YY.
+           MOVE      DIV-MM           TO      WK-F-MM.
+           MOVE      K4-GYE-YMD(7:2)  TO      WK-F-DD  WK-T-DD.
+                                                                        
+           MOVE      DIV-YMD          TO      WK-T-YMD.
+           MOVE      ZERO     TO    I    HG-IYUL.                       
+           PERFORM   121-1-IYUL    THRU  121-EXIT.
+           COMPUTE   BD-HG-WT  ROUNDED = WT-YY *  K4-BOGEUM / SS.
+           COMPUTE   HWAG-BAE  ROUNDED = BD-HG-WT * HG-IYUL.
+      *----------*
+       121-1-IYUL.
+      *----------*
+           ADD   1             TO    I.                                 
+           IF    WK-F-YMD    >  TA-T(I)                                 
+                                GO        TO    121-1-IYUL.
+           IF    WK-T-YMD    >  TA-T(I)                                 
+                     MOVE  WK-F-YMD        TO   F-YMD                   
+                     MOVE  TA-T(I)         TO   T-YMD                   
+           ELSE                                                         
+                     MOVE  WK-F-YMD        TO   F-YMD                   
+                     MOVE  WK-T-YMD        TO   T-YMD.                  
+           MOVE      T-I(I)            TO  J-I.                         
+           COMPUTE   GIGAN = (T-YY - F-YY) * 12 + T-MM - F-MM.          
+           IF YEONGEUM OR DAN-YANGRO OR HAENG-SEOL                      
+                   COMPUTE  YUL ROUNDED  = (J-I + 0.005) - YAE-IYUL     
+           ELSE                                                         
+                   COMPUTE  YUL ROUNDED  = (J-I - 0.005) - YAE-IYUL.    
+                                                                        
+           IF K4-GYE-YMD  > 19990401 OR  YUL < 0                        
+              MOVE      ZERO     TO      YUL.                           
+           COMPUTE   YUL ROUNDED  =  GIGAN * YUL / 12.                  
+           ADD       YUL         TO          HG-IYUL.                   
+           IF     WK-T-YMD  >  TA-T(I)  NEXT    SENTENCE                
+           ELSE      GO   TO    121-EXIT.                               
+
+           MOVE      TA-T(I)           TO   WK-F-YMD .                  
+           GO        TO    121-1-IYUL.
+       121-EXIT.   EXIT.                                                
+      *--------------*
+       122-SACHA-DIV1.
+      *--------------*
+           PERFORM  SACHA-CALL-RTN.                                     
+           IF  S-QX1 >  ZERO                                            
+               COMPUTE RATE-1 ROUNDED = 1 - S-EM1 *
+                                      SACHA-GIJUN-YUL / S-QX1
+           ELSE   MOVE     ZERO     TO   RATE-1.                        
+           IF  RATE-1 < ZERO     MOVE   ZERO  TO   RATE-1     ELSE
+           IF  NOT RATE-1 < 1    MOVE   ZERO  TO   RATE-1.
+                                                                        
+           IF  S-PR1  < ZERO     MOVE   ZERO  TO   S-PR1.
+           IF  K4-JEUNGBEON = 317931  AND K4-BOJONG-T < 9000            
+               DISPLAY ' SACHA-KEY '  SACHA-KEY                         
+               DISPLAY ' S-EM1 : ' S-EM1   '  S-QX1 : ' S-QX1           
+                       ' S-EM2 : ' S-EM2   '  S-QX2 : ' S-QX2           
+                       ' SACHA-YUL : ' SACHA-GIJUN-YUL ' S-PR1: ' S-PR1.
+           IF  T-GMRI-LIN1
+                   COMPUTE  SACHA-BAE  ROUNDED = S-PR1 * RATE-1         
+                   MOVE     S-PR1    TO   BD-SH-PR1                     
+           ELSE                                                         
+                   COMPUTE  SACHA-BAE  ROUNDED = K4-BOGEUM * S-PR1      
+                                                   * RATE-1 / SS        
+                   COMPUTE  BD-SH-PR1 = K4-BOGEUM * S-PR1 / SS.         
+      *--------------*
+       122-SACHA-DIV2.
+      *--------------*
+      *--  새천년　어린이
+           MOVE  K4-BOJONG     TO  PR-BOJONG
+           MOVE  K4-BOJONG-T   TO  PR-BOJONG-T
+           MOVE  K4-NABBANG    TO  PR-NABBANG
+           MOVE  K4-PINAI      TO  PR-AGE
+           MOVE  K4-GNGWA-YY   TO  PR-GNG
+           MOVE  065           TO  PR-IYUL
+           READ  PR-FILE   INVALID  DISPLAY '  PR ERROR : ' PR-KEY.
+           IF  K4-PISEX = 1       MOVE  PR-M     TO  S-QX1              
+           ELSE                   MOVE  PR-W     TO  S-QX1.             
+           MOVE   S-QX1   TO   BD-SH-PR1 S-EM1 S-PR1.
+           IF  S-QX1 >  ZERO                                            
+                  COMPUTE RATE-1 ROUNDED = 1 - S-EM1 *
+                                              SACHA-GIJUN-YUL / S-QX1
+           ELSE   MOVE     ZERO     TO   RATE-1.                        
+           IF  RATE-1 < ZERO OR RATE-1 >= 1  MOVE   ZERO  TO   RATE-1.
+           IF  S-PR1  < ZERO    MOVE   ZERO  TO   S-PR1.
+           COMPUTE  SACHA-BAE  ROUNDED = S-PR1 * RATE-1 * 12.           
+      *---------------*                                                 
+       SACHA-CALL-RTN.                                                  
+      *---------------*                                                 
+           MOVE   K4-JEUNGBEON       TO  S-JEUNGBEON.                   
+           MOVE   K4-JT              TO  S-JJK.                         
+           MOVE   K4-VT-KEY          TO  S-KEY.                         
+           MOVE   K4-BOJONG-T        TO  S-BOJONG.                      
+                                                                        
+           IF T-DAN-SINYONG      MOVE   K4-NABGI  TO  S-NABGI.          
+           ADD    GNGWA   1      GIVING  S-GNGWA-YY.                    
+           DIVIDE   K4-IYUL BY  10000  GIVING S-IYUL.
+           MOVE   100                TO  S-BOGEUM.                      
+                                                                        
+           IF  T-GMRI-LIN1           MOVE  K4-BOLYO     TO  S-BOLYO     
+                                     MOVE  K4-GYE-YM    TO  S-GYE-YM
+           ELSE                      MOVE  K4-VT-PB     TO  S-BOLYO.    
+           IF NB-BOJ                                                    
+              IF  K4-NABBANG = 1     COMPUTE S-BOLYO = S-BOLYO * 12 ELSE
+              IF  K4-NABBANG = 3     COMPUTE S-BOLYO = S-BOLYO *  4 ELSE
+              IF  K4-NABBANG = 6     COMPUTE S-BOLYO = S-BOLYO *  2.    
+           ADD    II    1      GIVING   JJ.                             
+           IF  JJ > 3          MOVE   3    TO  JJ.
+           MOVE   K4-VT (II)         TO  S-VT-0                         
+           MOVE   K4-VT1(II)         TO  S-VTT-0                        
+           MOVE   K4-VT1(JJ)         TO  S-VTT-1.                       
+           MOVE   K4-VT (JJ)         TO  S-VT-1                         
+           CALL  'K11M8056'        USING  SACHA-KEY.                    
+
+      *-------------*                                                   
+       121-3-WT.
+      *-------------*                                                   
+           IF  K4-NABGI > 7    MOVE   7            TO  NABGI            
+           ELSE                MOVE   K4-NABGI     TO  NABGI.           
+           IF  NABGI > GNGWA   MOVE   K4-ALPHA     TO  S-ALPHA          
+           ELSE                MOVE   ZERO         TO  S-ALPHA.         
+           IF  NABGI  =  ZERO  MOVE   1            TO  NABGI.           
+           IF  NABGI  =  1  OR  K4-NABBANG = 9                          
+                               MOVE   ZERO         TO  S-ALPHA.         
+           COMPUTE  WT-YY  = (S-HG-VT - (NABGI - GNGWA)                 
+                                    * S-ALPHA  / NABGI).                
+           COMPUTE  ICHA-WT ROUNDED = WT-YY * K4-BOGEUM / SS.           
+      *-------------*
+980331 123-ICHA-DIV.
+      *-------------*
+           IF NOT GMRI-LINK                                             
+              IF YEONGEUM OR DAN-YANGRO OR HAENG-SEOL                   
+                 COMPUTE  GMRICHA-IYUL  =  GIJUN-JEONGI-IYUL  +  0.005
+                                        -  YAE-IYUL
+              ELSE                                                      
+                 COMPUTE  GMRICHA-IYUL  =  GIJUN-JEONGI-IYUL  -  0.005
+                                        -  YAE-IYUL
+           ELSE                                                         
+                 COMPUTE  GMRICHA-IYUL  =  GIJUN-JEONGI-IYUL  -  0.005
+                                        -  YAE-IYUL.
+           IF  GMRICHA-IYUL < 0 OR    K4-GYE-YMD > 19970930
+                 MOVE    ZERO         TO   GMRICHA-IYUL.
+           COMPUTE  ICHA-IYUL = ICHA-GIJUN-YUL
+                                - ( YAE-IYUL + GMRICHA-IYUL).
+           IF  ICHA-IYUL <  ZERO      MOVE ZERO    TO  ICHA-IYUL.
+           MOVE     ICHA-WT     TO    BD-IH-WT.                         
+           COMPUTE  ICHA-BAE  ROUNDED  =  BD-IH-WT  *  ICHA-IYUL.       
+
+      *    IF NOHOO AND ICHA-BAE > 0 AND K4-BOJONG-T < 8999             
+      *    DISPLAY  ' POLNO : ' K4-JEUNGBEON '  IYUL ' ICHA-IYUL        
+      *             ' ICHA-WT: ' ICHA-WT  '  BAE ' ICHA-BAE             
+      *    DISPLAY  ' BOJONG : ' K4-BOJONG-T '  YEA ' YAE-IYUL          
+      *             ' GIJUN : ' ICHA-GIJUN-YUL ' GYE-YMD ' K4-GYE-YMD   
+      *             ' GMRICHA ' GMRICHA-IYUL.                           
+      *---------*                                                       
+       WRITE-RTN.                                                       
+      *---------*                                                       
+      *    IF BD-SH-BAE > ZERO OR BD-IH-BAE > ZERO OR                   
+      *       BD-HG-BAE > ZERO OR BD-JG-BAE > ZERO  NEXT   SENTENCE     
+      *    ELSE                                     GO TO  WRITE-EXIT.  
+           MOVE    K4-BSMG            TO   BD-BSMG.                     
+           MOVE    K4-JEUNGBEON       TO   BD-JEUNGBEON.                
+           MOVE    K4-SSYD            TO   BD-SSYD.
+           MOVE    K4-BOJONG          TO   BD-BOJONG.                   
+           MOVE    K4-BOJONG-T        TO   BD-BOJONG-T.                 
+           MOVE    K4-NABGI           TO   BD-NABGI.                    
+           MOVE    K4-MANGI           TO   BD-MANGI.                    
+           MOVE    K4-NABBANG         TO   BD-NABBANG.                  
+           MOVE    K4-PINAI           TO   BD-PINAI.                    
+           MOVE    K4-PISEX           TO   BD-PISEX.                    
+           MOVE    K4-GYENAI          TO   BD-GYENAI.                   
+           MOVE    K4-GYESEX          TO   BD-GYESEX.                   
+           MOVE    K4-GYE-YMD         TO   BD-GYE-YMD.                  
+           MOVE    K4-LNAB-YM         TO   BD-LNAB-YM.                  
+           MOVE    K4-LNAB-HOISU      TO   BD-LNAB-HOISU.               
+           MOVE    K4-GNGWA-YM        TO   BD-GNGWA-YM.                 
+           MOVE    K4-DIV-YM          TO   BD-DIV-YM.
+           MOVE    K4-ALPHA           TO   BD-ALPHA.                    
+           MOVE    K4-BOGEUM          TO   BD-BOGEUM.                   
+           MOVE    K4-BOLYO           TO   BD-BOLYO.                    
+           MOVE    K4-IYUL            TO   BD-IYUL.                     
+           MOVE    ICHA-IYUL          TO   BD-IH-YUL.                   
+           MOVE    RATE-1             TO   BD-SH-YUL-1.                 
+           MOVE    K4-VT (II)         TO   BD-VT (1).                   
+           MOVE    K4-VT1(II)         TO   BD-VT1(1).                   
+           MOVE    K4-VT (JJ)         TO   BD-VT (2).
+           MOVE    K4-VT1(JJ)         TO   BD-VT1(2).
+           MOVE    K4-JUN-CODE        TO   BD-JUN-CODE.
+           MOVE    ICHA-GIJUN-YUL     TO   BD-ICHA-GIJUN.
+           MOVE    SACHA-GIJUN-YUL    TO   BD-SACHA-GIJUN.
+           IF  T-GMRI-LIN1
+                                      MOVE   S-PR1       TO  BD-PB      
+980519     ELSE  IF  BD-BOJONG-T  =  9510  OR  9621                     
+  .                                   MOVE   S-PR1       TO  BD-PB      
+           ELSE                       MOVE   K4-VT-PB    TO  BD-PB.     
+           ADD     1                  TO   BD-COUNT.                    
+           IF  BD-HG-BAE  > ZERO                                        
+                  ADD        1        TO  HWAG-COUNT                    
+                  ADD     BD-HG-BAE   TO  HWAG-GEUM.                    
+           IF  BD-SH-BAE  > ZERO                                        
+                  ADD        1        TO  SACHA-COUNT                   
+                  ADD     BD-SH-BAE   TO  SACHA-GEUM.                   
+           IF  BD-IH-BAE  > ZERO                                        
+                  ADD        1        TO  ICHA-COUNT                    
+                  ADD     BD-IH-BAE   TO  ICHA-GEUM.                    
+           IF  BD-JG-BAE > ZERO                                         
+                  ADD        1        TO  JANGGI-COUNT                  
+                  ADD     BD-JG-BAE   TO  JANGGI-GEUM.                  
+           WRITE                REC-DIV.
+           ADD   1          TO  BD-COUNT2    CNT-OUT.
+           MOVE  ZERO       TO  BD-ALPHA     BD-PB
+                                BD-IH-WT     BD-IH-BAE
+                                BD-JG-BAE    BD-SH-BAE
+                                BD-SH-PR1    BD-GUN.
+       WRITE-EXIT.    EXIT.                                             
+      *------------*                                                    
+       GUN-SANCHUL.                                                     
+      *------------*                                                    
+           IF  NO-SEOL                                                  
+               IF K4-NABBANG  < 9
+                  DIVIDE  K4-BOLYO  BY   200000  GIVING     BD-GUN
+                                                 REMAINDER  NAMERJI
+                  IF    NAMERJI  > ZERO     ADD    1    TO  BD-GUN
+                  ELSE                           NEXT       SENTENCE
+               ELSE                         MOVE   1    TO  BD-GUN
+           ELSE
+           IF  (NO-BOK  OR  NO-JEOK)                                    
+             IF K4-NABBANG < 9                                          
+               IF K4-GYE-YY > 1993                                      
+                  DIVIDE  K4-BOLYO  BY  1000000  GIVING     BD-GUN
+                                                 REMAINDER  NAMERJI
+                  IF    NAMERJI  > ZERO     ADD    1    TO  BD-GUN
+                  ELSE                           NEXT       SENTENCE
+               ELSE DIVIDE K4-BOLYO BY   500000  GIVING     BD-GUN
+                                                 REMAINDER  NAMERJI
+                  IF    NAMERJI  > ZERO     ADD    1    TO  BD-GUN
+                  ELSE                           NEXT       SENTENCE
+             ELSE                           MOVE   1    TO  BD-GUN
+           ELSE
+           IF  JAETECH  OR T-NEW-JAETECH                                
+             IF K4-NABBANG < 9                                          
+                  DIVIDE  K4-BOLYO  BY  1000000  GIVING     BD-GUN
+                                                 REMAINDER  NAMERJI
+                  IF    NAMERJI  > ZERO     ADD    1    TO  BD-GUN
+                  ELSE                           NEXT       SENTENCE
+             ELSE                           MOVE   1    TO  BD-GUN
+           ELSE                             MOVE   1    TO  BD-GUN.
+
+
+      *                     end of program

@@ -1,0 +1,249 @@
+//KERB9909 JOB (KER),'KER00',CLASS=K,MSGCLASS=X,MSGLEVEL=(1,1)          
+//S1 EXEC YSRCCAT,MBR=K00B9909                                          
+//C.SYSUT1 DD *                                                         
+         02  WK-BOJONG-T       PIC  9(4).                               
+           88  ILSU-BOJONG        VALUE  2010 THRU 2024  2110 THRU 2119 
+                                         2210 THRU 2233  2255 THRU 2260 
+                                         6010 THRU 6013  8040 THRU 8041 
+                                         2370 THRU 2379  2380 THRU 2403 
+                                         6021 THRU 6022  8042 THRU 8043 
+                                         7061 9510 9621  8190 8210      
+                                         2490 THRU 2499  6031 THRU 6032 
+                                         8044 THRU 8045                 
+                                         7062 8191 7081  7091 THRU 7093 
+                                         2540 2545 6041  7063 7082 7064 
+                                         7110      7120  8210           
+                                         7201 THRU 7203  7211 7221 7231 
+000202                                   8210 8321 8323  8371 8391.     
+           88  NB-BOJ             VALUE  5003 THRU 5005  5033 THRU 5035 
+                                         5011 THRU 5012  5041 THRU 5044 
+                                         5021 THRU 5022  5051 THRU 5058 
+                                         5075 THRU 5077  5085 THRU 5088 
+                                         5095 THRU 5097  5101 THRU 5104 
+                                         5501      5503  5511 THRU 5513 
+                                         5523      5527  5111 THRU 5112 
+                                         5120 THRU 5125  5178 THRU 5179 
+                                         5191      5192                 
+                                         5200                           
+                                         5221                           
+                                         8050 THRU 8053  8131 THRU 8134 
+                                         8060 THRU 8077  8080 THRU 8081 
+                                         8111 THRU 8118  9031 THRU 9038 
+                                         9129 9130 9503  9504 9112 9113 
+                                         8120 THRU 8127                 
+                                         5133 THRU 5134  5161 THRU 5164 
+                                         5171 THRU 5176  5505 THRU 5506 
+                                         5147 THRU 5149  5151 THRU 5157 
+                                         5182 THRU 5184                 
+                                         8151 THRU 8168  8082 THRU 8083 
+                                         8181 THRU 8188  8171 THRU 8178 
+                                         8201      8202                 
+                                         9627 THRU 9634  9574 THRU 9575 
+                                         9619 THRU 9620  9563 THRU 9564 
+                                                                        
+990524                                   5611      5621  5632      5633 
+  .                                      5661            5641 THRU 5643 
+  .                                      5682      5250  5260      5270 
+  .                                      8331 THRU 8334  8351 8381 8382 
+991006                                   5290.                          
+      *----------------( JONG MOK    BOJONG  )-------------------------*
+           88  T-GYOYUK           VALUE  1001 THRU 1999.                
+             88  T-JANGHAK        VALUE  1001.                          
+             88  T-NEW-GYOYUK     VALUE  1011 1013.                     
+             88  T-EXCELLENT      VALUE  1021 1025 1041  1045.          
+990524       88  T-AGA-SALANG     VALUE  1031 1033 1051  1053 1211 1213.
+           88  T-NOHOO            VALUE  2010 THRU 2019  2110 THRU 2119 
+                                         2210 THRU 2233  2255 THRU 2259 
+                                         2370 THRU 2379  2380 THRU 2391 
+                                         2490 THRU 2499.                
+             88  T-NO-SEOL        VALUE  2010 THRU 2019  2110 THRU 2119.
+             88  T-NO-BOK         VALUE  2210 THRU 2219  2255 THRU 2259 
+                                         2370 THRU 2379                 
+                                         2490 THRU 2499.                
+             88  T-NO-JEOK        VALUE  2220 THRU 2233  2380 THRU 2391.
+           88  T-GEOCHI           VALUE  2540 2545 6041 7063 7082.      
+             88  T-GEOCHI-NO-BOK             VALUE  2540.               
+             88  T-GEOCHI-NO-SEOL            VALUE  2545.               
+             88  T-GEOCHI-GABOK              VALUE  6041.               
+             88  T-GEOCHI-NON-TAX            VALUE  7063.               
+             88  T-GEOCHI-NON-UDAEJEOCHUK    VALUE  7082.               
+           88  T-NEW-LIFE         VALUE  2030 THRU 2035.                
+           88  T-JANGSU           VALUE  2080 2082 2084  2086 2088 2090 
+                                         2092 2094 2096  2098 2100 2102.
+           88  T-GAJOK-SALANG     VALUE  2140 THRU 2151.                
+           88  T-SIN-GAJOK        VALUE  2160 THRU 2171  2300 THRU 2315 
+                                         2411 THRU 2422  2425 THRU 2440.
+             88  T-SIN-GAJOK-J    VALUE  2160 THRU 2171  2411 THRU 2422.
+             88  T-SIN-GAJOK-B    VALUE  2300 THRU 2315  2425 THRU 2440.
+           88  T-HAN-SALANG       VALUE  2180 THRU 2191.                
+           88  T-JIG-UDAE         VALUE  2320 THRU 2325  2441 THRU 2446.
+           88  T-URI-SALANG       VALUE  2330 THRU 2335  2361 THRU 2366 
+                                         2451 THRU 2456  2481 THRU 2486 
+990524                                   2601 THRU 2606  2611 THRU 2616.
+             88  T-URI-SALANG-J   VALUE  2330 THRU 2335  2451 THRU 2456 
+990524                                   2601 THRU 2606.                
+             88  T-URI-SALANG-B   VALUE  2361 THRU 2366  2481 THRU 2486 
+990524                                   2611 THRU 2616.                
+  .        88  T-N-URI-SALANG     VALUE  2530 THRU 2535  2621 THRU 2626.
+           88  T-ABBA-YEONGEUM    VALUE  2341 THRU 2348  2351 THRU 2358 
+                                         2461 THRU 2468  2471 THRU 2478.
+             88 T-ABBA-YEONGEUM-J  VALUE  2341 THRU 2348 2461 THRU 2468.
+             88 T-ABBA-YEONGEUM-B  VALUE  2351 THRU 2358 2471 THRU 2478.
+                                                                        
+           88  T-21C-AM1          VALUE  5001 THRU 5002  5031 THRU 5032.
+           88  T-21C-AM2          VALUE  5003 THRU 5006  5033 THRU 5036.
+           88  T-MUJIGAI          VALUE  5011 THRU 5014  5041 THRU 5044.
+           88  T-BIG-MAEUM        VALUE  5021 5022 5051  THRU 5058.     
+           88  T-WOMAN-2J         VALUE  5061.                          
+           88  T-AMCHRYO-1J       VALUE  5071 THRU 5074  5081 THRU 5084 
+                                         5091 THRU 5094  5131 5132.     
+           88  T-AMCHRYO-2J       VALUE  5075 THRU 5078  5085 THRU 5088 
+                                         5095 THRU 5098  5133 5134.     
+           88  T-GEONGANG-LIFE    VALUE  5101 THRU 5104.                
+           88  T-ABBA-SALANG      VALUE  5105 THRU 5106  5145 5146      
+990524                                   5601 5602.                     
+           88  T-SP               VALUE  5501 THRU 5506.                
+           88  T-SIN-GEONGANG     VALUE  5511      5147.                
+           88  T-MUBAEDANG-AM     VALUE  5512 THRU 5513  5148 5149.     
+           88  T-ROAD-FRIEND      VALUE  5521 THRU 5528  5151 THRU 5157.
+           88  T-MIZ-AM           VALUE  5111      5113  5161      5162 
+990524                                   5611      5612.                
+           88  T-MISTER-AM        VALUE  5112      5114  5163      5164 
+990524                                   5621      5622.                
+           88  T-MU-ALPHA         VALUE  5120 THRU 5125  5171 THRU 5176.
+990524     88  T-MU-CHILD         VALUE  5177 THRU 5179  5631 THRU 5633.
+  .          88  T-MU-CHILD1      VALUE  5177            5631.          
+  .          88  T-MU-CHILD2      VALUE  5178      5179  5632      5633.
+  .        88  T-MU-POWER-DRIVER  VALUE  5182 THRU 5184  5641 THRU 5643.
+      *    88  T-MU-PACIFIC-DRIVER  VALUE  5182 THRU 5184               
+      *                                    5641 THRU 5643.              
+990524     88  T-MU-ANSIM           VALUE  5185      5651.              
+           88  T-SUPER-NUGUNA       VALUE  5191 5192.                   
+990524     88  T-MU-SINBARAM        VALUE  5200      5661.              
+  .        88  T-MU-JONGSIN         VALUE  5210      5671.              
+  .        88  T-MU-ANSIM-SALANG    VALUE  5240      5691.              
+  .        88  T-MU-PACIFIC-NUGUNA  VALUE  5220 5221  5681 5682.        
+  .        88  T-MU-NEW-MILLENIUM   VALUE  5250.                        
+  .        88  T-MU-MIZ-AM          VALUE  5260.                        
+  .        88  T-MU-MISTER-AM       VALUE  5270.                        
+991006     88  T-MU-GOGAK-SALANG    VALUE  5280.                        
+  .        88  T-MU-NEW1000-NUGUNA  VALUE  5290.                        
+                                                                        
+           88  T-TEUG-JEOG        VALUE  6001 THRU 6002.                
+           88  T-GABOK            VALUE  6010 THRU 6013 6021            
+                                         6031.                          
+           88  T-WON-BUBU         VALUE  7001 THRU 7002.                
+           88  T-FREE-YUHAENG     VALUE  7011 THRU 7014.                
+           88  T-WOMAN-1J         VALUE  7021.                          
+           88  T-HAENG-SEOL       VALUE  7041      7043.                
+           88  T-NON-TAX          VALUE  2260      7061                 
+                                         7062      7064.                
+           88  T-NON-UDAEJEOCHUK  VALUE  7081.                          
+           88  T-JAYU             VALUE  9510      9621.                
+           88  T-MU-URIJIB        VALUE  7071 7072.                     
+           88  T-MU-N-URIJIB      VALUE  7073.                          
+990524     88  T-JAETECH          VALUE  7091 7092       7201 7202.     
+  .        88  T-JAETECH-II       VALUE  7093 7203.                     
+  .        88  T-NEW-JAETECH      VALUE  7110 7211.                     
+  .        88  T-HANARO           VALUE  7120 7121       7221 7222.     
+990817     88  T-MILLENIUM-CHILD  VALUE  7231.                          
+                                                                        
+990524     88  T-JONGTOI          VALUE  8001      8301.                
+           88  T-DAN-JEONGGI      VALUE  8011      8013.                
+990524     88  T-N-DAN-JEONGGI    VALUE  8015      8017  8311.          
+           88  T-DAN-SINYONG      VALUE  8020 8021 8022.                
+           88  T-DAN-YANGRO       VALUE  8030      8032.                
+           88  T-JIG-JEOCHUK      VALUE  8040      8041                 
+990524                                   8042      8044  8321      8323.
+           88  T-JIG-BOJANG       VALUE  8050 THRU 8053  8090 THRU 8101 
+990524                                   8131 THRU 8134  8331 THRU 8334.
+           88  T-21C-BOJANG       VALUE  8060 THRU 8077  8151 THRU 8168 
+990524                                   8351.                          
+           88  T-JIG-MIRERO       VALUE  8080 THRU 8083.                
+           88  T-DAEHYUNG-BOJANG  VALUE  8111 THRU 8118  8181 THRU 8188.
+           88  T-N-DAEHYUNG-BOJANG VALUE  8120 THRU 8127 8171 THRU 8178.
+990524     88  T-JIG-UDAESEOLGYE   VALUE  8190      8191 8371.          
+  .        88  T-MU-DAN-SANGHAE    VALUE  8201      8202 8381      8382.
+  .        88  T-MU-SILUP          VALUE  8210      8211 8391      8392.
+      *----------------( DEATH  TABLE    BOJ )-------------------------*
+           88  85-GANEE           VALUE  2010 THRU 2019  2030 THRU 2035 
+                                         6001 THRU 6002  8030 THRU 8032 
+                                         8040 THRU 8041                 
+                                         9001 9021 9143  9071 THRU 9072.
+           88  1-HOI              VALUE  1001            2110 THRU 2119 
+                                         5001 THRU 5005  5011 THRU 5012 
+                                         5021 THRU 5022  6010 THRU 6013 
+                                         7001            7011 THRU 7014 
+                                         8011            8020           
+                                         9022      9041  9061 THRU 9062 
+                                         9081      9101  9121 THRU 9122 
+                                         9141 THRU 9142  9151 THRU 9156.
+           88  2-HOI              VALUE  1011 1013 1021  1025 1031 1033 
+                                         2080 THRU 2103  2121 THRU 2132 
+                                         2140 THRU 2151  2160 THRU 2171 
+                                         2180 THRU 2191  2210 THRU 2253 
+                                         2255 THRU 2260  2300 THRU 2315 
+                                         2320 THRU 2325  2330 THRU 2335 
+                                         2341 THRU 2348  2351 THRU 2358 
+                                         2361 THRU 2366                 
+                                         5031 THRU 5035  5041 THRU 5042 
+                                         5051 THRU 5059  5061           
+                                         5071 THRU 5078  5081 THRU 5088 
+                                         5091 THRU 5098  5101 THRU 5106 
+                                         5111 THRU 5114  5521 THRU 5528 
+                                         7021            7041 THRU 7044 
+                                         8013 8016 8021  8050 THRU 8053 
+                                         8060 THRU 8077  8080 THRU 8081 
+                                         8090 THRU 8101  8111 THRU 8118 
+                                         8120 THRU 8127                 
+                                         9002 9003 9023  9024 9043      
+                                         9031 THRU 9038  9091 THRU 9098 
+                                         9045 THRU 9047  9051 THRU 9056 
+                                         9063 THRU 9064  9067 THRU 9069 
+                                         9102 THRU 9111  9123 THRU 9128 
+                                         9131 THRU 9134  9144 THRU 9150 
+                                         9161 THRU 9166  9171 THRU 9178 
+                                         9180 THRU 9181  9191 THRU 9196 
+                                         9200 THRU 9217  9220 THRU 9221 
+                                         9270 THRU 9271  9274 THRU 9295 
+                                         9301 THRU 9304  9010 9503 9504 
+                                         9310 THRU 9317  9510.          
+           88  2-HOI-MU           VALUE  5501 THRU 5503  5511 THRU 5513 
+                                         5120 THRU 5125  9129      9130 
+                                         9042      9044  9065 THRU 9066 
+                                         9503      9504  9112      9113 
+                                         9231 THRU 9261  9501 THRU 9502.
+           88  3-HOI              VALUE  1041      1045  1051      1053 
+                                         2370 THRU 2374  2375 THRU 2379 
+                                         2380 THRU 2391  2411 THRU 2422 
+                                         2425 THRU 2440  2441 THRU 2446 
+                                         2451 THRU 2456  2461 THRU 2468 
+                                         2471 THRU 2478  2481 THRU 2486 
+                                         5131 THRU 5134  5145      5146 
+                                         5147 THRU 5149  5505      5506 
+                                         5151 THRU 5157  5161 THRU 5164 
+                                         5171 THRU 5179  6021 7061      
+                                         7091 THRU 7093                 
+                                         8017      8022  8042           
+                                         8131 THRU 8134  8151 THRU 8168 
+                                         8082      8083  8181 THRU 8188 
+                                         8171 THRU 8178                 
+                                         9511 THRU 9579  9582 THRU 9634 
+                                         8190                           
+                                         2530 THRU 2535                 
+                                         2490 THRU 2499                 
+                                         6031 7062 7081  8044 8191      
+                                         9660 THRU 9681                 
+                                         2540 2545 6041  7063 7082 7064 
+                                         7120 7121 9689.                
+           88  3-HOI-MU           VALUE  5177 THRU 5179  5182      5185 
+                                         5191 5192 5200  7071 THRU 7073 
+                                         5210            8201      8202 
+                                         5220      5221  5240      8210 
+                                         9518                           
+                                         9535      9536  9622 THRU 9624 
+                                         9643            9646 THRU 9654 
+                                         9683 THRU 9688  9690 THRU 9697 
+990817                                   9730 THRU 9809                 
+991006                                   5280                           
+  .                                      5290            9810 THRU 9813.

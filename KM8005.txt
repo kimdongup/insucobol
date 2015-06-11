@@ -1,0 +1,398 @@
+//KERM8005 JOB (KER),'KER00',CLASS=K,MSGCLASS=X,MSGLEVEL=(1,1)
+//STEP1    EXEC YCOBBAT,MBR=K00M8005
+//COB.SYSIN DD *
+       ID                      DIVISION.                                
+       PROGRAM-ID.             K00M8005.                                
+       ENVIRONMENT             DIVISION.                                
+       DATA                    DIVISION.                                
+       WORKING-STORAGE         SECTION.                                 
+       01  REC-BOJ.     COPY  K11B9909.                                 
+       LINKAGE                 SECTION.                                 
+       01  V-KEY.                                                       
+         02  VT-KEY.                                                    
+           03  BOJONG-P        PIC 9(4).                                
+           03  BOJONG          PIC 9(4).                                
+           03  BOJONG-RE  REDEFINES   BOJONG.                           
+               04  BOJ         PIC 9(3).                                
+               04  JONG        PIC 9(1).                                
+           03  GUBUN           PIC 9(1).                                
+           03  PINAI           PIC 9(2).                                
+           03  GYENAI          PIC 9(2).                                
+           03  NABGI           PIC 9(2).                                
+           03  MANGI           PIC 9(2).                                
+           03  NABBANG         PIC 9(1).                                
+           03  GYEONGGWA       PIC 9(2).                                
+           03  SEX             PIC 9(1).                                
+           03  MYEONJE         PIC 9(1).                                
+           03  AGE             PIC 9(2).                                
+         02  VT-OUT.                                                    
+           03  O-BOJONG        PIC 9(4).                                
+           03  O-GUBUN         PIC 9(1).                                
+           03  O-PINAI         PIC 9(2).                                
+           03  O-NABGI         PIC 9(2).                                
+           03  O-MANGI         PIC 9(2).                                
+           03  O-NABBANG       PIC 9(1).                                
+           03  O-GYEONGGWA     PIC 9(2).                                
+         02  E                 PIC 9.                                   
+       PROCEDURE       DIVISION        USING   V-KEY.                   
+      *==============================================*                  
+           MOVE    ZERO            TO   E.                              
+           MOVE    BOJONG          TO   O-BOJONG WK-BOJONG-T.           
+           MOVE    GUBUN           TO   O-GUBUN.                        
+           MOVE    PINAI           TO   O-PINAI.                        
+           MOVE    NABGI           TO   O-NABGI.                        
+           MOVE    MANGI           TO   O-MANGI.                        
+           MOVE    8               TO   O-NABBANG.                      
+           IF  NABBANG = 9         MOVE    9       TO  O-NABBANG        
+                                   MOVE   ZERO     TO  O-NABGI.         
+           IF  NB-BOJ              MOVE   NABBANG  TO  O-NABBANG.       
+           MOVE    GYEONGGWA       TO   O-GYEONGGWA.                    
+      *--------------*                                                  
+       VT-CONVERSION.                                                   
+      *--------------*                                                  
+           IF   BOJ < 900     NEXT        SENTENCE
+           ELSE               GO      TO  VT-TG-CONVERT.
+           IF   BOJ  = 100                GO   TO   BOJ-100   ELSE      
+           IF   BOJ  < 106                GO   TO   BOJ-101   ELSE      
+9905       IF   BOJ  = 121                GO   TO   BOJ-101   ELSE      
+           IF   BOJ  = 201 OR 211 OR 221 OR 222 OR 223 OR 225 OR        
+                       237 OR 238 OR 239 OR 240 OR 819 OR               
+                       249 OR 708 OR 709 OR 711 OR                      
+9905                   720 OR 721 OR 837                                
+                                          GO   TO   BOJ-501   ELSE      
+           IF   BOJ  = 203 OR 208 OR 209 OR 210 OR 214 OR 215 OR 216 OR 
+                       217 OR 218 OR 219 OR 230 OR 231 OR 232 OR 233 OR 
+                       234 OR 235 OR 236 OR                             
+                       212 OR 213 OR 241 OR 242 OR 243 OR 244 OR 245 OR 
+                       246 OR 247 OR 248 OR 253 OR                      
+9905                   260 OR 261 OR 262                                
+                                          GO   TO   BOJ-203   ELSE      
+           IF   BOJ  = 500 OR 503         GO   TO   BOJ-500   ELSE      
+           IF   BOJ  = 501 OR 502 OR 504 OR 505 OR 506 OR 507 OR 508 OR 
+                       509 OR 510 OR 511 OR 550 OR 551 OR 552 OR 600 OR 
+                       512 OR 513 OR 514 OR 515 OR 516 OR 517 OR 518 OR 
+                       519 OR 520 OR 521 OR 522 OR 524 OR               
+9905                   560 OR 561 OR 562 OR 563 OR 564 OR 566 OR 567 OR 
+991006                 568 OR 569 OR 525 OR 526 OR 527 OR 528 OR 529    
+                                          GO   TO   BOJ-501   ELSE      
+           IF   BOJ  = 601 OR 602 OR 603 OR 712 OR                      
+9905                   722 OR 723                                       
+                                          GO   TO   BOJ-601   ELSE      
+           IF   BOJ  = 700 OR 701 OR 702 OR 703 OR 226 OR 707 OR 706    
+                                          GO   TO   BOJ-700   ELSE      
+           IF   BOJ  = 704                GO   TO   BOJ-701   ELSE      
+           IF   BOJ  = 800 OR 801 OR 802 OR                             
+9905                   830 OR 831                                       
+                                          GO   TO   BOJ-802   ELSE      
+           IF   BOJ  = 803                GO   TO   BOJ-803   ELSE      
+           IF   BOJ  = 804 OR 805 OR 806 OR 807 OR 809 OR 810 OR        
+                       813 OR 814 OR 815 OR 816 OR                      
+9905                   832 OR 833 OR 835                                
+                                          GO   TO   BOJ-805   ELSE      
+           IF   BOJ  = 811 OR 812 OR 817 OR 818                         
+                                          GO   TO   BOJ-811.            
+           IF   BOJ  = 808                GO   TO   BOJ-808.            
+9905       IF   BOJ  = 820 OR 838         GO   TO   BOJ-820.            
+           IF   BOJONG = 2540 OR 2545 OR 6041 OR 7063 OR 7082           
+                                          GO   TO   BOJ-204.            
+           GO   TO   BOJ-ERR.                                           
+      *--------------*                                                  
+       VT-TG-CONVERT.                                                   
+      *--------------*                                                  
+           IF  ((BOJONG > 9659) AND (BOJONG < 9682)) OR                 
+9905           ((BOJONG > 9758) AND (BOJONG < 9782))                    
+                                          GO   TO   BOJ-1000.           
+           IF   BOJ  = 907         MOVE   AGE  TO   O-MANGI   ELSE      
+           IF   BOJ  = 920 OR 927 OR 928 OR 929 OR                      
+                       960 OR 961                                       
+                                                NEXT SENTENCE ELSE      
+           IF   AGE  > ZERO        COMPUTE  O-MANGI = AGE -  PINAI.     
+           IF   BOJ  = 927 OR BOJONG = 9590                             
+                IF   JONG = 0 OR 1 OR 4 OR 5                            
+                     IF   AGE  > ZERO                                   
+                                   COMPUTE  O-MANGI = AGE -  PINAI.     
+           IF   BOJ  = 960                                              
+                IF   JONG = 0 OR 5 OR 6 OR 7 OR 8                       
+                     IF   AGE  > ZERO                                   
+                                   COMPUTE  O-MANGI = AGE -  PINAI.     
+           IF   BOJ  = 929                                              
+                IF   JONG = 4 OR 5                                      
+                     IF   AGE  > ZERO                                   
+                                   COMPUTE  O-MANGI = AGE -  PINAI.     
+           IF   BOJ  = 961                                              
+                IF   JONG = 5 OR 6 OR 9                                 
+                     IF   AGE  > ZERO                                   
+                                   COMPUTE  O-MANGI = AGE -  PINAI.     
+                                                                        
+           IF   BOJONG > 9030 AND BOJONG < 9039                         
+                                          GO   TO   BOJ-903.            
+           IF   BOJONG > 9626 AND BOJONG < 9635                         
+                                          GO   TO   BOJ-903.            
+           IF   BOJONG = 9510 OR 9622     GO   TO   BOJ-903.            
+           IF   BOJ  = 900 OR 905 OR 907 OR 912 OR 914 OR 917 OR 920 OR 
+                       950 OR 927 OR 928 OR 929 OR 930 OR 940 OR 921 OR 
+                       911 OR 909 OR                                    
+                       961 OR 962 OR 963 OR 964 OR 965 OR 958 OR 952
+                IF BOJONG = (9582 OR 9583 OR 9520 OR 9521)              
+                                          GO   TO   BOJ-902             
+                ELSE                      GO   TO   BOJ-900.
+
+           IF   BOJ  = 902 OR 904 OR 906 OR 915 OR 916 OR 901 OR        
+                       951 OR 953                                       
+                IF BOJONG = (9511 OR 9530 OR 9531 OR 9060)              
+                                          GO   TO   BOJ-900             
+                ELSE                      GO   TO   BOJ-902.            
+           IF  (BOJ  = 913)  OR  (BOJONG = 9108 OR 9109)                
+                                          GO   TO   BOJ-913.            
+           IF   BOJ  > 922                                              
+                IF  BOJ  < 927                                          
+                                          GO   TO   BOJ-923.            
+           IF   BOJ  = 908 OR 910                                       
+                IF   JONG = 1             GO   TO   BOJ-908             
+                ELSE                      GO   TO   BOJ-910.            
+           IF   BOJ  = 918 OR 919 OR 959                                
+                IF   BOJONG = 9599 OR 9590                              
+                                          GO   TO   BOJ-900             
+                ELSE                      GO   TO   BOJ-918.            
+           IF   BOJ  = 922                GO   TO   BOJ-910.            
+           IF   BOJ  = 931                GO   TO   BOJ-931.            
+           IF   BOJ  = 954                                              
+                IF  JONG < 5              GO   TO   BOJ-902             
+                ELSE                      GO   TO   BOJ-931.            
+           IF   BOJ  = 955                                              
+                IF    JONG < 3            GO   TO   BOJ-931             
+                ELSE  IF JONG = 9         GO   TO   BOJ-913             
+                ELSE                      GO   TO   BOJ-910.            
+           IF   BOJ  = 956                                              
+                IF  JONG = 0              GO   TO   BOJ-913             
+                ELSE                      GO   TO   BOJ-900.            
+           IF   BOJ  = 957                                              
+                IF  JONG = 6 OR 7         GO   TO   BOJ-913             
+                ELSE                      GO   TO   BOJ-900.            
+           IF   BOJ  = 960                                              
+                IF  JONG = (1 OR 2 OR 3 OR 4)                           
+                                          GO   TO   BOJ-910             
+                ELSE                      GO   TO   BOJ-900.            
+           IF   BOJONG = 9683 OR 9684 OR 9685 OR 9686 OR 9697 OR        
+9905                     9698 OR 9699 OR 9700 OR 9701 OR 9702 OR        
+  .                      9703 OR 9794 OR                                
+  .                      9795 OR 9796 OR 9797 OR 9798 OR 9800 OR        
+  .                      9801 OR 9782 OR 9783 OR                        
+991006                   9809 OR 9810 OR 9811 OR 9812 OR 9813           
+                                          GO   TO   BOJ-1001.           
+           IF   BOJONG = 9687 OR 9688 OR 9689 OR                        
+9905                     9784 OR 9785 OR 9786 OR 9802 OR 9803 OR        
+  .                      9804 OR 9805 OR 9806 OR 9807 OR 9808           
+                                          GO   TO   BOJ-1002.           
+           IF  ((BOJONG > 9689)  AND  (BOJONG < 9697)) OR               
+9905           ((BOJONG > 9786)  AND  (BOJONG < 9794))                  
+                                          GO   TO   BOJ-1003.           
+                                                                        
+9905       IF   BOJONG = 9745 OR 9746 OR 9739 OR 9740 OR 9717 OR 9718 OR
+  .                      9754 OR 9755 OR 9756 OR 9757 OR 9758 OR 9743 OR
+  .                      9736 OR 9737 OR 9738                           
+  .                                       GO   TO   BOJ-900.            
+  .        IF   BOJONG = 9716 OR 9719 OR 9722 OR 9723 OR                
+  .                      9710 OR 9713 OR 9720 OR 9721 OR 9744 OR        
+  .                      9711 OR 9714 OR 9715 OR 9724 OR 9725 OR        
+  .                      9726 OR 9727 OR 9728 OR 9729 OR 9712           
+  .                                       GO   TO   BOJ-902.            
+  .        IF   BOJONG = 9730 OR 9731 OR 9732 OR 9733                   
+  .                                       GO   TO   BOJ-910.            
+  .        IF   BOJONG = 9734 OR 9735 OR 9741 OR 9742                   
+  .                                       GO   TO   BOJ-913.            
+  .        IF ((BOJONG > 9746)  AND  (BOJONG < 9754))                   
+  .                                       GO   TO   BOJ-918.            
+           GO            TO     TK-BOJ-ERR.                             
+      *--------------------------------------------------------------*  
+       BOJ-ERR.                                                         
+           MOVE    2     TO     E.                                      
+           GO            TO     LAST-RTN.                               
+                                                                        
+       BOJ-100.                                                         
+           COMPUTE    O-MANGI   ROUNDED     =    22  -  PINAI.          
+           IF  GYENAI  >  50    MOVE    55       TO   O-PINAI    ELSE   
+           IF  GYENAI  >  40    MOVE    45       TO   O-PINAI    ELSE   
+           IF  GYENAI  >  30    MOVE    35       TO   O-PINAI    ELSE   
+                                MOVE    25       TO   O-PINAI.          
+           GO            TO     LAST-RTN.                               
+       BOJ-101.                                                         
+           COMPUTE    O-MANGI   ROUNDED     =    25  -  PINAI.          
+           IF  GYENAI  >  50    MOVE    55       TO   O-PINAI    ELSE   
+           IF  GYENAI  >  40    MOVE    45       TO   O-PINAI    ELSE   
+           IF  GYENAI  >  30    MOVE    35       TO   O-PINAI    ELSE   
+                                MOVE    25       TO   O-PINAI.          
+           GO            TO     LAST-RTN.                               
+       BOJ-203.                                                         
+9907       IF   BOJONG = 2161    GO  TO  LAST-RTN.                      
+           IF   GYEONGGWA > NABGI - 1   MOVE   9     TO   O-NABBANG     
+                                        MOVE   ZERO  TO   O-NABGI.      
+           GO            TO     LAST-RTN.                               
+       BOJ-204.                                                         
+           GO            TO     LAST-RTN.                               
+       BOJ-500.                                                         
+           IF   JONG = 3 OR 5           MOVE NABBANG TO  O-NABBANG.     
+           GO            TO     LAST-RTN.                               
+       BOJ-501.                                                         
+           IF  BOJONG = 5185 OR 5191 OR 5192 OR 5220 OR 5221 OR 5240 OR 
+991006                  5681 OR 5682 OR 5691 OR 5280 OR 5290            
+                                        MOVE ZERO    TO  O-PINAI.       
+           GO            TO     LAST-RTN.                               
+       BOJ-601.                                                         
+           IF BOJ = 601  MOVE   6011    TO    O-BOJONG  ELSE            
+           IF BOJ = 602  MOVE   6021    TO    O-BOJONG  ELSE            
+           IF BOJ = 603  MOVE   6031    TO    O-BOJONG  ELSE            
+           IF BOJ = 712  MOVE   7121    TO    O-BOJONG  ELSE            
+990917     IF BOJ = 723  MOVE   7231    TO    O-BOJONG  ELSE            
+                         MOVE   7222    TO    O-BOJONG.                 
+           GO            TO     LAST-RTN.                               
+       BOJ-700.                                                         
+           GO            TO     LAST-RTN.                               
+       BOJ-701.                                                         
+           IF   GYEONGGWA > NABGI - 1   MOVE   9     TO   O-NABBANG     
+                                        MOVE   ZERO  TO   O-NABGI.      
+           GO            TO     LAST-RTN.                               
+       BOJ-802.                                                         
+           IF  NOT  NABBANG = 9         MOVE   1     TO  O-NABGI.       
+           MOVE     1    TO     O-MANGI.                                
+           IF   GYEONGGWA  > O-MANGI                                    
+                COMPUTE  O-PINAI = O-PINAI + GYEONGGWA - 1.             
+           IF   O-PINAI > 70       MOVE  70  TO  O-PINAI.               
+           GO            TO     LAST-RTN.                               
+       BOJ-803.                                                         
+           IF   O-MANGI = 55                                            
+                COMPUTE  O-MANGI = O-MANGI - O-PINAI.                   
+           GO            TO     LAST-RTN.                               
+       BOJ-805.                                                         
+           IF   SEX = 2                 MOVE   25    TO  O-PINAI        
+           ELSE                         MOVE   35    TO  O-PINAI.       
+           IF  BOJONG = 8040 OR 8041    MOVE  8041   TO  O-BOJONG.      
+           IF  BOJONG = 8042 OR 8043    MOVE  8042   TO  O-BOJONG.      
+           IF  BOJONG = 8044 OR 8045    MOVE  8044   TO  O-BOJONG.      
+990525     IF  BOJONG = 8323 OR 8324    MOVE  8323   TO  O-BOJONG.      
+           GO            TO     LAST-RTN.                               
+       BOJ-808.                                                         
+           GO            TO     LAST-RTN.                               
+       BOJ-820.                                                         
+           MOVE   ZERO   TO     O-PINAI.                                
+           GO            TO     LAST-RTN.                               
+       BOJ-811.                                                         
+           IF  BOJ = 811                                                
+               GO            TO     LAST-RTN.                           
+           IF     SEX = 1               MOVE   35    TO  O-PINAI        
+           ELSE                         MOVE   25    TO  O-PINAI.       
+           GO          TO     LAST-RTN.                                 
+       BOJ-900.                                                         
+           IF  (BOJONG = 9124 OR 9301 OR 9302 OR 9567 OR 9568 OR 9569 OR
+                         9605 OR 9606 OR 9600 OR 9590 OR                
+                         9646 OR 9647 OR 9648 OR 9649 OR 9650 OR 9651 OR
+                         9652 OR 9653 OR 9654 OR 9148 OR 9149 OR        
+9905                     9756 OR 9757 OR 9758 OR 9736 OR 9737 OR 9738)  
+                  GO     TO     LAST-RTN.                               
+           IF NABGI > 1                                                 
+              IF GYEONGGWA > NABGI - 1  MOVE   9     TO  O-NABBANG      
+                                        MOVE   ZERO  TO  O-NABGI.       
+           GO            TO     LAST-RTN.                               
+       BOJ-902.                                                         
+           IF  (BOJONG = 9046 OR 9047 OR 9068 OR 9069 OR 9150 OR 9010 OR
+                         9582 OR 9583 OR 9537 OR 9538 OR 9520 OR 9521 OR
+9905                     9744)                                          
+                GO     TO     LAST-RTN.                                 
+           IF   BOJONG = 9023 OR 9513 OR 9045                           
+                MOVE   ZERO   TO   O-PINAI                              
+                GO     TO     LAST-RTN.                                 
+           IF   BOJONG = 9518 OR 9716                                   
+             IF  (BOJONG-P > 5210 AND BOJONG-P < 5218)                  
+                   OR  (BOJONG-P > 5671 AND BOJONG-P < 5679)            
+               IF  BOJONG-P = 5211 OR 5672 MOVE   5  TO  O-MANGI  ELSE  
+               IF  BOJONG-P = 5212 OR 5673 MOVE  10  TO  O-MANGI  ELSE  
+               IF  BOJONG-P = 5213 OR 5674 MOVE  15  TO  O-MANGI  ELSE  
+               IF  BOJONG-P = 5214 OR 5675 MOVE  20  TO  O-MANGI  ELSE  
+               IF  BOJONG-P = 5215 OR 5676                              
+                    COMPUTE  O-MANGI  ROUNDED  =  55  -  PINAI  ELSE    
+               IF  BOJONG-P = 5216 OR 5677                              
+                    COMPUTE  O-MANGI  ROUNDED  =  60  -  PINAI  ELSE    
+               IF  BOJONG-P = 5217 OR 5678                              
+                    COMPUTE  O-MANGI  ROUNDED  =  65  -  PINAI.         
+           IF NOT (NABGI = 1   AND   MANGI = 1)                         
+              IF  GYEONGGWA > NABGI - 1 MOVE   9     TO  O-NABBANG      
+                                        MOVE   ZERO  TO  O-NABGI.       
+           MOVE   ZERO   TO     O-PINAI.                                
+           GO            TO     LAST-RTN.                               
+       BOJ-903.                                                         
+           GO            TO     LAST-RTN.                               
+       BOJ-908.                                                         
+           COMPUTE    O-MANGI   ROUNDED     =    22  -  PINAI.          
+           IF GYENAI  >  50     MOVE   55     TO   O-PINAI       ELSE   
+           IF GYENAI  >  40     MOVE   45     TO   O-PINAI       ELSE   
+           IF GYENAI  >  30     MOVE   35     TO   O-PINAI       ELSE   
+                                MOVE   25     TO   O-PINAI.             
+           GO            TO     LAST-RTN.                               
+       BOJ-910.                                                         
+           IF  BOJONG = 9106 OR 9107 OR 9557 OR 9558 OR                 
+990527                  9732 OR 9733                                    
+                                MOVE    1     TO   O-MANGI   O-NABGI    
+                                MOVE   ZERO   TO   O-GYEONGGWA          
+           ELSE   COMPUTE    O-MANGI   ROUNDED     =    25  -  PINAI.   
+           IF GYENAI  >  50     MOVE   55     TO   O-PINAI       ELSE   
+           IF GYENAI  >  40     MOVE   45     TO   O-PINAI       ELSE   
+           IF GYENAI  >  30     MOVE   35     TO   O-PINAI       ELSE   
+                                MOVE   25     TO   O-PINAI.             
+           GO            TO     LAST-RTN.                               
+       BOJ-913.                                                         
+           IF BOJONG = 9741 OR 9742                                     
+                        GO            TO     LAST-RTN.                  
+           IF JONG =   1 OR 2 OR 8 OR 9                                 
+                   COMPUTE    O-MANGI   ROUNDED  =  70  -  PINAI        
+9905       ELSE IF BOJONG = 9560 OR 9734 OR 9735                        
+                   COMPUTE    O-MANGI   ROUNDED  =  70  -  PINAI.       
+           GO            TO     LAST-RTN.                               
+       BOJ-918.                                                         
+           MOVE   ZERO   TO     O-PINAI.                                
+           GO            TO     LAST-RTN.                               
+       BOJ-923.                                                         
+           IF BOJONG = 9251 OR 9603                                     
+                  MOVE   ZERO   TO     O-PINAI.                         
+           GO            TO     LAST-RTN.                               
+       BOJ-931.                                                         
+           IF   SEX = 2                 MOVE   25    TO  O-PINAI        
+           ELSE                         MOVE   35    TO  O-PINAI.       
+           GO            TO     LAST-RTN.                               
+       BOJ-1000.                                                        
+           IF  BOJONG = 9663 OR 9664 OR 9665 OR 9666 OR 9667 OR 9668 OR 
+9905                    9762 OR 9764 OR 9765 OR 9766 OR 9767 OR 9768    
+              IF   AGE  > ZERO                                          
+                   COMPUTE  O-MANGI = AGE -  PINAI                      
+                   GO  TO  LAST-RTN.                                    
+           IF  (BOJONG = 9660 OR 9661 OR 9662) OR                       
+9905           (BOJONG = 9759 OR 9760 OR 9761) OR                       
+               ((BOJONG > 9668) AND (BOJONG < 9681)) OR                 
+9905           ((BOJONG > 9768) AND (BOJONG < 9781))                    
+                   GO  TO  LAST-RTN.                                    
+9905       IF  BOJONG = 9681 OR 9781                                    
+                   MOVE  ZERO  TO  O-PINAI                              
+                   GO  TO  LAST-RTN.                                    
+       BOJ-1001.                                                        
+           MOVE    ZERO    TO    O-PINAI.                               
+           GO      TO      LAST-RTN.                                    
+       BOJ-1002.                                                        
+           GO      TO      LAST-RTN.                                    
+       BOJ-1003.                                                        
+9905       IF  BOJONG-P  =  5211 OR 5672  MOVE   5  TO  O-MANGI  ELSE   
+  .        IF  BOJONG-P  =  5212 OR 5673  MOVE  10  TO  O-MANGI  ELSE   
+  .        IF  BOJONG-P  =  5213 OR 5674  MOVE  15  TO  O-MANGI  ELSE   
+  .        IF  BOJONG-P  =  5214 OR 5675  MOVE  20  TO  O-MANGI  ELSE   
+  .        IF  BOJONG-P  =  5215 OR 5676                                
+  .            COMPUTE  O-MANGI  ROUNDED  =  55  -  PINAI  ELSE         
+  .        IF  BOJONG-P  =  5216 OR 5677                                
+  .            COMPUTE  O-MANGI  ROUNDED  =  60  -  PINAI  ELSE         
+  .        IF  BOJONG-P  =  5217 OR 5678                                
+  .            COMPUTE  O-MANGI  ROUNDED  =  65  -  PINAI.              
+           IF  BOJONG  =  9690 OR 9787    MOVE  ZERO  TO  O-PINAI.      
+           GO      TO      LAST-RTN.                                    
+       TK-BOJ-ERR.                                                      
+           MOVE    3     TO     E.                                      
+      *--------*                                                        
+       LAST-RTN.                                                        
+      *--------*                                                        
+           GOBACK.                                                      

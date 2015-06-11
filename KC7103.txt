@@ -1,0 +1,664 @@
+//KERC7103 JOB (KER),'KER03',CLASS=Q,MSGCLASS=X,MSGLEVEL=(1,1)          
+//STEP1 EXEC YDBBAT,MBR=K00C7103                                        
+//COB.SYSIN DD *                                                        
+PROCESS TEST(STMT,SYM)                                                  
+      *===============================*                                 
+      *======                   ======*                                 
+      *===============================*                                 
+       IDENTIFICATION        DIVISION.                                  
+       PROGRAM-ID.           K00C7103.                                  
+      *===============================*                                 
+       ENVIRONMENT           DIVISION.                                  
+       CONFIGURATION         SECTION.                                   
+       SPECIAL-NAMES.        C01  IS   PGSK.                            
+       INPUT-OUTPUT          SECTION.                                   
+       FILE-CONTROL.                                                    
+           SELECT    FILE-IN   ASSIGN  TO  FILEIN.                      
+           SELECT    FILE-OUT  ASSIGN  TO  FILEOUT.                     
+           SELECT    FILE-LIST ASSIGN  TO  PRINT2.                      
+      *===============================*                                 
+       DATA                  DIVISION.                                  
+       FILE                  SECTION.                                   
+       FD  FILE-IN     RECORDING   MODE        IS  F                    
+                       LABEL       RECORD     ARE  STANDARD             
+                       BLOCK       CONTAINS   100  RECORDS              
+                       RECORD      CONTAINS   124  CHARACTERS.          
+       01  REC-IN.                                                      
+                        COPY   K00B9017.                                
+                                                                        
+       FD  FILE-OUT    RECORDING   MODE        IS  F                    
+                       LABEL       RECORD     ARE  STANDARD             
+                       BLOCK       CONTAINS   100  RECORDS              
+                       RECORD      CONTAINS   124  CHARACTERS.          
+       01  REC-OUT           PIC X(124).                                
+                                                                        
+       FD  FILE-LIST   RECORDING   MODE        IS  F                    
+                       LABEL       RECORDS    ARE  OMITTED.             
+       01  REC-LIST          PIC X(132).                                
+      *==============================*                                  
+       WORKING-STORAGE       SECTION.                                   
+      *==============================*                                  
+       01  DB-CHECK.                                                    
+           02  C-PGRMID           PIC X(8)  VALUE 'KC7103'.             
+           02  C-USER-ID          PIC X(8)  VALUE 'KC7103'.             
+      *----------------  GAJEONG  SUB-CALL ---------                    
+       01  REC-9007.    COPY   K00B9007.                                
+       01  WORK-SPACE.                                                  
+         02  WK-BOJONG-T             PIC 9(4).                          
+             88  NOHOO           VALUE   2010 THRU 2029  2110 THRU 2119 
+                                         2210 THRU 2219  2255 THRU 2259 
+                                         2370 THRU 2374  2375 THRU 2379 
+                                         2490 THRU 2499.                
+             88  NOJEG           VALUE   2220 THRU 2253  2380 THRU 2403.
+             88  GAJEONG-BOJ     VALUE   6010 THRU 6019  6021 THRU 6022 
+                                         6031 THRU 6032.                
+             88  NON-TAX         VALUE   2260 9510 7061 9621            
+                                         7062 7081 7064.                
+9906         88  JAETECH         VALUE   7091 7092 7201 7202.           
+             88  GEOCHI          VALUE   2540 2545 6041 7063 7082.      
+9906         88  JAETECH-II      VALUE   7093 7203.                     
+  .          88  NEW-JAETECH     VALUE   7110 7211.                     
+  .          88  HANARO          VALUE   7120 7121 7221 7222.           
+990913       88  MILLENIUM-CHILD VALUE   7231.                          
+         02  CNT-IN                  PIC 9(7).                          
+         02  CNT-OUT                 PIC 9(7).                          
+         02  CNT-NOHOO               PIC 9(7).                          
+         02  CNT-NOJEG               PIC 9(7).                          
+         02  CNT-GAJEONG             PIC 9(7).                          
+         02  CNT-NONTAX              PIC 9(7).                          
+         02  CNT-JAETECH             PIC 9(7).                          
+         02  CNT-JAETECH-II          PIC 9(7).                          
+         02  CNT-GEOCHI              PIC 9(7).                          
+         02  CNT-NEW-JAETECH         PIC 9(7).                          
+         02  CNT-HANARO              PIC 9(7).                          
+990913   02  CNT-MILLENIUM           PIC 9(7).                          
+         02  NABGI                   PIC 9(2).                          
+         02  P-TOT                   PIC S9(10).                        
+         02  H-TOT                   PIC S9(10).                        
+         02  J                       PIC 9(7).                          
+         02  JJ                      PIC 9(7).                          
+         02  NN                      PIC 9(7).                          
+         02  UU                      PIC 9(7).                          
+         02  UUU                     PIC 9(7).                          
+         02  HHH                     PIC 9(7).                          
+         02  SS-YMD.                                                    
+             03  SS-YY               PIC 9(4).                          
+             03  SS-MM               PIC 9(2).                          
+             03  SS-DD               PIC 9(2).                          
+         02  N-C                     PIC 9(2).                          
+         02  J-C                     PIC 9(2).                          
+         02  S-C                     PIC 9(2).                          
+         02  X-C                     PIC 9(3).                          
+         02  R-C                     PIC 9(3).                          
+         02  R2-C                    PIC 9(3).                          
+         02  R3-C                    PIC 9(3).                          
+         02  G-C                     PIC 9(3).                          
+         02  H-C                     PIC 9(3).                          
+990913   02  M-C                     PIC 9(3).                          
+         02  CNT-LINE                PIC 9(2).                          
+         02  PAGE-CNT                PIC 9(3).                          
+                                                                        
+       01  ADD-DISP-TABLE.                                              
+990913   02  ADD-DISP-TABL         OCCURS  10.                          
+           03  ADD-DISP-TAB        OCCURS   4.                          
+             04  ADD-DISP           PIC S9(13).                         
+                                                                        
+       01  S-LINE               PIC X(132)  VALUE  SPACE.               
+       01  S1-LINE.                                                     
+         02  FILLER             PIC X(60)   VALUE  SPACE.               
+         02  FILLER             PIC X(12)   VALUE  ALL '='.             
+         02  FILLER             PIC X(60)   VALUE  SPACE.               
+       01  S2-LINE              PIC X(132)  VALUE  ALL '-'.             
+       01  HEAD.                                                        
+         02  FILLER             PIC X(2)    VALUE  SPACE.               
+         02  FILLER             PIC X(16)   VALUE  '** GIJUN-YMD = '.   
+         02  H-YY               PIC Z(5).                               
+         02  FILLER             PIC X       VALUE  '.'.                 
+         02  H-MM               PIC Z(3).                               
+         02  FILLER             PIC X       VALUE  '.'.                 
+         02  H-DD               PIC Z(3).                               
+         02  FILLER             PIC X       VALUE  '.'.                 
+         02  FILLER             PIC X(29)   VALUE  SPACE.               
+         02  FILLER             PIC X(10)   VALUE  'CHECK-LIST'.        
+         02  FILLER             PIC X(44)   VALUE  SPACE.               
+         02  FILLER             PIC X(9)    VALUE  'PAGE  =  '.         
+         02  H-PAGE             PIC ZZ9.                                
+         02  FILLER             PIC X(5)    VALUE  ' **  '.             
+       01  TITLE-S.                                                     
+         02  FILLER             PIC X(42)   VALUE                       
+                       '   BOJ  NB MA N  GY-YMD HOI   BOGEUM      '.    
+         02  FILLER             PIC X(46)   VALUE                       
+                      '   BOLYO      VT-BOLYO                PURE    '. 
+         02  FILLER             PIC X(44)   VALUE                       
+                      '   HAYAG  SE-YMD  HOI   SEON-IJA  JEUNGBEON '.   
+       01  LIST.                                                        
+         02  FILLER             PIC X(2)    VALUE   SPACE.              
+         02  L-BOJONG           PIC 9(4).                               
+         02  FILLER             PIC X(2)    VALUE  SPACE.               
+         02  L-NABGI            PIC Z9.                                 
+         02  L-MANGI            PIC ZZ9.                                
+         02  L-NABBANG          PIC Z9.                                 
+         02  FILLER             PIC X(2)    VALUE  SPACE.               
+         02  L-GY-YMD           PIC 9(6).                               
+         02  L-HOI              PIC ZZZ9.                               
+         02  L-S                PIC Z,ZZZ,ZZ9.                          
+         02  L-P                PIC ZZ,ZZZ,ZZZ,ZZ9.                     
+         02  L-VT-P             PIC ZZ,ZZZ,ZZZ,ZZ9.                     
+         02  L-GJ-YMD           PIC Z(7).                               
+         02  L-GJ-VWT           PIC Z.                                  
+         02  L-VWT-YY           PIC ----,---,--9.                       
+         02  L-VWT-MM           PIC ----,---,--9.                       
+         02  L-SE-YMD           PIC Z(8).                               
+         02  L-SE-HOI           PIC ZZZZZ.                              
+         02  L-SE-IJA           PIC ZZZ,ZZZ,ZZZ.                        
+         02  L-JEUNGBEON        PIC Z(11).                              
+         02  FILLER             PIC X      VALUE   SPACE.               
+                                                                        
+       01  REC-SWITCH.                                                  
+         02  FILE-EOF-SWITCH    PIC X(3)   VALUE  'NO '.                
+             88  FILE-EOF                  VALUE  'YES'.                
+         02  SS                    PIC 9(4)   VALUE   100.              
+    *****  STANDARD-AREA      DEFINE    ****************                
+           COPY       PLISTDA        SUPPRESS.                          
+           COPY       PLIWCOM        SUPPRESS.                          
+      ***                                                               
+      **************************************************                
+      *    DBTA    VIEW     :    DVMKB                *                 
+      **************************************************                
+       01  MKB-GROUP.                                                   
+           02 MKB-REQUEST-AREA.                                         
+              03 MKB-RA-FUNCTION             PIC X(05).                 
+              03 MKB-RA-FILE                 PIC X(03).                 
+              03 MKB-RA-KEY-NAME             PIC X(05).                 
+              03 MKB-RA-STATUS-CODE          PIC X(02).                 
+              03 MKB-RA-RESERV-BYTE          PIC X(01).                 
+              03 MKB-RA-DBID                 PIC X(02).                 
+              03 MKB-RA-RECORD-ID            PIC X(07).                 
+              03 MKB-RA-RESERVED             PIC X(51).                 
+              03 MKB-RA-KEY-VALUE.                                      
+                 04 MKB-RA-LONGEST-KEY       PIC X(10).                 
+                 04 MKB-MKBK2-RA-KEY REDEFINES MKB-RA-LONGEST-KEY       
+                                              PIC X(10) USAGE DISPLAY.  
+           02 MKB-ELEMENT-LIST.                                         
+              03 MKB-EL-MKBE1                PIC X(05) VALUE 'MKBE1'.   
+              03 MKB-EL-SEC-MKBE1            PIC X(01) VALUE LOW-VALUE. 
+              03 MKB-EL-END                  PIC X(05) VALUE SPACE.     
+      *                                                                 
+              COPY           MKBREC.                                    
+      **************************************************                
+      *    DBTA    VIEW     :    DVMKL                *                 
+      **************************************************                
+       01  MKL-GROUP.                                                   
+           02 MKL-REQUEST-AREA.                                         
+              03 MKL-RA-FUNCTION             PIC X(05).                 
+              03 MKL-RA-FILE                 PIC X(03).                 
+              03 MKL-RA-KEY-NAME             PIC X(05).                 
+              03 MKL-RA-STATUS-CODE          PIC X(02).                 
+              03 MKL-RA-RESERV-BYTE          PIC X(01).                 
+              03 MKL-RA-DBID                 PIC X(02).                 
+              03 MKL-RA-RECORD-ID            PIC X(07).                 
+              03 MKL-RA-RESERVED             PIC X(51).                 
+              03 MKL-RA-KEY-VALUE.                                      
+                 04 MKL-RA-LONGEST-KEY       PIC X(10).                 
+                 04 MKL-MKLK2-RA-KEY REDEFINES MKL-RA-LONGEST-KEY       
+                                              PIC X(10) USAGE DISPLAY.  
+           02 MKL-ELEMENT-LIST.                                         
+              03 MKL-EL-MKLE1                PIC X(05) VALUE 'MKLE1'.   
+              03 MKL-EL-SEC-MKLE1            PIC X(01) VALUE LOW-VALUE. 
+              03 MKL-EL-END                  PIC X(05) VALUE SPACE.     
+      *                                                                 
+              COPY           MKLREC.                                    
+      *                                                                 
+                                                                        
+       01  ZZ-DLDB.                                                     
+           03  ZZ-DLDB-HW-DBID         PIC S9(04) COMP.                 
+           03  FILLER     REDEFINES    ZZ-DLDB-HW-DBID.                 
+               05  ZZ-DLDB-DBID        PIC  X(02).                      
+      *===================================*                             
+       PROCEDURE                 DIVISION.                              
+      *===================================*                             
+       000-BODY.                                                        
+      *=========*                                                       
+           ENTRY   'DBMSCBL'.                                           
+           MOVE     ZERO       TO      WORK-SPACE  ADD-DISP-TABLE.      
+           OPEN     INPUT   FILE-IN    OUTPUT   FILE-OUT    FILE-LIST.  
+           PERFORM  110-READ-SELECT.                                    
+           PERFORM  100-PG-CONTROL     UNTIL     FILE-EOF.              
+           DISPLAY  '*============================================ *'.  
+           DISPLAY  '*  IN  TOTAL       =  '  CNT-IN.                   
+           DISPLAY  '*  NOSEL-NOBOK     =  '  CNT-NOHOO.                
+           DISPLAY  '*  NOHOO-JEGRIB    =  '  CNT-NOJEG.                
+           DISPLAY  '*  GAJEONG-BOGJI   =  '  CNT-GAJEONG.              
+           DISPLAY  '*  NON-TAX         =  '  CNT-NONTAX.               
+           DISPLAY  '*  JAETECH         =  '  CNT-JAETECH.              
+           DISPLAY  '*  JAETECH-II      =  '  CNT-JAETECH-II.           
+           DISPLAY  '*  GEOCHI-JUN      =  '  CNT-GEOCHI.               
+           DISPLAY  '*  NEW-JAETECH     =  '  CNT-NEW-JAETECH.          
+           DISPLAY  '*  HANARO          =  '  CNT-HANARO.               
+990913     DISPLAY  '*  MILLENIUM-CHILD =  '  CNT-MILLENIUM.            
+           DISPLAY  '*  OUT TOTAL       =  '  CNT-OUT.                  
+           DISPLAY  '* ------------------------------------------- *'.  
+           DISPLAY  '* -  NO-SEL-BOK    PURE        HAIYAG   ----- *'.  
+           DISPLAY  '* ------------------------------------------- *'.  
+           DISPLAY  '*  YEAR  TOT =  ' ADD-DISP(1 1) ' ' ADD-DISP(1 2). 
+           DISPLAY  '*  MONTH TOT =  ' ADD-DISP(1 3) ' ' ADD-DISP(1 4). 
+           DISPLAY  '* ------------------------------------------- *'.  
+           DISPLAY  '* -  NO-JEG        PURE        HAIYAG   ----- *'.  
+           DISPLAY  '* ------------------------------------------- *'.  
+           DISPLAY  '*  YEAR  TOT =  ' ADD-DISP(2 1) ' ' ADD-DISP(2 2). 
+           DISPLAY  '*  MONTH TOT =  ' ADD-DISP(2 3) ' ' ADD-DISP(2 4). 
+           DISPLAY  '* ------------------------------------------- *'.  
+           DISPLAY  '* -  GAJEONG-BOGJI PURE        HAIYAG   ----- *'.  
+           DISPLAY  '* ------------------------------------------- *'.  
+           DISPLAY  '*  YEAR  TOT =  ' ADD-DISP(3 1) ' ' ADD-DISP(3 2). 
+           DISPLAY  '*  MONTH TOT =  ' ADD-DISP(3 3) ' ' ADD-DISP(3 4). 
+           DISPLAY  '* ------------------------------------------- *'.  
+           DISPLAY  '* -  NON-TAX       PURE        HAIYAG   ----- *'.  
+           DISPLAY  '* ------------------------------------------- *'.  
+           DISPLAY  '*  YEAR  TOT =  ' ADD-DISP(4 1) ' ' ADD-DISP(4 2). 
+           DISPLAY  '*  MONTH TOT =  ' ADD-DISP(4 3) ' ' ADD-DISP(4 4). 
+           DISPLAY  '* ------------------------------------------- *'.  
+           DISPLAY  '* -  JAETECH       PURE        HAIYAG   ----- *'.  
+           DISPLAY  '* ------------------------------------------- *'.  
+           DISPLAY  '*  YEAR  TOT =  ' ADD-DISP(5 1) ' ' ADD-DISP(5 2). 
+           DISPLAY  '*  MONTH TOT =  ' ADD-DISP(5 3) ' ' ADD-DISP(5 4). 
+           DISPLAY  '* ------------------------------------------- *'.  
+           DISPLAY  '* -  GEOCHI        PURE        HAIYAG   ----- *'.  
+           DISPLAY  '* ------------------------------------------- *'.  
+           DISPLAY  '*  YEAR  TOT =  ' ADD-DISP(6 1) ' ' ADD-DISP(6 2). 
+           DISPLAY  '*  MONTH TOT =  ' ADD-DISP(6 3) ' ' ADD-DISP(6 4). 
+           DISPLAY  '* ------------------------------------------- *'.  
+           DISPLAY  '* -  JAETECH-II    PURE        HAIYAG   ----- *'.  
+           DISPLAY  '* ------------------------------------------- *'.  
+           DISPLAY  '*  YEAR  TOT =  ' ADD-DISP(7 1) ' ' ADD-DISP(7 2). 
+           DISPLAY  '*  MONTH TOT =  ' ADD-DISP(7 3) ' ' ADD-DISP(7 4). 
+           DISPLAY  '* ------------------------------------------- *'.  
+           DISPLAY  '* -  NEW-JAETECH   PURE        HAIYAG   ----- *'.  
+           DISPLAY  '* ------------------------------------------- *'.  
+           DISPLAY  '*  YEAR  TOT =  ' ADD-DISP(8 1) ' ' ADD-DISP(8 2). 
+           DISPLAY  '*  MONTH TOT =  ' ADD-DISP(8 3) ' ' ADD-DISP(8 4). 
+           DISPLAY  '* ------------------------------------------- *'.  
+           DISPLAY  '* -  HANARO        PURE        HAIYAG   ----- *'.  
+           DISPLAY  '* ------------------------------------------- *'.  
+           DISPLAY  '*  YEAR  TOT =  ' ADD-DISP(9 1) ' ' ADD-DISP(9 2). 
+           DISPLAY  '*  MONTH TOT =  ' ADD-DISP(9 3) ' ' ADD-DISP(9 4). 
+           DISPLAY  '* ------------------------------------------- *'.  
+990913     DISPLAY  '* -  MILLENIUM-CH  PURE        HAIYAG   ----- *'.  
+           DISPLAY  '* ------------------------------------------- *'.  
+           DISPLAY  '*  YEAR  TOT = ' ADD-DISP(10 1) ' ' ADD-DISP(10 2).
+           DISPLAY  '*  MONTH TOT = ' ADD-DISP(10 3) ' ' ADD-DISP(10 4).
+           DISPLAY  '*============================================*'.   
+           CLOSE    FILE-IN    FILE-OUT   FILE-LIST.                    
+           GOBACK.                                                      
+      *---------------*                                                 
+       100-PG-CONTROL.                                                  
+      *---------------*                                                 
+           PERFORM      120-MOVE-WRITE.                                 
+           PERFORM      110-READ-SELECT.                                
+      *----------------*                                                
+       110-READ-SELECT.                                                 
+      *----------------*                                                
+           READ    FILE-IN  END    MOVE  'YES'    TO  FILE-EOF-SWITCH.  
+           IF  NOT  FILE-EOF   ADD    1            TO  CNT-IN           
+                               MOVE   K3-BOJONG-T  TO  WK-BOJONG-T.     
+      *---------------*                                                 
+       120-MOVE-WRITE.                                                  
+      *---------------*                                                 
+           MOVE    ZERO     TO    K3-PURE-YY   K3-PURE-MM  K3-SEON-IJA  
+                                  K3-HAIYAG-YY K3-HAIYAG-MM  J  UU.     
+           MOVE    ZERO     TO    REC-9007 KG-BOGEUM  KG-BOLYO1         
+                                  KG-WT-YY KG-WT-TT  KG-VT-YY KG-VT-TT  
+                                  KG-SEON-BOLYO  KG-SEON-IJA.           
+           MOVE   K3-BOJONG-T    TO      WK-BOJONG-T.                   
+           IF     K3-NABBANG = 8 OR 9  MOVE  12    TO  NN    ELSE       
+           IF     K3-NABBANG = 6       MOVE   6    TO  NN    ELSE       
+           IF     K3-NABBANG = 3       MOVE   3    TO  NN    ELSE       
+                                       MOVE   1    TO  NN.              
+           PERFORM      121-GAEIN-BOJONG.                               
+           IF   NOHOO             PERFORM    122-NOHOO-CHEORI.          
+           IF   NOJEG             PERFORM    123-NOJEG-CHEORI.          
+           IF   GAJEONG-BOJ       PERFORM    124-GAJBOG-CHEORI.         
+           IF   NON-TAX           PERFORM    125-NON-TAX-CHEORI.        
+           IF   JAETECH           PERFORM    126-JAETECH-CHEORI.        
+           IF   GEOCHI            PERFORM    127-GEOCHI-CHEORI.         
+           IF   JAETECH-II        PERFORM    128-JAETECH-II-CHEORI.     
+           IF   NEW-JAETECH       PERFORM    129-NEWJAETECH-CHEORI.     
+           IF   HANARO            PERFORM    130-HANARO-CHEORI.         
+990913     IF   MILLENIUM-CHILD   PERFORM    131-MILLENIUM-CHEORI.      
+      *    PERFORM      900-CHECK-LIST.                                 
+           WRITE    REC-OUT       FROM      REC-IN.                     
+           ADD      1               TO      CNT-OUT.                    
+      *-----------------*                                               
+       121-GAEIN-BOJONG.                                                
+      *-----------------*                                               
+           MOVE     K3-GNGWA-YM        TO     KG-PAST-YM.               
+           MOVE     ZERO               TO     KG-PAST-DD.               
+           MOVE     K3-NABGI           TO     KG-NABGI.                 
+           MOVE     K3-MANGI           TO     KG-MANGI.                 
+           MOVE     K3-BOJONG-T        TO     KG-BOJONG.                
+           MOVE     K3-LNAB-YM         TO     KG-LNAB-YM.               
+           MOVE     K3-BOGEUM          TO     KG-BOGEUM.                
+           MOVE     K3-GYE-YMD         TO     KG-GYE-YMD.               
+           MOVE     K3-JIGB-YMD        TO     KG-JIGB-YMD.              
+           MOVE     K3-GITAGUBUN-CODE  TO     KG-GITAGUBUN-CODE.        
+           MOVE     K3-JUNWHAN-YMD     TO     KG-JUNWHAN-YMD.           
+           IF  K3-JT < 9                                                
+                    MOVE   K3-BOLYO  TO     KG-BOLYO1                   
+           ELSE     MOVE   ZERO      TO     KG-BOLYO1.                  
+           IF   K3-NABBANG = 9                                          
+                    MOVE   K3-GYE-YMD       TO   KG-NABIB-YMD   (1)     
+                    MOVE   1                 TO   KG-NABIB-HOI    (1)   
+                    MOVE   K3-GYE-YMD(1:6)  TO   KG-NABIB-WOL-YM(1)     
+                    MOVE   K3-NABBANG        TO   KG-NABBANG      (1)   
+                    MOVE   1                 TO   KG-SEG-CNT            
+           ELSE     MOVE     ZERO            TO     J   UUU             
+                  IF     K3-JT = 9                                      
+                    PERFORM   221-1-NABIB-HISTORY  THRU  221-9-EXIT     
+                    MOVE   J            TO   KG-SEG-CNT                 
+                  ELSE                                                  
+                    PERFORM   121-1-NABIB-HISTORY  THRU  121-9-EXIT     
+                    MOVE   J            TO   KG-SEG-CNT.                
+                                                                        
+           MOVE     ZERO          TO   KG-GUBUN  KG-0-9.                
+           IF   K3-BSMG  = 1      MOVE  2   TO   KG-GUBUN   ELSE        
+           IF   K3-BSMG  = 3      MOVE  1   TO   KG-GUBUN   ELSE        
+           IF   K3-0-9   = 1      MOVE  1   TO   KG-GUBUN   ELSE        
+990802     IF   K3-0-9   = 2      MOVE  4   TO   KG-GUBUN   ELSE        
+                                  MOVE  5   TO   KG-GUBUN.              
+           IF   K3-0-9   = 7      MOVE  7   TO   KG-0-9.                
+           IF   K3-JT    = 9      MOVE  9   TO   KG-GUBUN.              
+                                                                        
+           IF  K3-GITAGUBUN-CODE  =  5                                  
+                                CALL 'K00M8035'  USING  REC-9007  ELSE  
+           IF  GAJEONG-BOJ      CALL 'K00M8014'  USING  REC-9007  ELSE  
+           IF  NON-TAX          CALL 'K00M8015'  USING  REC-9007  ELSE  
+           IF  NOHOO OR NOJEG   CALL 'K00M8013'  USING  REC-9007  ELSE  
+           IF  JAETECH          CALL 'K00M8016'  USING  REC-9007  ELSE  
+           IF  JAETECH-II       CALL 'K00M8026'  USING  REC-9007  ELSE  
+           IF  GEOCHI           CALL 'K00M8017'  USING  REC-9007  ELSE  
+           IF  NEW-JAETECH      CALL 'K00M8036'  USING  REC-9007  ELSE  
+990913     IF  MILLENIUM-CHILD  CALL 'K00M8037'  USING  REC-9007  ELSE  
+                                CALL 'K00M8024'  USING  REC-9007.       
+                                                                        
+           IF   KG-CODE   NOT = ZERO                                    
+                  MOVE     ZERO   TO   KG-WT-TT       KG-SEON-BOLYO     
+                                       KG-WT-YY       KG-SEON-IJA       
+                                       KG-VT-TT       KG-VT-YY          
+                  DISPLAY  'ERR-SUB = ' KG-CODE ' JNG = ' K3-JEUNGBEON  
+                           ' NB = '  K3-NABBANG  ' BOJ = ' K3-BOJONG.   
+      *------------------------------------------------------------*    
+           MOVE    KG-VT-YY             TO     K3-PURE-YY.              
+           COMPUTE K3-PURE-MM  =  KG-VT-TT  -  KG-VT-YY.                
+                                                                        
+           IF  GAJEONG-BOJ  OR  HANARO                                  
+                                  NEXT  SENTENCE                        
+           ELSE                                                         
+             IF  KG-WT-TT < ZERO  MOVE  ZERO  TO  KG-WT-TT  KG-WT-YY.   
+           IF  KG-VT-YY = ZERO    MOVE  ZERO  TO  KG-WT-YY.             
+           MOVE       KG-WT-YY          TO     K3-HAIYAG-YY.            
+           COMPUTE K3-HAIYAG-MM   =  KG-WT-TT -  KG-WT-YY.              
+           MOVE       KG-SEON-IJA       TO     K3-SEON-IJA.             
+           MOVE       KG-IYUL           TO     K3-IYUL.                 
+      *------------------*                                              
+       122-NOHOO-CHEORI.                                                
+      *------------------*                                              
+           ADD    K3-PURE-YY         TO      ADD-DISP(1 1).             
+           ADD    K3-PURE-MM         TO      ADD-DISP(1 3).             
+           ADD    K3-HAIYAG-YY       TO      ADD-DISP(1 2).             
+           ADD    K3-HAIYAG-MM       TO      ADD-DISP(1 4).             
+           IF  K3-BSMG = 1                                              
+                  ADD    1           TO      N-C.                       
+           IF     N-C = ZERO    PERFORM      900-CHECK-LIST.            
+           ADD    1                  TO      CNT-NOHOO.                 
+      *------------------*                                              
+       123-NOJEG-CHEORI.                                                
+      *------------------*                                              
+           ADD    K3-PURE-YY         TO      ADD-DISP(2 1).             
+           ADD    K3-PURE-MM         TO      ADD-DISP(2 3).             
+           ADD    K3-HAIYAG-YY       TO      ADD-DISP(2 2).             
+           ADD    K3-HAIYAG-MM       TO      ADD-DISP(2 4).             
+           IF  K3-BSMG = 1                                              
+                  ADD    1           TO      J-C.                       
+           IF     J-C = ZERO    PERFORM      900-CHECK-LIST.            
+           ADD    1                  TO      CNT-NOJEG.                 
+      *------------------*                                              
+       124-GAJBOG-CHEORI.                                               
+      *------------------*                                              
+           ADD    K3-PURE-YY         TO     ADD-DISP(3 1).              
+           ADD    K3-PURE-MM         TO     ADD-DISP(3 3).              
+           ADD    K3-HAIYAG-YY       TO     ADD-DISP(3 2).              
+           ADD    K3-HAIYAG-MM       TO     ADD-DISP(3 4).              
+           IF  K3-BSMG = 1                                              
+                  ADD    1           TO     S-C.                        
+           IF     S-C = ZERO    PERFORM     900-CHECK-LIST.             
+           ADD    1                  TO     CNT-GAJEONG.                
+      *------------------*                                              
+       125-NON-TAX-CHEORI.                                              
+      *------------------*                                              
+           ADD    K3-PURE-YY         TO     ADD-DISP(4 1).              
+           ADD    K3-PURE-MM         TO     ADD-DISP(4 3).              
+           ADD    K3-HAIYAG-YY       TO     ADD-DISP(4 2).              
+           ADD    K3-HAIYAG-MM       TO     ADD-DISP(4 4).              
+           IF  K3-BSMG = 1                                              
+                  ADD    1           TO     X-C.                        
+           IF     X-C = ZERO    PERFORM     900-CHECK-LIST.             
+           IF     K3-JT = 9  OR  2                                      
+                                PERFORM     900-CHECK-LIST.             
+           ADD    1                  TO     CNT-NONTAX.                 
+      *------------------*                                              
+       126-JAETECH-CHEORI.                                              
+      *------------------*                                              
+           ADD    K3-PURE-YY         TO     ADD-DISP(5 1).              
+           ADD    K3-PURE-MM         TO     ADD-DISP(5 3).              
+           ADD    K3-HAIYAG-YY       TO     ADD-DISP(5 2).              
+           ADD    K3-HAIYAG-MM       TO     ADD-DISP(5 4).              
+           IF  K3-BSMG = 1                                              
+                  ADD    1           TO     R-C.                        
+           IF     R-C = ZERO OR 50   PERFORM     900-CHECK-LIST.        
+           ADD    1                  TO     CNT-JAETECH.                
+      *------------------*                                              
+       127-GEOCHI-CHEORI.                                               
+      *------------------*                                              
+           ADD    K3-PURE-YY         TO     ADD-DISP(6 1).              
+           ADD    K3-PURE-MM         TO     ADD-DISP(6 3).              
+           ADD    K3-HAIYAG-YY       TO     ADD-DISP(6 2).              
+           ADD    K3-HAIYAG-MM       TO     ADD-DISP(6 4).              
+           IF  K3-BSMG = 1                                              
+                  ADD    1           TO     G-C.                        
+           IF     G-C = ZERO OR 50   PERFORM     900-CHECK-LIST.        
+           ADD    1                  TO     CNT-GEOCHI.                 
+      *---------------------*                                           
+       128-JAETECH-II-CHEORI.                                           
+      *---------------------*                                           
+           ADD    K3-PURE-YY         TO     ADD-DISP(7 1).              
+           ADD    K3-PURE-MM         TO     ADD-DISP(7 3).              
+           ADD    K3-HAIYAG-YY       TO     ADD-DISP(7 2).              
+           ADD    K3-HAIYAG-MM       TO     ADD-DISP(7 4).              
+           IF  K3-BSMG = 1                                              
+                  ADD    1           TO     R2-C.                       
+           IF     R2-C = ZERO OR 50   PERFORM     900-CHECK-LIST.       
+           ADD    1                  TO     CNT-JAETECH-II.             
+      *----------------------*                                          
+       129-NEWJAETECH-CHEORI.                                           
+      *----------------------*                                          
+           ADD    K3-PURE-YY         TO     ADD-DISP(8 1).              
+           ADD    K3-PURE-MM         TO     ADD-DISP(8 3).              
+           ADD    K3-HAIYAG-YY       TO     ADD-DISP(8 2).              
+           ADD    K3-HAIYAG-MM       TO     ADD-DISP(8 4).              
+           IF  K3-BSMG = 1                                              
+                  ADD    1           TO     R3-C.                       
+           IF     R3-C = ZERO OR 50   PERFORM     900-CHECK-LIST.       
+           ADD    1                  TO     CNT-NEW-JAETECH.            
+      *------------------*                                              
+       130-HANARO-CHEORI.                                               
+      *------------------*                                              
+           ADD    K3-PURE-YY         TO     ADD-DISP(9 1).              
+           ADD    K3-PURE-MM         TO     ADD-DISP(9 3).              
+           ADD    K3-HAIYAG-YY       TO     ADD-DISP(9 2).              
+           ADD    K3-HAIYAG-MM       TO     ADD-DISP(9 4).              
+           IF  K3-BSMG = 1                                              
+                  ADD    1           TO     H-C.                        
+           IF     H-C = ZERO OR 50   PERFORM     900-CHECK-LIST.        
+           ADD    1                  TO     CNT-HANARO.                 
+      *---------------------*                                           
+990913 131-MILLENIUM-CHEORI.                                            
+      *---------------------*                                           
+           ADD    K3-PURE-YY         TO     ADD-DISP(10 1).             
+           ADD    K3-PURE-MM         TO     ADD-DISP(10 3).             
+           ADD    K3-HAIYAG-YY       TO     ADD-DISP(10 2).             
+           ADD    K3-HAIYAG-MM       TO     ADD-DISP(10 4).             
+           IF  K3-BSMG = 1                                              
+                  ADD    1           TO     M-C.                        
+           IF     M-C = ZERO OR 50   PERFORM     900-CHECK-LIST.        
+           ADD    1                  TO     CNT-MILLENIUM.              
+      *===================*                                             
+       121-1-NABIB-HISTORY.                                             
+      *===================*                                             
+           MOVE    K3-JEUNGBEON        TO     MKB-POLNO.                
+           MOVE    ZEROS               TO     MKB-SERNO.                
+           MOVE    SPACE               TO     MKB-RA-STATUS-CODE.       
+           MOVE    156                 TO     ZZ-DLDB-HW-DBID.          
+           MOVE    ZZ-DLDB-DBID        TO     MKB-RA-DBID.              
+           MOVE   'MKB'                TO     MKB-RA-FILE.              
+           MOVE   'MKBK2'              TO     MKB-RA-KEY-NAME.          
+           MOVE    MKB-KEY             TO     MKB-MKBK2-RA-KEY.         
+           MOVE   'REDKG'              TO     MKB-RA-FUNCTION.          
+           CALL   'DBNTRY'             USING  C-USER-ID                 
+                                              MKB-REQUEST-AREA          
+                                              MKB-REC                   
+                                              MKB-ELEMENT-LIST.         
+       121-2-CHEORI.                                                    
+           IF  MKB-POLNO  NOT =  K3-JEUNGBEON                           
+                      GO   TO  121-9-EXIT.                              
+           IF    MKB-COL-DATE  >  K3-GYULSAN-YMD                        
+                      GO   TO  121-9-EXIT.                              
+      *               PERFORM      121-3-NEXT-HISTORY                   
+      *               GO      TO   121-2-CHEORI.                        
+           IF    MKB-PAYMD = 1       MOVE   1    TO  HHH   ELSE         
+           IF    MKB-PAYMD = 3       MOVE   3    TO  HHH   ELSE         
+           IF    MKB-PAYMD = 6       MOVE   6    TO  HHH   ELSE         
+                                     MOVE  12    TO  HHH.               
+           IF  NOT  K3-NABIB-HOISU * NN  > UUU                          
+                             GO         TO  121-9-EXIT.                 
+           ADD      HHH        TO     UUU.                              
+           ADD       1         TO     J.                                
+           MOVE     MKB-COL-DATE      TO     KG-NABIB-YMD(J)            
+           IF  KG-NABIB-YMD (J) > (KG-GYE-YMD + KG-MANGI * 10000)       
+                         MOVE   KG-GYE-DD   TO  KG-NABIB-DD (J).        
+           MOVE  MKB-PAYCNT     TO     KG-NABIB-HOI    (J).             
+           MOVE  MKB-LCOL-YM    TO     KG-NABIB-WOL-YM(J).              
+           MOVE  MKB-PAYMD      TO     KG-NABBANG      (J).             
+           IF  MKB-COLAMT1 IS NOT NUMERIC                               
+               MOVE  ZERO  TO MKB-COLAMT1.                              
+           MOVE  K3-BOLYO       TO     KG-BOLYO1.                       
+           IF  NON-TAX                                                  
+                   MOVE MKB-COLAMT1  TO     KG-BOLYO2(J)                
+           ELSE    MOVE ZERO         TO     KG-BOLYO2(J).               
+      *    DISPLAY  'J = ' J ' NAB-YM ' KG-NABIB-WOL-YM(J)              
+      *                      ' AB-DATE '  KG-NABIB-YMD(J)               
+      *                         ' K3: ' K3-JIGB-YMD ' KG ' KG-JIGB-YMD. 
+           IF  KG-NABIB-YMD(J)  >  KG-JIGB-YMD                          
+                         MOVE   KG-JIGB-YMD   TO   KG-NABIB-YMD(J).     
+           PERFORM       121-3-NEXT-HISTORY.                            
+           GO       TO   121-2-CHEORI.                                  
+      *-----------*                                                     
+       121-9-EXIT.         EXIT.                                        
+      *-----------*                                                     
+       121-3-NEXT-HISTORY.                                              
+           MOVE    SPACE       TO        MKB-RA-STATUS-CODE.            
+           MOVE   'REDNX'      TO        MKB-RA-FUNCTION.               
+           CALL   'DBNTRY'     USING     C-USER-ID                      
+                                         MKB-REQUEST-AREA               
+                                         MKB-REC                        
+                                         MKB-ELEMENT-LIST.              
+      *===================*                                             
+       221-1-NABIB-HISTORY.                                             
+      *===================*                                             
+           MOVE    K3-JEUNGBEON        TO     MKL-POLNO.                
+           MOVE    ZEROS               TO     MKL-SERNO.                
+           MOVE    SPACE               TO     MKL-RA-STATUS-CODE.       
+           MOVE    157                 TO     ZZ-DLDB-HW-DBID.          
+           MOVE    ZZ-DLDB-DBID        TO     MKL-RA-DBID.              
+           MOVE   'MKL'                TO     MKL-RA-FILE.              
+           MOVE   'MKLK2'              TO     MKL-RA-KEY-NAME.          
+           MOVE    MKL-KEY             TO     MKL-MKLK2-RA-KEY.         
+           MOVE   'REDKG'              TO     MKL-RA-FUNCTION.          
+           CALL   'DBNTRY'             USING  C-USER-ID                 
+                                              MKL-REQUEST-AREA          
+                                              MKL-REC                   
+                                              MKL-ELEMENT-LIST.         
+       221-2-CHEORI.                                                    
+           IF  (MKL-POLNO  NOT =  K3-JEUNGBEON) OR                      
+               (MKL-RA-STATUS-CODE NOT = SPACE)                         
+                      GO   TO  221-9-EXIT.                              
+           IF    MKL-COL-DATE  >  K3-GYULSAN-YMD                        
+                      GO   TO  221-9-EXIT.                              
+      *               PERFORM      221-3-NEXT-HISTORY                   
+      *               GO      TO   221-2-CHEORI.                        
+           ADD      1         TO   J.                                   
+           MOVE     J         TO   K3-NABIB-HOISU.                      
+           MOVE  MKL-COL-DATE   TO     KG-NABIB-YMD(J)                  
+           MOVE  MKL-COLAMT     TO     KG-BOLYO2(J).                    
+           MOVE  ZERO           TO     KG-BOLYO1 K3-BOLYO.              
+      *    DISPLAY  'J2= ' J ' NAB-YM ' KG-NABIB-WOL-YM(J)              
+      *                      ' NAB-DATE '  KG-NABIB-YMD(J)              
+      *                         ' K3: ' K3-JIGB-YMD ' KG ' KG-JIGB-YMD. 
+           IF  KG-NABIB-YMD(J)  >  KG-JIGB-YMD                          
+                         MOVE   KG-JIGB-YMD   TO   KG-NABIB-YMD(J).     
+           PERFORM       221-3-NEXT-HISTORY.                            
+           GO       TO   221-2-CHEORI.                                  
+      *-----------*                                                     
+       221-9-EXIT.         EXIT.                                        
+      *-----------*                                                     
+       221-3-NEXT-HISTORY.                                              
+           MOVE    SPACE       TO        MKL-RA-STATUS-CODE.            
+           MOVE   'REDNX'      TO        MKL-RA-FUNCTION.               
+           CALL   'DBNTRY'     USING     C-USER-ID                      
+                                         MKL-REQUEST-AREA               
+                                         MKL-REC                        
+                                         MKL-ELEMENT-LIST.              
+      *--------------*                                                  
+       900-CHECK-LIST.                                                  
+      *--------------*                                                  
+           IF  CNT-LINE = ZERO  OR  60                                  
+                    PERFORM      990-HEAD-PRINT.                        
+           MOVE     SPACE                 TO   LIST.                    
+           MOVE     K3-BOJONG-T           TO   L-BOJONG.                
+           MOVE     K3-NABGI              TO   L-NABGI.                 
+           MOVE     K3-MANGI              TO   L-MANGI.                 
+           MOVE     K3-NABBANG            TO   L-NABBANG.               
+           IF NON-TAX   MOVE  K3-JT       TO   L-NABBANG.               
+           MOVE     K3-GYE-YMD           TO   L-GY-YMD.                 
+           MOVE     K3-NABIB-HOISU       TO   L-HOI.                    
+           MOVE     K3-BOGEUM             TO   L-S.                     
+           MOVE     K3-BOLYO              TO   L-P.                     
+           MOVE     KG-ILSU               TO   L-VT-P.                  
+           ADD      K3-PURE-YY    K3-PURE-MM    GIVING  P-TOT.          
+           ADD      K3-HAIYAG-YY  K3-HAIYAG-MM  GIVING  H-TOT.          
+           MOVE     P-TOT                 TO   L-VWT-YY.                
+           MOVE     H-TOT                 TO   L-VWT-MM.                
+           MOVE     K3-SEON-YMD          TO   L-SE-YMD.                 
+           MOVE     K3-SEON-HOI           TO   L-SE-HOI.                
+           MOVE     K3-SEON-IJA           TO   L-SE-IJA.                
+           MOVE     K3-JEUNGBEON          TO   L-JEUNGBEON.             
+                                                                        
+           WRITE  REC-LIST  FROM   LIST     AFTER   1.                  
+           ADD    1         TO     CNT-LINE.                            
+      *---------------*                                                 
+       990-HEAD-PRINT.                                                  
+      *---------------*                                                 
+           ADD      1                   TO    PAGE-CNT.                 
+           WRITE    REC-LIST          FROM    S-LINE    AFTER  PGSK.    
+           WRITE    REC-LIST          FROM    S-LINE    AFTER  2.       
+           WRITE    REC-LIST          FROM    S1-LINE   AFTER  1.       
+           MOVE     K3-GYULSAN-YMD     TO    SS-YMD.                    
+           MOVE     SS-YY               TO    H-YY.                     
+           MOVE     SS-MM               TO    H-MM.                     
+           MOVE     SS-DD               TO    H-DD.                     
+           MOVE     PAGE-CNT            TO    H-PAGE.                   
+           WRITE    REC-LIST          FROM    HEAD      AFTER  1.       
+           WRITE    REC-LIST          FROM    S1-LINE   AFTER  1.       
+           WRITE    REC-LIST          FROM    S2-LINE   AFTER  1.       
+           WRITE    REC-LIST          FROM    TITLE-S   AFTER  1.       
+           WRITE    REC-LIST          FROM    S2-LINE   AFTER  1.       
+           MOVE     ZERO                TO    CNT-LINE.                 

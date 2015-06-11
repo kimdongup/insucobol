@@ -1,0 +1,67 @@
+//KERB9007 JOB (KER),'KER00',CLASS=K,MSGCLASS=X,MSGLEVEL=(1,1)          
+//S1 EXEC YSRCCAT,MBR=K00B9007                                          
+//C.SYSUT1 DD *                                                         
+           02  KG-GUBUN                  PIC 9(1).                      
+           02  KG-BOJONG                 PIC 9(4).                      
+           02  KG-GYE-YMD                PIC 9(8).                      
+           02  KG-GYE-YMD-RE          REDEFINES   KG-GYE-YMD.           
+               04  KG-GYE-YM             PIC 9(6).                      
+               04  KG-GYE-YM-RE       REDEFINES   KG-GYE-YM.            
+                   05  KG-GYE-YY         PIC 9(4).                      
+                   05  KG-GYE-MM         PIC 9(2).                      
+               04  KG-GYE-DD             PIC 9(2).                      
+           02  KG-IYUL                   PIC 9(5).                      
+           02  KG-NABGI                  PIC 9(2).                      
+           02  KG-MANGI                  PIC 9(2).                      
+           02  KG-LNAB-YM                PIC 9(6).                      
+           02  KG-LNAB-YM-RE           REDEFINES   KG-LNAB-YM.          
+               04  KG-LNAB-YY            PIC 9(4).                      
+               04  KG-LNAB-MM            PIC 9(2).                      
+           02  KG-BOGEUM                 PIC S9(7)       COMP-3.        
+           02  KG-BOLYO1                 PIC S9(9)       COMP-3.        
+           02  KG-BOLYO2    OCCURS 240   PIC S9(7)       COMP-3.        
+           02  KG-JIGB-YMD               PIC 9(8).                      
+           02  KG-JIGB-YMD-RE         REDEFINES   KG-JIGB-YMD.          
+               04  KG-JIGB-YM            PIC 9(6).                      
+                04  KG-JIGB-YM-RE     REDEFINES   KG-JIGB-YM.           
+                     05  KG-JIGB-YY      PIC 9(4).                      
+                     05  KG-JIGB-MM      PIC 9(2).                      
+                  04  KG-JIGB-DD         PIC 9(2).                      
+           02  KG-PAST-YMD.                                             
+               03  KG-PAST-YM            PIC 9(4).                      
+               03  KG-PAST-YM-RE        REDEFINES   KG-PAST-YM.         
+                   04  KG-PAST-YY            PIC 9(2).                  
+                   04  KG-PAST-MM            PIC 9(2).                  
+               03  KG-PAST-DD                PIC 9(2).                  
+           02  KG-NABIB-SEG              OCCURS  240.                   
+               03  KG-NABIB-YMD              PIC 9(8).                  
+               03  KG-NABIB-YMD-RE        REDEFINES   KG-NABIB-YMD.     
+                   05  KG-NABIB-YM           PIC 9(6).                  
+                   05  KG-NABIB-YM-RE     REDEFINES   KG-NABIB-YM.      
+                       06  KG-NABIB-YY       PIC 9(4).                  
+                       06  KG-NABIB-MM       PIC 9(2).                  
+                   05  KG-NABIB-DD           PIC 9(2).                  
+               03  KG-NABIB-HOI              PIC 9(3)  COMP-3.          
+               03  KG-NABIB-WOL-YM           PIC 9(6).                  
+               03  KG-NABIB-WOL-YM-RE     REDEFINES   KG-NABIB-WOL-YM.  
+                   05  KG-NABIB-WOL-YY       PIC 9(4).                  
+                   05  KG-NABIB-WOL-MM       PIC 9(2).                  
+               03  KG-NABBANG                PIC 9(1).                  
+           02  KG-SEG-CNT                    PIC 9(3).                  
+           02  KG-WT-YY                      PIC S9(9)     COMP-3.      
+           02  KG-WT-TT                      PIC S9(9)     COMP-3.      
+           02  KG-SEON-BOLYO                 PIC S9(9)     COMP-3.      
+           02  KG-SEON-IJA                   PIC S9(9)     COMP-3.      
+           02  KG-VT-YY                      PIC S9(9)     COMP-3.      
+           02  KG-VT-TT                      PIC S9(9)     COMP-3.      
+           02  KG-ILSU                       PIC S9(9)     COMP-3.      
+           02  KG-CODE                       PIC 9(2).                  
+           02  KG-0-9                        PIC 9(1).                  
+980619     02  KG-GITAGUBUN-CODE             PIC 9(1).                  
+           02  KG-JUNWHAN-YMD                PIC 9(8).                  
+           02  KG-JUNWHAN-YMD-RE          REDEFINES   KG-JUNWHAN-YMD.   
+                  04  KG-JUNWHAN-YM          PIC 9(6).                  
+                  04  KG-JUNWHAN-YM-RE    REDEFINES   KG-JUNWHAN-YM.    
+                     05  KG-JUNWHAN-YY       PIC 9(4).                  
+                     05  KG-JUNWHAN-MM       PIC 9(2).                  
+                  04  KG-JUNWHAN-DD          PIC 9(2).                  

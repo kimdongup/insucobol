@@ -1,0 +1,480 @@
+//KERC7119 JOB (KER),'KER01',CLASS=G,MSGCLASS=X,MSGLEVEL=(1,1)          
+//STEP1 EXEC YCOBBAT,MBR=KC7119                                         
+//COB.SYSIN DD *                                                        
+       IDENTIFICATION           DIVISION.                               
+       PROGRAM-ID.              KC7119.                                 
+      *REMARKS.                 YEJEONG-IYUL   LIST.                    
+       ENVIRONMENT              DIVISION.                               
+       CONFIGURATION            SECTION.                                
+       SPECIAL-NAMES.           C01  IS   PGSK                          
+                                CSP  IS   DUP.                          
+       SOURCE-COMPUTER.         IBM-4381.                               
+       OBJECT-COMPUTER.         IBM-4381.                               
+       INPUT-OUTPUT             SECTION.                                
+       FILE-CONTROL.                                                    
+           SELECT    CH-FILE    ASSIGN  TO   CHFILE.                    
+           SELECT    FILE-OUT   ASSIGN  TO   PRINT.                     
+       DATA                     DIVISION.                               
+       FILE                     SECTION.                                
+       FD  CH-FILE   RECORDING  MODE        IS  F                       
+                     LABEL      RECORD          STANDARD                
+                     BLOCK      CONTAINS   100  RECORDS                 
+                     RECORD     CONTAINS   160  CHARACTERS.             
+       01  CH-REC.                                                      
+         02  CH-KEY.                                                    
+           03  CH-GYEOLSAN-CYM.                                         
+ .           04 CH-GYEOLSAN-CY      PIC 9(4).                           
+             04 CH-GYEOLSAN-MM      PIC 9(2).                           
+           03  CH-BSMG              PIC 9(2).                           
+           03  CH-SSYD              PIC 9(1).                           
+           03  CH-BOJONG.                                               
+             04 CH-BOJONG-1         PIC 9.                              
+             04 CH-BOJONG-33        PIC 9(2).                           
+             04 CH-BOJONG-4         PIC 9.                              
+           03  CH-IYUL              PIC S9(5)    COMP-3.                
+         02  CH-GEONSU              PIC S9(7)    COMP-3.                
+         02  CH-BOGEUM              PIC S9(9)    COMP-3.                
+      *  02  CH-GONGCHING           PIC S9(9)    COMP-3.                
+      *  02  CH-BOLYO               PIC S9(13)   COMP-3.                
+         02  CH-YEON-RESERVE.                                           
+           03  CH-VT-YY             PIC S9(13)   COMP-3.                
+           03  CH-WT-YY             PIC S9(13)   COMP-3.                
+         02  CH-RESERVE-YM.                                             
+           03  CH-VT-YYMM           PIC S9(13)   COMP-3.                
+           03  CH-WT-YYMM           PIC S9(13)   COMP-3.                
+         02  CH-GITA.                                                   
+           03  CH-MIG               PIC S9(13)   COMP-3.                
+           03  CH-MIJIGB            PIC S9(13)   COMP-3.                
+           03  CH-SUNJIGB           PIC S9(13)   COMP-3.                
+         02  CH-IJA                 PIC S9(13)   COMP-3.                
+         02  CH-SEON-IJA            PIC S9(13)   COMP-3.                
+         02  CH-BAIDANG-SEG.                                            
+           03  CH-HWAGBAI        OCCURS  3.                             
+             04  CH-HWAG            PIC S9(11)   COMP-3.                
+           03  CH-SACHABAI       OCCURS  3.                             
+             04  CH-SACHA           PIC S9(11)   COMP-3.                
+           03  CH-ICHABAI        OCCURS  3.                             
+             04  CH-ICHA            PIC S9(11)   COMP-3.                
+           03  CH-JANGGIBAI      OCCURS  3.                             
+             04  CH-JANGGI          PIC S9(11)   COMP-3.                
+       FD  FILE-OUT          LABEL       RECORD      OMITTED.           
+       01  REC-OUT                  PIC  X(132).                        
+      *===============================================================* 
+       WORKING-STORAGE SECTION.                                         
+      *----------------------*                                          
+      *    MEMORY    GROUP   *                                          
+      *----------------------*                                          
+       01  WORK-SPACE.                                                  
+         02  I-COUNT                PIC 9(10).                          
+         02  S-BSMG                 PIC 9(2).                           
+         02  SW                     PIC 9.                              
+         02  I                      PIC 9(2).                           
+         02  J                      PIC 9(2).                           
+         02  K                      PIC 9(2).                           
+         02  S-GT                   PIC S9(12).                         
+         02  S-GM                   PIC S9(12).                         
+         02  BAIDANG-S              PIC S9(14).                         
+         02  BAIDANG-I              PIC S9(14).                         
+         02  ZERO-B                 PIC 9.                              
+       01  TABLE-1.                                                     
+         02  TABL-1              OCCURS  3.                             
+           03 TAB-1               OCCURS 38.                            
+             04  TA-1              OCCURS  5.                           
+               05  I-TA             PIC S9(14).                         
+       01  TABLE-2.                                                     
+         02  TABL-2              OCCURS  3.                             
+           03 TAB-2               OCCURS 38.                            
+             04  TA-2              OCCURS  5.                           
+               05  I-TB             PIC S9(14).                         
+       01  TABLE-PERCENT.                                               
+         02  TABL-P              OCCURS  3.                             
+           03 TAB-P               OCCURS 38.                            
+             04  TA-P              OCCURS  5.                           
+               05  PER-CENT         PIC 9(3)V9.                         
+       01  TABLE-YOYUL.                                                 
+         02  TABL-Y              OCCURS  3.                             
+           03 TAB-Y               OCCURS  5.                            
+             04  YO-YUL             PIC 9(3)V9(3).                      
+      *----------------------*                                          
+      *    PRINT     GROUP   *                                          
+      *----------------------*                                          
+       01  REC-HEAD.                                                    
+         02  P-HEAD             OCCURS   3.                             
+           03  FILLER              PIC X(5).                            
+           03  H-YY                PIC 9(2).                            
+           03  H-4                 PIC X(4).                            
+           03  H-MM                PIC 9(2).                            
+           03  H-3                 PIC X(3).                            
+           03  FILLER              PIC X(10).                           
+           03  H-6                 PIC X(06).                           
+           03  FILLER              PIC X(17).                           
+           03  FILLER              PIC X(1).                            
+           03  H-10                PIC X(10).                           
+           03  FILLER              PIC X(1).                            
+           03  H-19                PIC X(19).                           
+           03  FILLER              PIC X(10).                           
+           03  H-BSMG              PIC Z9.                              
+           03  FILLER              PIC X(12).                           
+           03  H-17                PIC X(17).                           
+           03  FILLER              PIC X(11).                           
+       01  REC-TITLE.                                                   
+           02  TITLE-S          OCCURS  3    PIC X(132).                
+       01  REC-PRINT1.                                                  
+         02  P-LIST1            OCCURS  3.                              
+           03  FILLER              PIC X(4).                            
+           03  L-IYUL              PIC X(6).                            
+           03  FILLER              PIC X(7).                            
+           03  L-VT                PIC ZZZZ,ZZZ,ZZZ,ZZ9.                
+           03  L-PER-1             PIC BZZ9.9.                          
+           03  L-WT                PIC ZZZZ,ZZZ,ZZZ,ZZ9.                
+           03  L-PER-2             PIC BZZ9.9.                          
+           03  L-JIGB              PIC ZZZZ,ZZZ,ZZZ,ZZ9.                
+           03  L-PER-3             PIC BZZ9.9.                          
+           03  L-GT                PIC ZZZZ,ZZZ,ZZZ,ZZ9.                
+           03  L-PER-4             PIC BZZ9.9.                          
+           03  L-SEONSU            PIC ZZZ,ZZZ,ZZZ,ZZZ,ZZ9.             
+           03  L-PER-5             PIC BZZZ9.9.                         
+           03  FILLER              PIC X(1).                            
+       01  REC-PRINT2.                                                  
+         02  P-LIST2            OCCURS  3.                              
+           03  FILLER              PIC X(4).                            
+           03  L-7                 PIC X(7).                            
+           03  FILLER              PIC X(15).                           
+           03  L-IYUL1             PIC ZZ9.999.                         
+           03  FILLER              PIC X(15).                           
+           03  L-IYUL2             PIC ZZ9.999.                         
+           03  FILLER              PIC X(15).                           
+           03  L-IYUL3             PIC ZZ9.999.                         
+           03  FILLER              PIC X(15).                           
+           03  L-IYUL4             PIC ZZ9.999.                         
+           03  FILLER              PIC X(33).                           
+      *----------------------*                                          
+      *    REMARKS   GROUP   *                                          
+      *----------------------*                                          
+       01  REC-HANGEUL-LENGTH.                                          
+         02  IOCD                  PIC X(2)    VALUE   'MO'.            
+         02  ERCD                  PIC X(2)    VALUE   SPACE.           
+         02  HL3                   PIC 9(2)    COMP    VALUE     3.     
+         02  HL4                   PIC 9(2)    COMP    VALUE     4.     
+         02  HL5                   PIC 9(2)    COMP    VALUE     5.     
+         02  HL6                   PIC 9(2)    COMP    VALUE     6.     
+         02  HL7                   PIC 9(2)    COMP    VALUE     7.     
+         02  HL8                   PIC 9(2)    COMP    VALUE     8.     
+         02  HL10                  PIC 9(2)    COMP    VALUE    10.     
+         02  HL12                  PIC 9(2)    COMP    VALUE    12.     
+         02  HL17                  PIC 9(2)    COMP    VALUE    17.     
+         02  HL19                  PIC 9(2)    COMP    VALUE    19.     
+         02  HL24                  PIC 9(2)    COMP    VALUE    24.     
+         02  HL25                  PIC 9(2)    COMP    VALUE    25.     
+         02  HL132                 PIC 9(4)    COMP    VALUE   132.     
+         02  HL162                 PIC 9(4)    COMP    VALUE   162.     
+       01  REC-LINE.                                                    
+         02  S-LINE                PIC X(132)  VALUE   SPACE.           
+         02  S1-LINE               PIC X(132)  VALUE   ALL  '*'.        
+         02  S2-LINE               PIC X(132)  VALUE   ALL  '='.        
+         02  S3-LINE               PIC X(132)  VALUE   ALL  '-'.        
+         02  S4-LINE.                                                   
+           03  FILLER              PIC X(47)   VALUE   SPACE.           
+           03  FILLER              PIC X(33)   VALUE   ALL  '*'.        
+           03  FILLER              PIC X(52)   VALUE   SPACE.           
+       01  REC-HANGEUL-SOURCE.                                          
+         02  HY-4      PIC X(04)   VALUE   '년'.                      
+         02  HM-4      PIC X(04)   VALUE   '월'.                      
+         02  HH-8      PIC X(08).                                       
+         02  HH-12     PIC X(12).                                       
+         02  HH-25     PIC X(25)   VALUE   '  예정　이율별　준비금 '. 
+         02  HH-24     PIC X(24)   VALUE   '( 단　위 : 　원 )   '.  
+         02  TT-162.                                                    
+           03  FILLER              PIC X(55)   VALUE                    
+           '    예정이율           순　보　험　료　식   ( % )  '.   
+           03  FILLER              PIC X(51)   VALUE                    
+           '   해　약　식  ( % )      　　미지급　  ( % )  '.       
+           03  FILLER              PIC X(51)   VALUE                    
+           '     배　당　금  ( % )          　　           '.       
+           03  FILLER              PIC X(5)    VALUE '( % )'.           
+         02  B-6                   PIC X(6).                            
+         02  B-12                  PIC X(12).                           
+       01  HAN-HEAD.                                                    
+         02  FILLER                PIC X(49)   VALUE   SPACE.           
+         02  FILLER                PIC X       VALUE   '('.             
+         02  FILLER                PIC X(10).                           
+         02  FILLER                PIC X       VALUE   ')'.             
+         02  FILLER                PIC X(19)   VALUE   SPACE.           
+         02  FILLER                PIC X(10)   VALUE   '   (BSM = '.    
+         02  FILLER                PIC X(2)    VALUE   SPACE.           
+         02  FILLER                PIC X(12)   VALUE   ')           '.  
+         02  FILLER                PIC X(28)   VALUE   SPACE.           
+      *===============================================================* 
+       PROCEDURE                DIVISION.                               
+           OPEN    INPUT    CH-FILE           OUTPUT   FILE-OUT.        
+           MOVE    ZERO     TO   WORK-SPACE   TABLE-1  TABLE-2          
+                                 TABLE-YOYUL  TABLE-PERCENT.            
+           MOVE    SPACE    TO   REC-HEAD     REC-TITLE                 
+                                 REC-PRINT1   REC-PRINT2.               
+           MOVE    HAN-HEAD TO   P-HEAD(1).                             
+           PERFORM          READ-RTN   UNTIL   SW = 4.                  
+           PERFORM          WRITE-RTN.                                  
+           CLOSE            CH-FILE    FILE-OUT.                        
+           STOP  RUN.                                                   
+      *--------*                                                        
+       READ-RTN.                                                        
+      *--------*                                                        
+           READ    CH-FILE   AT   END   MOVE   4  TO  SW.               
+           IF  SW  NOT =  4       ADD   1     TO  I-COUNT               
+                                  PERFORM     MAIN-RTN.                 
+           MOVE    ZERO      TO   ZERO-B.                               
+      *--------*                                                        
+       MAIN-RTN.                                                        
+      *--------*                                                        
+           IF  I-COUNT  =  1                                            
+                     MOVE  CH-BSMG   TO   S-BSMG.                       
+           IF  CH-BSMG  =  S-BSMG                                       
+                     PERFORM         SAVE-RTN                           
+           ELSE      PERFORM         WRITE-RTN                          
+                     MOVE  ZERO      TO  TABLE-1  TABLE-YOYUL           
+                                         TABLE-2  TABLE-PERCENT         
+                     MOVE  CH-BSMG   TO  S-BSMG                         
+                     PERFORM         SAVE-RTN.                          
+           MOVE    ZERO          TO   ZERO-B.                           
+      *--------*                                                        
+       SAVE-RTN.                                                        
+      *--------*                                                        
+           PERFORM     IYUL-RTN.                                        
+           IF   CH-SSYD = 4   MOVE   2   TO   K                         
+           ELSE               MOVE   1   TO   K.                        
+           ADD  CH-VT-YYMM    TO    I-TA (K J  1)   I-TA (K 38 1)       
+                                    I-TA (3 J  1)   I-TA (3 38 1).      
+           ADD  CH-WT-YYMM    TO    I-TA (K J  2)   I-TA (K 38 2)       
+                                    I-TA (3 J  2)   I-TA (3 38 2).      
+           ADD  CH-MIJIGB     TO    I-TA (K J  3)   I-TA (K 38 3)       
+                                    I-TA (3 J  3)   I-TA (3 38 3).      
+           COMPUTE  BAIDANG-S = CH-HWAG (1)  + CH-HWAG (2) + CH-HWAG (3)
+                              + CH-SACHA(1)  + CH-SACHA(2) + CH-SACHA(3)
+                              + CH-ICHA (1)  + CH-ICHA (2) + CH-ICHA (3)
+                              + CH-JANGGI(1) + CH-JANGGI(2)             
+                              + CH-JANGGI(3).                           
+           ADD  BAIDANG-S     TO    I-TA (K J  4)   I-TA (K 38 4)       
+                                    I-TA (3 J  4)   I-TA (3 38 4).      
+                                                                        
+           ADD  CH-MIG        TO    I-TB (K J  1)   I-TB (K 38 1)       
+                                    I-TB (3 J  1)   I-TB (3 38 1).      
+           ADD  CH-MIG        TO    I-TB (K J  2)   I-TB (K 38 2)       
+                                    I-TB (3 J  2)   I-TB (3 38 2).      
+           ADD  CH-SUNJIGB    TO    I-TB (K J  3)   I-TB (K 38 3)       
+                                    I-TB (3 J  3)   I-TB (3 38 3).      
+           COMPUTE  BAIDANG-I =  CH-HWAG (3) + CH-SACHA(3) + CH-ICHA (3)
+                              +  CH-JANGGI(3).                          
+           ADD  BAIDANG-I     TO    I-TB (K J  4)   I-TB (K 38 4)       
+                                    I-TB (3 J  4)   I-TB (3 38 4).      
+      *--------*                                                        
+       IYUL-RTN.                                                        
+      *--------*                                                        
+           IF  CH-IYUL  =  00400     MOVE    1    TO   J    ELSE        
+           IF  CH-IYUL  =  00500     MOVE    2    TO   J    ELSE        
+           IF  CH-IYUL  =  00568     MOVE    3    TO   J    ELSE        
+           IF  CH-IYUL  =  00600     MOVE    4    TO   J    ELSE        
+           IF  CH-IYUL  =  00604     MOVE    5    TO   J    ELSE        
+           IF  CH-IYUL  =  00639     MOVE    6    TO   J    ELSE        
+           IF  CH-IYUL  =  00650     MOVE    7    TO   J    ELSE        
+           IF  CH-IYUL  =  00675     MOVE    8    TO   J    ELSE        
+           IF  CH-IYUL  =  00680     MOVE    9    TO   J    ELSE        
+           IF  CH-IYUL  =  00700     MOVE   10    TO   J    ELSE        
+           IF  CH-IYUL  =  00710     MOVE   11    TO   J    ELSE        
+           IF  CH-IYUL  =  00746     MOVE   12    TO   J    ELSE        
+           IF  CH-IYUL  =  00750     MOVE   13    TO   J    ELSE        
+           IF  CH-IYUL  =  00760     MOVE   14    TO   J    ELSE        
+           IF  CH-IYUL  =  00765     MOVE   15    TO   J    ELSE        
+           IF  CH-IYUL  =  00781     MOVE   16    TO   J    ELSE        
+           IF  CH-IYUL  =  00800     MOVE   17    TO   J    ELSE        
+           IF  CH-IYUL  =  00808     MOVE   18    TO   J    ELSE        
+           IF  CH-IYUL  =  00810     MOVE   19    TO   J    ELSE        
+           IF  CH-IYUL  =  00817     MOVE   20    TO   J    ELSE        
+           IF  CH-IYUL  =  00850     MOVE   21    TO   J    ELSE        
+           IF  CH-IYUL  =  00852     MOVE   22    TO   J    ELSE        
+           IF  CH-IYUL  =  00860     MOVE   23    TO   J    ELSE        
+           IF  CH-IYUL  =  00888     MOVE   24    TO   J    ELSE        
+           IF  CH-IYUL  =  00900     MOVE   25    TO   J    ELSE        
+           IF  CH-IYUL  =  00910     MOVE   26    TO   J    ELSE        
+           IF  CH-IYUL  =  00950     MOVE   27    TO   J    ELSE        
+           IF  CH-IYUL  =  00960     MOVE   28    TO   J    ELSE        
+           IF  CH-IYUL  =  01010     MOVE   29    TO   J    ELSE        
+                               DISPLAY ' ** IYUL ERROR ==>  ' CH-IYUL   
+                                       ' ** BOJONG  ==>  '  CH-BOJONG   
+                                     MOVE   30    TO   J.               
+           MOVE      ZERO      TO    ZERO-B.                            
+      *--------*                                                        
+       HEAD-RTN.                                                        
+      *--------*                                                        
+           WRITE    REC-OUT    FROM   S-LINE   AFTER  PGSK.             
+           WRITE    REC-OUT    FROM   S-LINE   AFTER  3.                
+           WRITE    REC-OUT    FROM   S4-LINE  AFTER  1.                
+           MOVE      S-BSMG    TO     H-BSMG (1).                       
+           IF   K  =  1               MOVE  '개　인'    TO  HH-8.   
+           IF   K  =  2               MOVE  '단　체'    TO  HH-8.   
+           IF   K  =  3               MOVE  '합　계'    TO  HH-8.   
+           IF   S-BSMG =  1       MOVE  '  보　　유'   TO  HH-12.   
+           IF   S-BSMG =  2       MOVE  '해약　해지'   TO  HH-12.   
+           IF   S-BSMG =  3       MOVE  '만기미지급'   TO  HH-12.   
+           IF   S-BSMG =  4       MOVE  '사망　소멸'   TO  HH-12.   
+           IF   S-BSMG =  5       MOVE  '실효　잡익'   TO  HH-12.   
+           IF   S-BSMG =  6       MOVE  '만기　잡익'   TO  HH-12.   
+           IF   S-BSMG =  7       MOVE  '　실　효　'   TO  HH-12.   
+           IF   S-BSMG =  9       MOVE  '상해　소멸'   TO  HH-12.   
+           IF   S-BSMG = 10       MOVE  '만기　소멸'   TO  HH-12.   
+           IF S-BSMG = 9                                                
+              IF K  = 2           MOVE  '퇴직　소멸'   TO  HH-12    
+              ELSE                MOVE  '상해　소멸'   TO  HH-12.   
+           IF   S-BSMG = 11       MOVE  '사고　보유'   TO  HH-12.   
+           IF   S-BSMG = 17       MOVE  '지급　비금'   TO  HH-12.   
+                                                                        
+           MOVE   CH-GYEOLSAN-CYM(3:2)   TO     H-YY (1).               
+           MOVE   CH-GYEOLSAN-MM         TO     H-MM (1).               
+                                                                        
+           CALL    'HGBATCH'   USING     IOCD              ERCD         
+                                     HY-4   HL4      H-4 (1)   HL4      
+                                     HM-4   HL4      H-3 (1)   HL3      
+                                     HH-8   HL8      H-6 (1)   HL6      
+                                     HH-12  HL12     H-10(1)   HL10     
+                                     HH-25  HL25     H-19(1)   HL19     
+                                     HH-24  HL24     H-17(1)   HL17.    
+           WRITE    REC-OUT    FROM   P-HEAD(1)  AFTER  1.              
+           WRITE    REC-OUT    FROM   P-HEAD(2)  AFTER  DUP.            
+           WRITE    REC-OUT    FROM   P-HEAD(3)  AFTER  1.              
+           WRITE    REC-OUT    FROM   S4-LINE    AFTER  1.              
+           WRITE    REC-OUT    FROM   S2-LINE    AFTER  1.              
+                                                                        
+           CALL    'HGBATCH'   USING     IOCD             ERCD          
+                                    TT-162   HL162   TITLE-S(1)  HL132. 
+           WRITE    REC-OUT    FROM   TITLE-S(1)   AFTER  1.            
+           WRITE    REC-OUT    FROM   TITLE-S(2)   AFTER  DUP.          
+           WRITE    REC-OUT    FROM   TITLE-S(3)   AFTER  1.            
+           WRITE    REC-OUT    FROM   S2-LINE      AFTER  1.            
+      *---------*                                                       
+       WRITE-RTN.                                                       
+      *---------*                                                       
+           PERFORM  PERCENT-RTN  VARYING  K FROM 1 BY 1  UNTIL  K >  3  
+                                   AFTER  I FROM 1 BY 1  UNTIL  I >  5  
+991006                             AFTER  J FROM 1 BY 1  UNTIL  J > 30. 
+           PERFORM  YOYUL-RTN    VARYING  K FROM 1 BY 1  UNTIL  K >  3  
+                                   AFTER  J FROM 1 BY 1  UNTIL  J >  5. 
+           PERFORM  LIST-WRITE   VARYING  K FROM 1 BY 1  UNTIL  K >  3. 
+           MOVE      3      TO       K.                                 
+           PERFORM          LIST-1-RTN.                                 
+      *----------*                                                      
+       LIST-WRITE.                                                      
+      *----------*                                                      
+991006     PERFORM  LIST-RTN     VARYING  J FROM 1 BY 1  UNTIL  J > 30. 
+  .        MOVE     30      TO     J.                                   
+           PERFORM          LIST-RTN.                                   
+      *-----------*                                                     
+       PERCENT-RTN.                                                     
+      *-----------*                                                     
+           IF  I-TA (K 38 I) > ZERO                                     
+                     COMPUTE   PER-CENT (K J I)   ROUNDED  =            
+                               I-TA (K J I) * 100 / I-TA (K 38 I)       
+                     ADD       PER-CENT (K J I)  TO  PER-CENT (K 38 I)  
+991006       IF   J = 30                                                
+               IF PER-CENT (K 38 I) = 100      MOVE  ZERO  TO  ZERO-B   
+               ELSE  COMPUTE  PER-CENT (K 2 I) = 100 - PER-CENT (K 38 I)
+                                                     + PER-CENT (K 2  I)
+                     MOVE     100       TO     PER-CENT (K 38 I).       
+           MOVE    ZERO       TO    ZERO-B.                             
+      *---------*                                                       
+       YOYUL-RTN.                                                       
+      *---------*                                                       
+           IF  I-TA (K 38 J) > ZERO                                     
+                 COMPUTE       YO-YUL (K J)    ROUNDED   =              
+                     (I-TA (K  1 J) *  4.0  +  I-TA (K  2 J) *  5.0     
+                   +  I-TA (K  3 J) *  5.68 +  I-TA (K  4 J) *  6.0     
+                   +  I-TA (K  5 J) *  6.04 +  I-TA (K  6 J) *  6.39    
+                   +  I-TA (K  7 J) *  6.5  +  I-TA (K  8 J) *  6.75    
+                   +  I-TA (K  9 J) *  6.8  +  I-TA (K 10 J) *  7.0     
+                   +  I-TA (K 11 J) *  7.1  +  I-TA (K 12 J) *  7.46    
+                   +  I-TA (K 13 J) *  7.5  +  I-TA (K 14 J) *  7.6     
+                   +  I-TA (K 15 J) *  7.65 +  I-TA (K 16 J) *  7.81    
+                   +  I-TA (K 17 J) *  8.0  +  I-TA (K 18 J) *  8.08    
+                   +  I-TA (K 19 J) *  8.1  +  I-TA (K 20 J) *  8.17    
+                   +  I-TA (K 21 J) *  8.5  +  I-TA (K 22 J) *  8.52    
+                   +  I-TA (K 23 J) *  8.6  +  I-TA (K 24 J) *  8.88    
+                   +  I-TA (K 25 J) *  9.0  +  I-TA (K 26 J) *  9.1     
+                   +  I-TA (K 27 J) *  9.5  +  I-TA (K 28 J) *  9.6     
+                   +  I-TA (K 29 J) * 10.1)                             
+                   /  I-TA (K 38 J).                                    
+           MOVE   ZERO    TO    ZERO-B.                                 
+      *--------*                                                        
+       LIST-RTN.                                                        
+      *--------*                                                        
+           IF  J = 1            PERFORM         HEAD-RTN.               
+           PERFORM              LIST-IYUL-RTN.                          
+           MOVE   I-TA     (K J  1)     TO      L-VT    (1).            
+           MOVE   I-TA     (K J  2)     TO      L-WT    (1).            
+           MOVE   I-TA     (K J  3)     TO      L-JIGB  (1).            
+           MOVE   I-TA     (K J  4)     TO      L-GT    (1).            
+           MOVE   PER-CENT (K J  1)     TO      L-PER-1 (1).            
+           MOVE   PER-CENT (K J  2)     TO      L-PER-2 (1).            
+           MOVE   PER-CENT (K J  3)     TO      L-PER-3 (1).            
+           MOVE   PER-CENT (K J  4)     TO      L-PER-4 (1).            
+           MOVE   I-TB     (K J  1)     TO      L-VT    (3)             
+           MOVE   I-TB     (K J  2)     TO      L-WT    (3)             
+           MOVE   I-TB     (K J  3)     TO      L-JIGB  (3)             
+           MOVE   I-TB     (K J  4)     TO      L-GT    (3)             
+                                                                        
+           WRITE    REC-OUT    FROM   P-LIST1(1)  AFTER  1.             
+           WRITE    REC-OUT    FROM   P-LIST1(2)  AFTER  DUP.           
+           WRITE    REC-OUT    FROM   P-LIST1(3)  AFTER  1.             
+991006     IF  J = 30  OR  38                                           
+                     WRITE  REC-OUT   FROM   S2-LINE    AFTER  1        
+           ELSE      WRITE  REC-OUT   FROM   S3-LINE    AFTER  1.       
+           MOVE    SPACE       TO     REC-PRINT1.                       
+      *----------*                                                      
+       LIST-1-RTN.                                                      
+      *----------*                                                      
+           MOVE  '평균　이율'  TO   B-12.                             00
+           CALL  'HGBATCH'       USING  IOCD         ERCD               
+                                    B-12  HL12   L-7(1)  HL7.           
+           MOVE   YO-YUL (K 1)   TO   L-IYUL1 (1).                      
+           MOVE   YO-YUL (K 2)   TO   L-IYUL2 (1).                      
+           MOVE   YO-YUL (K 3)   TO   L-IYUL3 (1).                      
+           MOVE   YO-YUL (K 4)   TO   L-IYUL4 (1).                      
+           WRITE    REC-OUT    FROM   P-LIST2(1)  AFTER  1.             
+           WRITE    REC-OUT    FROM   P-LIST2(2)  AFTER  DUP.           
+           WRITE    REC-OUT    FROM   P-LIST2(3)  AFTER  1.             
+           WRITE    REC-OUT    FROM   S2-LINE     AFTER  1.             
+      *-------------*                                                   
+       LIST-IYUL-RTN.                                                   
+      *-------------*                                                   
+           IF   J  =   1     MOVE   ' 4.0  ' TO   L-IYUL(1)   ELSE      
+           IF   J  =   2     MOVE   ' 5.0  ' TO   L-IYUL(1)   ELSE      
+           IF   J  =   3     MOVE   ' 5.68 ' TO   L-IYUL(1)   ELSE      
+           IF   J  =   4     MOVE   ' 6.0  ' TO   L-IYUL(1)   ELSE      
+           IF   J  =   5     MOVE   ' 6.04 ' TO   L-IYUL(1)   ELSE      
+           IF   J  =   6     MOVE   ' 6.39 ' TO   L-IYUL(1)   ELSE      
+           IF   J  =   7     MOVE   ' 6.5  ' TO   L-IYUL(1)   ELSE      
+           IF   J  =   8     MOVE   ' 6.75 ' TO   L-IYUL(1)   ELSE      
+           IF   J  =   9     MOVE   ' 6.8  ' TO   L-IYUL(1)   ELSE      
+           IF   J  =  10     MOVE   ' 7.0  ' TO   L-IYUL(1)   ELSE      
+           IF   J  =  11     MOVE   ' 7.1  ' TO   L-IYUL(1)   ELSE      
+           IF   J  =  12     MOVE   ' 7.46 ' TO   L-IYUL(1)   ELSE      
+           IF   J  =  13     MOVE   ' 7.5  ' TO   L-IYUL(1)   ELSE      
+           IF   J  =  14     MOVE   ' 7.6  ' TO   L-IYUL(1)   ELSE      
+           IF   J  =  15     MOVE   ' 7.65 ' TO   L-IYUL(1)   ELSE      
+           IF   J  =  16     MOVE   ' 7.81 ' TO   L-IYUL(1)   ELSE      
+           IF   J  =  17     MOVE   ' 8.0  ' TO   L-IYUL(1)   ELSE      
+           IF   J  =  18     MOVE   ' 8.08 ' TO   L-IYUL(1)   ELSE      
+           IF   J  =  19     MOVE   ' 8.1  ' TO   L-IYUL(1)   ELSE      
+           IF   J  =  20     MOVE   ' 8.17 ' TO   L-IYUL(1)   ELSE      
+           IF   J  =  21     MOVE   ' 8.5  ' TO   L-IYUL(1)   ELSE      
+           IF   J  =  22     MOVE   ' 8.52 ' TO   L-IYUL(1)   ELSE      
+           IF   J  =  23     MOVE   ' 8.6  ' TO   L-IYUL(1)   ELSE      
+           IF   J  =  24     MOVE   ' 8.88 ' TO   L-IYUL(1)   ELSE      
+           IF   J  =  25     MOVE   ' 9.0  ' TO   L-IYUL(1)   ELSE      
+           IF   J  =  26     MOVE   ' 9.1  ' TO   L-IYUL(1)   ELSE      
+           IF   J  =  27     MOVE   ' 9.5  ' TO   L-IYUL(1)   ELSE      
+           IF   J  =  28     MOVE   ' 9.6  ' TO   L-IYUL(1)   ELSE      
+           IF   J  =  29     MOVE   '10.1  ' TO   L-IYUL(1)   ELSE      
+991006     IF   J  =  30     MOVE   '******' TO   L-IYUL(1)   ELSE      
+           IF   J  =  38                                                
+                     MOVE   '  계'    TO   B-6                      
+                     CALL   'HGBATCH' USING   IOCD        ERCD          
+                                           B-6 HL6   L-IYUL(1) HL5.     
+           MOVE    SPACE   TO      B-6.                                 

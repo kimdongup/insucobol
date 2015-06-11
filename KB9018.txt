@@ -1,0 +1,112 @@
+//KERB9018 JOB (KER),'KER00',CLASS=K,MSGCLASS=X,MSGLEVEL=(1,1)          
+//S1 EXEC YSRCCAT,MBR=K00B9018                                          
+//C.SYSUT1 DD *                                                         
+           02  K4-JOSA-YMD               PIC 9(8).                      
+           02  K4-JOSA-YMD-RE         REDEFINES   K4-JOSA-YMD.          
+               03  K4-JOSA-YM            PIC 9(6).                      
+               03  K4-JOSA-YM-RE      REDEFINES   K4-JOSA-YM.           
+                   04  K4-JOSA-YY        PIC 9(4).                      
+                   04  K4-JOSA-MM        PIC 9(2).                      
+               03  K4-JOSA-DD            PIC 9(2).                      
+           02  K4-JEUNGBEON              PIC 9(7).                      
+           02  K4-BSMG                   PIC 9(2).                      
+           02  K4-SSYD                   PIC 9(1).                      
+           02  K4-JT                     PIC 9(1).                      
+           02  K4-0-9                    PIC 9(2).                      
+           02  K4-GUBUN1-CODE            PIC 9(1).                      
+           02  K4-BOJONG                 PIC 9(4).                      
+           02  K4-BOJONG-T               PIC 9(4).                      
+           02  K4-NABGI                  PIC 9(2).                      
+           02  K4-MANGI                  PIC 9(2).                      
+           02  K4-NABBANG                PIC 9(1).                      
+           02  K4-LNAB-HOISU             PIC 9(3).                      
+           02  K4-GYENAI                 PIC 9(2).                      
+           02  K4-GYESEX                 PIC 9(1).                      
+           02  K4-PINAI                  PIC 9(2).                      
+           02  K4-PISEX                  PIC 9(1).                      
+           02  K4-BOGEUM                 PIC S9(7)       COMP-3.        
+           02  K4-BOLYO                  PIC S9(9)       COMP-3.        
+           02  K4-HABBOLYO               PIC S9(9)       COMP-3.        
+           02  K4-GYE-YMD                PIC 9(8).                      
+           02  K4-GYE-YMD-RE        REDEFINES   K4-GYE-YMD.             
+               03  K4-GYE-YM              PIC 9(6).                     
+               03  K4-GYE-YM-RE   REDEFINES   K4-GYE-YM.                
+                   04  K4-GYE-YY          PIC 9(4).                     
+                   04  K4-GYE-MM          PIC 9(2).                     
+               03  K4-GYE-DD              PIC 9(2).                     
+           02  K4-LNAB-YM                 PIC 9(6).                     
+           02  K4-LNAB-YM-RE         REDEFINES   K4-LNAB-YM.            
+               03  K4-LNAB-YY             PIC 9(4).                     
+               03  K4-LNAB-MM             PIC 9(2).                     
+           02  K4-DIV-YM                 PIC 9(4).                      
+           02  K4-DIV-YM-RE           REDEFINES    K4-DIV-YM.           
+               03  K4-DIV-YY             PIC 9(2).                      
+               03  K4-DIV-MM             PIC 9(2).                      
+           02  K4-GNGWA-YM               PIC 9(4).                      
+           02  K4-GNGWA-YM-RE         REDEFINES    K4-GNGWA-YM.         
+               03  K4-GNGWA-YY           PIC 9(2).                      
+               03  K4-GNGWA-MM           PIC 9(2).                      
+           02  K4-MIGNGWA-MM             PIC 9(2).                      
+           02  K4-SEON-HOISU             PIC 9(3).                      
+           02  K4-GY-GIGAN               PIC 9(2).                      
+           02  K4-JIGB-YMD               PIC 9(8).                      
+           02  K4-JIGB-YMD-RE        REDEFINES   K4-JIGB-YMD.           
+               03  K4-JIGB-YM            PIC 9(6).                      
+               03  K4-JIGB-YM-RE     REDEFINES   K4-JIGB-YM.            
+                   04  K4-JIGB-YY        PIC 9(4).                      
+                   04  K4-JIGB-MM        PIC 9(2).                      
+               03  K4-JIGB-DD            PIC 9(2).                      
+           02  K4-JIGBS                  PIC S9(9)    COMP-3.           
+           02  K4-VT-KEY.                                               
+               03  K4-VT-KEY1.                                          
+                  04  K4-VT-BOJONG       PIC 9(4).                      
+                  04  K4-VT-GUBUN        PIC 9(1).                      
+                  04  K4-VT-PINAI        PIC 9(2).                      
+                  04  K4-VT-NABGI        PIC 9(2).                      
+                  04  K4-VT-MANGI        PIC 9(2).                      
+                  04  K4-VT-NABBANG      PIC 9(1).                      
+                  04  K4-VT-GYEONGGWA    PIC 9(2).                      
+               03  K4-VT-SEX             PIC 9(1).                      
+           02  K4-IYUL                   PIC S9(5)       COMP-3.        
+           02  K4-ALPHA                  PIC S9(5)       COMP-3.        
+           02  K4-VT-TABLE.                                             
+               03  K4-VT-TAB          OCCURS     3.                     
+                   04  K4-VT             PIC S9(7)       COMP-3.        
+                   04  K4-VT1            PIC S9(7)       COMP-3.        
+               03  K4-VT-PB              PIC S9(7)       COMP-3.        
+               03  K4-MHSS               PIC S9(7)       COMP-3.        
+           02  K4-YNGM-AGE               PIC  9(2).                     
+           02  K4-SUGM-CODE              PIC  9(1).                     
+           02  K4-FILLER1                PIC  X(5).                     
+           02  K4-PURE.                                                 
+               03  K4-PURE-YY            PIC S9(9)       COMP-3.        
+               03  K4-PURE-MM            PIC S9(9)       COMP-3.        
+           02  K4-HAIYAG.                                               
+               03  K4-HAIYAG-YY          PIC S9(9)       COMP-3.        
+               03  K4-HAIYAG-MM          PIC S9(9)       COMP-3.        
+           02  K4-PB                     PIC S9(9)       COMP-3.        
+           02  K4-IJA                    PIC S9(9)       COMP-3.        
+           02  K4-SEONSU-IJA             PIC S9(7)       COMP-3.        
+           02  K4-MIJIGB-IJA             PIC S9(9)       COMP-3.        
+           02  K4-MI-SEON-GEUM           PIC S9(9)       COMP-3.        
+           02  K4-FILLER2                PIC X(5).                      
+           02  K4-BAIDANGGEUM.                                          
+               03  K4-HWAGBAI.                                          
+                   04  K4-HG-0          PIC 9(01).                      
+                   04  K4-HG-BAE      OCCURS  3  PIC S9(9) COMP-3.      
+               03  K4-SACHABAI.                                         
+                   04  K4-SH-0          PIC 9(01).                      
+                   04  K4-SH-BAE      OCCURS  3  PIC S9(9) COMP-3.      
+               03  K4-ICHABAI.                                          
+                   04  K4-IH-0          PIC 9(01).                      
+                   04  K4-IH-BAE      OCCURS  3  PIC S9(9) COMP-3.      
+               03  K4-JANGBAI.                                          
+                   04  K4-JG-0          PIC 9(01).                      
+                   04  K4-JG-BAE      OCCURS  3  PIC S9(9) COMP-3.      
+           02  K4-GITA.                                                 
+               03  K4-SUGMGIGWAN         PIC X(8).                      
+               03  K4-SUGM-RE         REDEFINES   K4-SUGMGIGWAN.        
+                   04  K4-GUG2           PIC 9(2).                      
+                   04  K4-JEOMPO21       PIC 9(4).                      
+                   04  K4-JEOMPO22       PIC X(2).                      
+               03  K4-JUN-CODE           PIC 9(1).                      

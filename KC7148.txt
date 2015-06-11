@@ -1,0 +1,528 @@
+//KERC4848 JOB (KER),'KER00',CLASS=K,MSGCLASS=X,MSGLEVEL=(1,1)          
+//STEP1 EXEC YCOBBAT,MBR=K11C4848                                       
+//COB.SYSIN DD *                                                        
+PROCESS TEST(NONE,SYM)
+      *=================================*                               
+       IDENTIFICATION          DIVISION.                                
+       PROGRAM-ID.             K11C4848.                                
+       ENVIRONMENT             DIVISION.                                
+       CONFIGURATION           SECTION.                                 
+       SPECIAL-NAMES.          C01  IS   PGSK
+                               CSP  IS   DUP.
+       INPUT-OUTPUT            SECTION.                                 
+      *-------------------------------*                                 
+       FILE-CONTROL.                                                    
+           SELECT   FILE-IN    ASSIGN  TO  FILEIN.                      
+           SELECT   FILE-OUT   ASSIGN  TO  FILEOUT.                     
+      *=================================*                               
+       DATA                    DIVISION.                                
+      *=================================*                               
+       FILE                    SECTION.                                 
+      *-------------------------------*                                 
+       FD  FILE-IN     RECORDING   MODE        IS  F                    
+                       LABEL       RECORD          STANDARD             
+                       BLOCK       CONTAINS    50  RECORDS              
+                       RECORD      CONTAINS   283  CHARACTERS.          
+       01  REC-IN.     COPY  KB9018.                                    
+
+       FD  FILE-OUT    RECORDING   MODE        IS  F                    
+                       LABEL       RECORD          OMITTED.             
+       01  REC-OUT     PIC X(132).                                      
+      *================================*                                
+       WORKING-STORAGE         SECTION.                                 
+      *================================*                                
+       01  REC-BOJONG.                                                  
+                       COPY   KBBOJ88  SUPPRESS.                        
+       01  BOJ-TABLE.
+           03  BOJ-TAB              OCCURS  210.
+               04  BOJ-T            OCCURS  10.
+                   05  BO-V         PIC S9(15).
+       01  REC-WORK.                                                    
+           02  WK-SEON-P           PIC S9(09).                          
+           02  WK-BAE              PIC S9(09).                          
+           02  I                   PIC  9(3).                           
+           02  CNT-IN              PIC  9(7).                           
+           02  CNT-ACCEPT          PIC  9(7).                           
+           02  CNT-OUT             PIC  9(7).                           
+       01  REC-BOJ-SOURCE.
+               COPY    K11BNAM2    SUPPRESS.
+       01  REC-LIST.
+           03  L-GUBUN1               PIC Z(3).
+           03  FILLER                 PIC X(1) VALUE ';'.
+           03  L-ICHA-VT              PIC ------------9.
+           03  FILLER                 PIC X(1)  VALUE ';'.
+           03  L-PB                   PIC ---------9.
+           03  FILLER                 PIC X(1) VALUE ';'.
+           03  L-HAJI-VT              PIC ------------9.
+           03  FILLER                 PIC X(1) VALUE ';'.
+           03  L-SAMANG-VT            PIC ----------9.
+           03  FILLER                 PIC X(1) VALUE ';'.
+           03  L-TOIJIG-VT            PIC ----------9.
+           03  FILLER                 PIC X(1) VALUE ';'.
+           03  L-GUBUN2               PIC Z(3).
+           03  FILLER                 PIC X(1)  VALUE ';'.
+           03  L-JAPIK-VT             PIC ----------9.
+           03  FILLER                 PIC X(1)  VALUE ';'.
+           03  L-JAPSON               PIC ----------9.
+           03  FILLER                 PIC X(1)  VALUE ';'.
+           03  L-SMANG-BIGM           PIC ----------9.
+           03  FILLER                 PIC X(1)  VALUE ';'.
+           03  L-SEON-BOLYO           PIC ---------9.
+           03  FILLER                 PIC X(1)  VALUE ';'.
+           03  L-NEW-SACHA            PIC ---------9.
+           03  FILLER                 PIC X(3)  VALUE ';  '.
+      *    03  L-BOJONG               PIC X(20).
+      *    03  FILLER                 PIC X(1)  VALUE ';'.
+       01  REC-ACCEPT.                                                  
+          02  FILLER            PIC X(1).                               
+          02  ACC-BOJONG        PIC 9(3).                               
+          02  FILLER            PIC X(1).                               
+          02  ACC-GUBUN         PIC 9(2).                               
+          02  FILLER            PIC X(1).                               
+          02  ACC-VT            PIC S9(15).                             
+       01  SW-REC.                                                      
+           02  FILE-EOF-SWITCH      PIC X(3)    VALUE  'NO '.           
+               88  FILE-EOF                   VALUE  'YES'.             
+           02  ACC-EOF-SWITCH       PIC X(3)    VALUE  'NO '.           
+               88  ACC-EOF                    VALUE  'YES'.             
+      *=================================*                               
+       PROCEDURE               DIVISION.                                
+      *=================================*                               
+      *---------*                                                       
+       000-BODY.                                                        
+      *---------*                                                       
+           OPEN        INPUT  FILE-IN   OUTPUT     FILE-OUT.            
+           MOVE        ZERO        TO   REC-WORK   BOJ-TABLE.           
+           PERFORM     110-READ-SELECT.                                 
+           PERFORM     100-DATA-CONTROL   UNTIL  FILE-EOF.              
+           PERFORM     210-ACC-SELECT.                                  
+           PERFORM     200-ACC-DATA-CONTROL  UNTIL  ACC-EOF.            
+           PERFORM     130-WRITE  THRU   139-EXIT  VARYING  I           
+                           FROM   1      BY  1     UNTIL    I  > 210.   
+           DISPLAY     '************************** '.                   
+           DISPLAY     '  FILE-INPUT => ' CNT-IN.                       
+           DISPLAY     '  ACC-INPUT  => ' CNT-ACCEPT.                   
+           DISPLAY     '  FILE-OUT   => ' CNT-OUT.                      
+           DISPLAY     '************************** '.                   
+           CLOSE       FILE-IN      FILE-OUT.                           
+           STOP        RUN.                                             
+      *-----------------*                                               
+       100-DATA-CONTROL.                                                
+      *-----------------*                                               
+           PERFORM             120-DATA-ACCUMULATION.                   
+           PERFORM             110-READ-SELECT.                         
+      *---------------------*                                           
+       200-ACC-DATA-CONTROL.                                            
+      *---------------------*                                           
+           PERFORM             220-DATA-ADD.                            
+           PERFORM             210-ACC-SELECT.                          
+      *----------------*                                                
+       110-READ-SELECT.                                                 
+      *----------------*                                                
+           READ  FILE-IN    END   MOVE 'YES'  TO  FILE-EOF-SWITCH.      
+           IF  NOT  FILE-EOF                                            
+                    ADD    1              TO   CNT-IN                   
+                    MOVE   K4-BOJONG      TO   WK-BOJONG                
+                    MOVE   K4-BOJONG-T    TO   WK-BOJONG-T.             
+      *----------------------*                                          
+       120-DATA-ACCUMULATION.                                           
+      *----------------------*                                          
+           IF  NOT  FILE-EOF         PERFORM    121-BOJONG-CONVERSION
+           ELSE                      MOVE        ACC-BOJONG   TO  I.
+           IF K4-SEON-HWOISU > ZERO                                     
+                     COMPUTE  WK-SEON-P   =  K4-BOLYO * K4-SEON-HWOISU  
+      *                                   -  K4-SEONSU-IJA              
+           ELSE     MOVE    ZERO    TO  WK-SEON-P.                      
+           ADD  K4-HAIYAG-YY  K4-IJA  K4-MI-SEON-GEUM K4-MIJIGB-IJA     
+                                                 TO  K4-HAIYAG-MM.      
+
+           IF  K4-BSMG = 4                                              
+               IF  K4-0-9 = 10   MOVE   2   TO  K4-BSMG     ELSE        
+               IF  K4-0-9 >  6   MOVE   4   TO  K4-BSMG     ELSE        
+               IF  K4-0-9 >  5   MOVE   9   TO  K4-BSMG     ELSE        
+               IF  K4-0-9 >  2   MOVE   2   TO  K4-BSMG     ELSE        
+               IF  K4-0-9 >  1   MOVE   4   TO  K4-BSMG     ELSE        
+               IF  K4-0-9 = 1    MOVE   10  TO  K4-BSMG.                
+
+      *    ADD   WK-SEON-P     TO  K4-HAIYAG-MM.                        
+           IF   K4-HG-0  > ZERO                                         
+                 MOVE  ZERO  TO  K4-HG-BAE(1) K4-HG-BAE(2) K4-HG-BAE(3).
+           IF   K4-SH-0  > ZERO                                         
+                 MOVE  ZERO  TO  K4-SH-BAE(1) K4-SH-BAE(2) K4-SH-BAE(3).
+           IF   K4-IH-0  > ZERO                                         
+                 MOVE  ZERO  TO  K4-IH-BAE(1) K4-IH-BAE(2) K4-IH-BAE(3).
+           IF   K4-JG-0  > ZERO                                         
+                 MOVE  ZERO  TO  K4-JG-BAE(1) K4-JG-BAE(2) K4-JG-BAE(3).
+
+      *    IF  K4-SSYD < 4                                              
+      *               ADD   K4-HG-BAE(2)    TO  K4-HG-BAE(3)            
+      *               ADD   K4-SH-BAE(2)    TO  K4-SH-BAE(3)            
+      *               ADD   K4-IH-BAE(2)    TO  K4-IH-BAE(3)            
+      *               ADD   K4-JG-BAE(2)    TO  K4-JG-BAE(3)            
+      *    ELSE       ADD   K4-HG-BAE(1)    TO  K4-HG-BAE(3)            
+      *               ADD   K4-SH-BAE(1)    TO  K4-SH-BAE(3)            
+      *               ADD   K4-IH-BAE(1)    TO  K4-IH-BAE(3)            
+      *               ADD   K4-JG-BAE(1)    TO  K4-JG-BAE(3).           
+           ADD   K4-HG-BAE(1)  K4-HG-BAE(2)  K4-HG-BAE(3)  K4-SH-BAE(1) 
+                 K4-SH-BAE(2)  K4-SH-BAE(3)  K4-IH-BAE(1)  K4-IH-BAE(2) 
+                 K4-IH-BAE(3)  K4-JG-BAE(1)  K4-JG-BAE(2)  K4-JG-BAE(3) 
+                                             GIVING        WK-BAE.      
+                                                                        
+           IF   NOT (K4-BSMG = 2  OR 4  OR 9 OR  10)                    
+                      ADD   WK-BAE      TO  K4-HAIYAG-MM.               
+           IF   K4-BSMG = 1  OR 3 OR 7 OR  8       NEXT   SENTENCE      
+           ELSE     ADD    WK-SEON-P  K4-PB   TO  K4-HAIYAG-MM.         
+
+           IF   K4-BSMG = 1  OR 3 OR 7 OR  8                            
+                   ADD  K4-HAIYAG-MM   TO  BO-V(I  1) BO-V(210 1)       
+                   ADD  WK-SEON-P      TO  BO-V(I  9) BO-V(210  9)      
+                   ADD  K4-PB          TO  BO-V(I 10) BO-V(210 10)  ELSE
+           IF   K4-BSMG = 2 OR 10                                       
+                   ADD  K4-HAIYAG-MM   TO  BO-V(I  2)  BO-V(210 2)      
+                   ADD  WK-BAE         TO  BO-V(I  1)  BO-V(210 1)      
+                IF  K4-0-9 = 10                                         
+                        ADD  K4-HAIYAG-MM   TO  BO-V(I  6)  BO-V(210 6) 
+                        ADD  WK-BAE         TO  BO-V(I  6)  BO-V(210 6) 
+                ELSE      NEXT    SENTENCE                          ELSE
+           IF   K4-BSMG = 4                                             
+                   ADD  K4-HAIYAG-MM   TO  BO-V(I  3) BO-V(210 3)       
+      *            ADD  WK-SEON-P      TO  BO-V(I  2) BO-V(210 2)       
+                   ADD  WK-BAE         TO  BO-V(I  1) BO-V(210 1)   ELSE
+           IF   K4-BSMG = 9                                             
+                   ADD  K4-HAIYAG-MM   TO  BO-V(I  4)  BO-V(210 4)      
+                   ADD  WK-BAE         TO  BO-V(I  1)  BO-V(210 1)  ELSE
+           IF   K4-BSMG = 5 OR 6                                        
+                   ADD  K4-HAIYAG-MM   TO  BO-V(I  5)  BO-V(210 5)  ELSE
+           IF   K4-BSMG = 11                                            
+                   ADD  K4-HAIYAG-MM   TO  BO-V(I  7)  BO-V(210 7)      
+           ELSE    DISPLAY  ' BSMG CODE ERR => ' K4-BSMG.               
+           IF K4-SSYD < 4                                               
+                       ADD  K4-SH-BAE(2)   TO  BO-V(I  8)  BO-V(210 8)  
+           ELSE        ADD  K4-SH-BAE(1)   TO  BO-V(I  8)  BO-V(210 8). 
+      *    ADD    K4-HG-BAE(1)      TO    BO-V(I  9)  BO-V(210 9).      
+      *    ADD    K4-JG-BAE(1)      TO    BO-V(I  9)  BO-V(210 9).      
+      *    ADD    K4-IH-BAE(1)      TO    BO-V(I  9)  BO-V(210 9).      
+           IF   K4-SSYD < 4                                             
+              IF   K4-SH-BAE(1) > ZERO  DISPLAY ' POL = ' K4-JEUNGBEON  
+                    ' ' K4-JT  ' ' K4-BOJONG ' HAE-1 = ' K4-SH-BAE(1)   
+                    ' BAE-2 = ' K4-SH-BAE(2)  ' HAE-3 = ' K4-SH-BAE(3). 
+           IF   K4-SSYD = 4                                             
+              IF   K4-SH-BAE(2) > ZERO  DISPLAY ' POL = ' K4-JEUNGBEON  
+                    ' ' K4-JT  ' ' K4-BOJONG ' HAE-1 = ' K4-SH-BAE(1)   
+                    ' BAE-2 = ' K4-SH-BAE(2)  ' HAE-3 = ' K4-SH-BAE(3). 
+      *----------*                                                      
+       130-WRITE.                                                       
+      *----------*                                                      
+           IF  I = 9  OR  49 OR  59 OR  68 OR  69 OR  89 OR 128 OR 129
+                      OR 169 OR 177 OR 178 OR 179 OR 199 OR 208 OR 209
+                      OR 210   NEXT  SENTENCE
+           ELSE  IF  I < 9
+                ADD   BO-V(I 1)   TO  BO-V(9  1)  BO-V(49  1)
+                                      BO-V(69 1)  BO-V(179 1)
+                ADD   BO-V(I 2)   TO  BO-V(9  2)  BO-V(49  2)
+                                      BO-V(69 2)  BO-V(179 2)
+                ADD   BO-V(I 3)   TO  BO-V(9  3)  BO-V(49  3)
+                                      BO-V(69 3)  BO-V(179 3)
+                ADD   BO-V(I 4)   TO  BO-V(9  4)  BO-V(49  4)
+                                      BO-V(69 4)  BO-V(179 4)
+                ADD   BO-V(I 5)   TO  BO-V(9  5)  BO-V(49  5)
+                                      BO-V(69 5)  BO-V(179 5)
+                ADD   BO-V(I 6)   TO  BO-V(9  6)  BO-V(49  6)
+                                      BO-V(69 6)  BO-V(179 6)
+                ADD   BO-V(I 7)   TO  BO-V(9  7)  BO-V(49  7)
+                                      BO-V(69 7)  BO-V(179 7)
+                ADD   BO-V(I 8)   TO  BO-V(9  8)  BO-V(49  8)
+                                      BO-V(69 8)  BO-V(179 8)
+                ADD   BO-V(I 9)   TO  BO-V(9  9)  BO-V(49  9)
+                                      BO-V(69 9)  BO-V(179 9)
+                ADD   BO-V(I 10)  TO  BO-V(9  10) BO-V(49  10)
+                                      BO-V(69 10) BO-V(179 10)
+             ELSE IF  I < 49
+                ADD   BO-V(I 1)  TO  BO-V(49 1) BO-V(69 1) BO-V(179 1)
+                ADD   BO-V(I 2)  TO  BO-V(49 2) BO-V(69 2) BO-V(179 2)
+                ADD   BO-V(I 3)  TO  BO-V(49 3) BO-V(69 3) BO-V(179 3)
+                ADD   BO-V(I 4)  TO  BO-V(49 4) BO-V(69 4) BO-V(179 4)
+                ADD   BO-V(I 5)  TO  BO-V(49 5) BO-V(69 5) BO-V(179 5)
+                ADD   BO-V(I 6)  TO  BO-V(49 6) BO-V(69 6) BO-V(179 6)
+                ADD   BO-V(I 7)  TO  BO-V(49 7) BO-V(69 7) BO-V(179 7)
+                ADD   BO-V(I 8)  TO  BO-V(49 8) BO-V(69 8) BO-V(179 8)
+                ADD   BO-V(I 9)  TO  BO-V(49 9) BO-V(69 9) BO-V(179 9)
+                ADD   BO-V(I 10) TO BO-V(49 10) BO-V(69 10) BO-V(179 10)
+             ELSE IF  I < 59
+                ADD   BO-V(I 1)  TO BO-V(59 1)  BO-V(69 1)  BO-V(179 1)
+                ADD   BO-V(I 2)  TO BO-V(59 2)  BO-V(69 2)  BO-V(179 2)
+                ADD   BO-V(I 3)  TO BO-V(59 3)  BO-V(69 3)  BO-V(179 3)
+                ADD   BO-V(I 4)  TO BO-V(59 4)  BO-V(69 4)  BO-V(179 4)
+                ADD   BO-V(I 5)  TO BO-V(59 5)  BO-V(69 5)  BO-V(179 5)
+                ADD   BO-V(I 6)  TO BO-V(59 6)  BO-V(69 6)  BO-V(179 6)
+                ADD   BO-V(I 7)  TO BO-V(59 7)  BO-V(69 7)  BO-V(179 7)
+                ADD   BO-V(I 8)  TO BO-V(59 8)  BO-V(69 8)  BO-V(179 8)
+                ADD   BO-V(I 9)  TO BO-V(59 9)  BO-V(69 9)  BO-V(179 9)
+                ADD   BO-V(I 10) TO BO-V(59 10) BO-V(69 10) BO-V(179 10)
+             ELSE IF  I < 68
+                ADD   BO-V(I 1)  TO  BO-V(68 1) BO-V(69 1) BO-V(179 1)
+                ADD   BO-V(I 2)  TO  BO-V(68 2) BO-V(69 2) BO-V(179 2)
+                ADD   BO-V(I 3)  TO  BO-V(68 3) BO-V(69 3) BO-V(179 3)
+                ADD   BO-V(I 4)  TO BO-V(68 4)  BO-V(69 4)  BO-V(179 4)
+                ADD   BO-V(I 5)  TO BO-V(68 5)  BO-V(69 5)  BO-V(179 5)
+                ADD   BO-V(I 6)  TO BO-V(68 6)  BO-V(69 6)  BO-V(179 6)
+                ADD   BO-V(I 7)  TO BO-V(68 7)  BO-V(69 7)  BO-V(179 7)
+                ADD   BO-V(I 8)  TO BO-V(68 8)  BO-V(69 8)  BO-V(179 8)
+                ADD   BO-V(I 9)  TO BO-V(68 9)  BO-V(69 9)  BO-V(179 9)
+                ADD   BO-V(I 10) TO BO-V(68 10) BO-V(69 10) BO-V(179 10)
+             ELSE IF  I < 89
+                ADD  BO-V(I 1)  TO  BO-V(89 1) BO-V(129 1) BO-V(179 1)
+                ADD  BO-V(I 2)  TO  BO-V(89 2) BO-V(129 2) BO-V(179 2)
+                ADD  BO-V(I 3)  TO  BO-V(89 3) BO-V(129 3) BO-V(179 3)
+                ADD  BO-V(I 4)  TO  BO-V(89 4) BO-V(129 4) BO-V(179 4)
+                ADD  BO-V(I 5)  TO  BO-V(89 5) BO-V(129 5) BO-V(179 5)
+                ADD  BO-V(I 6)  TO  BO-V(89 6) BO-V(129 6) BO-V(179 6)
+                ADD  BO-V(I 7)  TO  BO-V(89 7) BO-V(129 7) BO-V(179 7)
+                ADD  BO-V(I 8)  TO  BO-V(89 8) BO-V(129 8) BO-V(179 8)
+                ADD  BO-V(I 9)  TO  BO-V(89 9) BO-V(129 9) BO-V(179 9)
+                ADD  BO-V(I 10) TO BO-V(89 10) BO-V(129 10) BO-V(179 10)
+             ELSE IF  I < 128
+                ADD   BO-V(I 1)  TO  BO-V(128 1) BO-V(129 1) BO-V(179 1)
+                ADD   BO-V(I 2)  TO  BO-V(128 2) BO-V(129 2) BO-V(179 2)
+                ADD   BO-V(I 3)  TO  BO-V(128 3) BO-V(129 3) BO-V(179 3)
+                ADD   BO-V(I 4)  TO  BO-V(128 4) BO-V(129 4) BO-V(179 4)
+                ADD   BO-V(I 5)  TO  BO-V(128 5) BO-V(129 5) BO-V(179 5)
+                ADD   BO-V(I 6)  TO  BO-V(128 6) BO-V(129 6) BO-V(179 6)
+                ADD   BO-V(I 7)  TO  BO-V(128 7) BO-V(129 7) BO-V(179 7)
+                ADD   BO-V(I 8)  TO  BO-V(128 8) BO-V(129 8) BO-V(179 8)
+                ADD   BO-V(I 9)  TO  BO-V(128 9) BO-V(129 9) BO-V(179 9)
+               ADD  BO-V(I 10) TO BO-V(128 10) BO-V(129 10) BO-V(179 10)
+             ELSE  IF I < 169
+                ADD   BO-V(I 1)  TO  BO-V(169 1) BO-V(178 1) BO-V(179 1)
+                ADD   BO-V(I 2)  TO  BO-V(169 2) BO-V(178 2) BO-V(179 2)
+                ADD   BO-V(I 3)  TO  BO-V(169 3) BO-V(178 3) BO-V(179 3)
+                ADD   BO-V(I 4)  TO  BO-V(169 4) BO-V(178 4) BO-V(179 4)
+                ADD   BO-V(I 5)  TO  BO-V(169 5) BO-V(178 5) BO-V(179 5)
+                ADD   BO-V(I 6)  TO  BO-V(169 6) BO-V(178 6) BO-V(179 6)
+                ADD   BO-V(I 7)  TO  BO-V(169 7) BO-V(178 7) BO-V(179 7)
+                ADD   BO-V(I 8)  TO  BO-V(169 8) BO-V(178 8) BO-V(179 8)
+                ADD   BO-V(I 9)  TO  BO-V(169 9) BO-V(178 9) BO-V(179 9)
+               ADD  BO-V(I 10) TO BO-V(169 10) BO-V(178 10) BO-V(179 10)
+             ELSE IF  I < 177
+                ADD   BO-V(I 1)  TO  BO-V(177 1) BO-V(178 1) BO-V(179 1)
+                ADD   BO-V(I 2)  TO  BO-V(177 2) BO-V(178 2) BO-V(179 2)
+                ADD   BO-V(I 3)  TO  BO-V(177 3) BO-V(178 3) BO-V(179 3)
+                ADD   BO-V(I 4)  TO  BO-V(177 4) BO-V(178 4) BO-V(179 4)
+                ADD   BO-V(I 5)  TO  BO-V(177 5) BO-V(178 5) BO-V(179 5)
+                ADD   BO-V(I 6)  TO  BO-V(177 6) BO-V(178 6) BO-V(179 6)
+                ADD   BO-V(I 7)  TO  BO-V(177 7) BO-V(178 7) BO-V(179 7)
+                ADD   BO-V(I 8)  TO  BO-V(177 8) BO-V(178 8) BO-V(179 8)
+                ADD   BO-V(I 9)  TO  BO-V(177 9) BO-V(178 9) BO-V(179 9)
+               ADD  BO-V(I 10) TO BO-V(177 10) BO-V(178 10) BO-V(179 10)
+             ELSE IF  I < 199
+                ADD   BO-V(I 1)  TO  BO-V(199 1)  BO-V(209 1)
+                ADD   BO-V(I 2)  TO  BO-V(199 2)  BO-V(209 2)
+                ADD   BO-V(I 3)  TO  BO-V(199 3)  BO-V(209 3)
+                ADD   BO-V(I 4)  TO  BO-V(199 4)  BO-V(209 4)
+                ADD   BO-V(I 5)  TO  BO-V(199 5)  BO-V(209 5)
+                ADD   BO-V(I 6)  TO  BO-V(199 6)  BO-V(209 6)
+                ADD   BO-V(I 7)  TO  BO-V(199 7)  BO-V(209 7)
+                ADD   BO-V(I 8)  TO  BO-V(199 8)  BO-V(209 8)
+                ADD   BO-V(I 9)  TO  BO-V(199 9)  BO-V(209 9)
+                ADD   BO-V(I 10) TO  BO-V(199 10) BO-V(209 10)
+             ELSE IF  I < 208
+                ADD   BO-V(I 1)  TO  BO-V(208 1)  BO-V(209 1)
+                ADD   BO-V(I 2)  TO  BO-V(208 2)  BO-V(209 2)
+                ADD   BO-V(I 3)  TO  BO-V(208 3)  BO-V(209 3)
+                ADD   BO-V(I 4)  TO  BO-V(208 4)  BO-V(209 4)
+                ADD   BO-V(I 5)  TO  BO-V(208 5)  BO-V(209 5)
+                ADD   BO-V(I 6)  TO  BO-V(208 6)  BO-V(209 6)
+                ADD   BO-V(I 7)  TO  BO-V(208 7)  BO-V(209 7)
+                ADD   BO-V(I 8)  TO  BO-V(208 8)  BO-V(209 8)
+                ADD   BO-V(I 9)  TO  BO-V(208 9)  BO-V(209 9)
+                ADD   BO-V(I 10) TO  BO-V(208 10) BO-V(209 10).
+
+      *    IF  BO-V (I 1) > ZERO  OR BO-V (I 2) > ZERO  OR              
+      *        BO-V (I 3) > ZERO  OR BO-V (I 4) > ZERO  OR              
+      *        BO-V (I 5) > ZERO  OR BO-V (I 6) > ZERO  OR              
+      *        BO-V (I 7) > ZERO                                        
+      *             NEXT   SENTENCE                                     
+      *    ELSE     GO    TO  139-EXIT.                                 
+             COMPUTE   BO-V (I 1)   ROUNDED  =  BO-V(I 1) / 1000.       
+             COMPUTE   BO-V (I 2)   ROUNDED  =  BO-V(I 2) / 1000.       
+             COMPUTE   BO-V (I 3)   ROUNDED  =  BO-V(I 3) / 1000.       
+             COMPUTE   BO-V (I 4)   ROUNDED  =  BO-V(I 4) / 1000.       
+             COMPUTE   BO-V (I 5)   ROUNDED  =  BO-V(I 5) / 1000.       
+             COMPUTE   BO-V (I 6)   ROUNDED  =  BO-V(I 6) / 1000.       
+             COMPUTE   BO-V (I 7)   ROUNDED  =  BO-V(I 7) / 1000.       
+             COMPUTE   BO-V (I 8)   ROUNDED  =  BO-V(I 8) / 1000.       
+             COMPUTE   BO-V (I 9)   ROUNDED  =  BO-V(I 9) / 1000.       
+             COMPUTE   BO-V (I 10)  ROUNDED  =  BO-V(I 10) / 1000.      
+             MOVE      I              TO   L-GUBUN1    L-GUBUN2.        
+             MOVE      BO-V (I 1)     TO   L-ICHA-VT.                   
+             MOVE      BO-V (I 2)     TO   L-HAJI-VT.                   
+             MOVE      BO-V (I 3)     TO   L-SAMANG-VT.                 
+             MOVE      BO-V (I 4)     TO   L-TOIJIG-VT.                 
+             MOVE      BO-V (I 5)     TO   L-JAPIK-VT.                  
+             MOVE      BO-V (I 6)     TO   L-JAPSON.                    
+             MOVE      BO-V (I 7)     TO   L-SMANG-BIGM.                
+             MOVE      BO-V (I 8)     TO   L-NEW-SACHA.                 
+             MOVE      BO-V (I 9)     TO   L-SEON-BOLYO.                
+             MOVE      BO-V (I 10)    TO   L-PB.                        
+      *      MOVE      BO-SO(I)       TO   L-BOJONG.                    
+           WRITE   REC-OUT   FROM   REC-LIST.                           
+           ADD      1        TO     CNT-OUT.                            
+      *---------*                                                       
+       139-EXIT.   EXIT.                                                
+      *----------------------*                                          
+       121-BOJONG-CONVERSION.
+      *----------------------*                                          
+           MOVE   K4-BOJONG    TO    WK-BOJONG.
+           MOVE   ZERO         TO    I.
+           IF   K4-SSYD  =   1
+              IF   JANGHAK                MOVE   1   TO   I     ELSE
+              IF   NEW-GYOYUK             MOVE   2   TO   I     ELSE
+              IF   EXCELLENT              MOVE   3   TO   I     ELSE
+              IF   AGA-SALANG             MOVE   4   TO   I     ELSE
+
+              IF   NO-SEOL                MOVE  10   TO   I     ELSE
+              IF   NO-BOK                 MOVE  11   TO   I     ELSE
+              IF   NEW-LIFE               MOVE  12   TO   I     ELSE
+              IF   JANGSU-SEOLGYE         MOVE  13   TO   I     ELSE
+              IF   GAJOK-SALANG           MOVE  14   TO   I     ELSE
+              IF   SIN-GAJOK-B            MOVE  15   TO   I     ELSE
+              IF   ABBA-YEONGEUM-B        MOVE  16   TO   I     ELSE
+              IF   URI-SALANG-B           MOVE  17   TO   I     ELSE
+              IF   N-URI-SALANG           MOVE  18   TO   I     ELSE
+
+              IF   NO-JEOK                MOVE  31   TO   I     ELSE
+              IF   SIN-GAJOK-J            MOVE  32   TO   I     ELSE
+              IF   HAN-SALANG             MOVE  33   TO   I     ELSE
+              IF   JIG-UDAE               MOVE  34   TO   I     ELSE
+              IF   URI-SALANG-J           MOVE  35   TO   I     ELSE
+              IF   ABBA-YEONGEUM-J        MOVE  36   TO   I     ELSE
+              IF   GEOCHI-NO-SEOL         MOVE  60   TO   I     ELSE
+              IF   GEOCHI-NO-BOK          MOVE  61   TO   I     ELSE
+
+                  DISPLAY 'BOJ-ERROR-1 = ' K4-JEUNGBEON
+                             ' BOJONG = '  K4-BOJONG
+                             ' INDEX I = ' I.
+
+      *--------( 개인연금전환  )               -------*
+           IF  K4-SSYD   =   1
+              IF   K4-JUN-CODE  > 5
+                 IF   NO-SEOL             MOVE  50   TO   I     ELSE
+                 IF   NO-BOK              MOVE  51   TO   I     ELSE
+                 IF   NEW-LIFE            MOVE  52   TO   I     ELSE
+                 IF   JANGSU-SEOLGYE      MOVE  53   TO   I     ELSE
+                 IF   GAJOK-SALANG        MOVE  54   TO   I.
+
+      *--------( 금리연동형 상품의 거치전환 (98.1월판매) -----*
+           IF  K4-SSYD   =   1
+             IF  GEOCHI
+                 IF   GEOCHI-NO-SEOL      MOVE  60   TO   I     ELSE
+                 IF   GEOCHI-NO-BOK       MOVE  61   TO   I     ELSE
+                  DISPLAY 'BOJ-ERROR-GEOCH-1 = ' K4-JEUNGBEON
+                             ' BOJONG = '  K4-BOJONG
+                             ' INDEX I = ' I.
+
+
+           IF  K4-SSYD   =   2
+              IF   21C-AM1                MOVE  70   TO   I     ELSE
+              IF   AMCHRYO-1J             MOVE  71   TO   I     ELSE
+              IF   MU-CHILD1              MOVE  72   TO   I     ELSE
+              IF   MU-ANSIM               MOVE  73   TO   I     ELSE
+              IF   MU-JONGSIN             MOVE  74   TO   I     ELSE
+              IF   MU-ANSIM-SALANG        MOVE  75   TO   I     ELSE
+
+              IF   MUJIGAI                MOVE  90   TO   I     ELSE
+              IF   21C-AM2                MOVE  91   TO   I     ELSE
+              IF   AMCHRYO-2J             MOVE  92   TO   I     ELSE
+              IF   BIG-MAEUM              MOVE  93   TO   I     ELSE
+              IF   WOMAN-2J               MOVE  94   TO   I     ELSE
+              IF   SP                     MOVE  95   TO   I     ELSE
+              IF   GEONGANG-LIFE          MOVE  96   TO   I     ELSE
+              IF   SIN-GEONGANG           MOVE  97   TO   I     ELSE
+              IF   ABBA-SALANG            MOVE  98   TO   I     ELSE
+              IF   MUBAEDANG-AM           MOVE  99   TO   I     ELSE
+              IF   ROAD-FRIEND            MOVE  100  TO   I     ELSE
+              IF   MIZ-AM                 MOVE  101  TO   I     ELSE
+              IF   MISTER-AM              MOVE  102  TO   I     ELSE
+              IF   MU-ALPHA               MOVE  103  TO   I     ELSE
+              IF   MU-CHILD2              MOVE  104  TO   I     ELSE
+              IF   MU-POWER-DRIVER        MOVE  105  TO   I     ELSE
+              IF   MU-SUPER-NUGUNA        MOVE  106  TO   I     ELSE
+              IF   MU-SINBARAM            MOVE  107  TO   I     ELSE
+              IF   MU-PACIFIC-NUGUNA      MOVE  108  TO   I     ELSE
+              IF   MU-MIZ-AM              MOVE  109  TO   I     ELSE
+              IF   MU-MISTER-AM           MOVE  110  TO   I     ELSE
+              IF   MU-NEW-MILLENIUM-GEONGANG
+                                          MOVE  111  TO   I     ELSE
+                  DISPLAY 'BOJ-ERROR-2 = ' K4-JEUNGBEON
+                            '   BOJONG = ' K4-BOJONG.
+
+           IF  K4-SSYD   =   3
+              IF   TEUG-JEOG              MOVE  130  TO   I     ELSE
+              IF   GABOK                  MOVE  131  TO   I     ELSE
+              IF   NON-TAX                MOVE  132  TO   I     ELSE
+              IF   NON-UDAEJEOCHUK        MOVE  133  TO   I     ELSE
+              IF   JAETECH                MOVE  134  TO   I     ELSE
+              IF   JAETECH-II             MOVE  135  TO   I     ELSE
+              IF   NEW-JAETECH            MOVE  136  TO   I     ELSE
+              IF   HANARO                 MOVE  137  TO   I     ELSE
+
+              IF   MU-URIJIB              MOVE  150  TO   I     ELSE
+              IF   MU-N-URIJIB            MOVE  151  TO   I     ELSE
+              IF   WON-BUBU               MOVE  152  TO   I     ELSE
+              IF   FREE-YUHAENG           MOVE  153  TO   I     ELSE
+              IF   WOMAN-1J               MOVE  154  TO   I     ELSE
+              IF   HAENG-SEOL             MOVE  155  TO   I     ELSE
+
+              IF   GEOCHI-GABOK           MOVE  170  TO   I     ELSE
+              IF   GEOCHI-NON-TAX         MOVE  171  TO   I     ELSE
+              IF  GEOCHI-NON-UDAEJEOCHUK  MOVE  172  TO   I     ELSE
+
+                  DISPLAY 'BOJ-ERROR-3 = ' K4-JEUNGBEON
+                            '   BOJONG = ' K4-BOJONG.
+
+           IF  K4-SSYD   =   4
+              IF   DAN-JEONGGI            MOVE  180  TO   I     ELSE
+              IF   N-DAN-JEONGGI          MOVE  181  TO   I     ELSE
+              IF   DAN-SINYONG            MOVE  182  TO   I     ELSE
+              IF   JIG-BOJANG             MOVE  183  TO   I     ELSE
+              IF   21C-BOJANG             MOVE  184  TO   I     ELSE
+              IF   MIRAERO-BOJANG         MOVE  185  TO   I     ELSE
+              IF   DAEHYUNG-BOJANG        MOVE  186  TO   I     ELSE
+              IF   N-DAEHYUNG-BOJANG      MOVE  187  TO   I     ELSE
+              IF   MU-DAN-SANGHAE         MOVE  188  TO   I     ELSE
+
+              IF   JONGTOI                MOVE  200  TO   I     ELSE
+              IF   DAN-YANGRO             MOVE  201  TO   I     ELSE
+              IF   JIG-JEOCHUK            MOVE  202  TO   I     ELSE
+              IF   JIG-UDAESEOLGYE        MOVE  203  TO   I     ELSE
+
+                  DISPLAY 'BOJ-ERROR-4 = ' K4-JEUNGBEON
+                            '   BOJONG = ' K4-BOJONG.
+      *---------------*                                                 
+       210-ACC-SELECT.                                                  
+      *---------------*                                                 
+           ACCEPT    REC-ACCEPT.                                        
+           IF  ACC-BOJONG = 999  OR  ACC-GUBUN = 99                     
+                                  MOVE 'YES'  TO  ACC-EOF-SWITCH.       
+           IF   NOT  ACC-EOF                                            
+                 ADD   1   TO CNT-ACCEPT.                               
+      *-------------*                                                   
+       220-DATA-ADD.                                                    
+      *-------------*                                                   
+           MOVE  ZERO   TO   K4-HAIYAG-YY  K4-PB  K4-IJA  K4-HAIYAG-MM  
+                             K4-MI-SEON-GEUM              K4-MIJIGB-IJA 
+                             K4-BOLYO   K4-SEON-HWOISU    K4-SEONSU-IJA 
+                             K4-HG-0    K4-SH-0  K4-IH-0  K4-JG-0       
+                             K4-HG-BAE(1)  K4-HG-BAE(2)   K4-HG-BAE(3)  
+                             K4-SH-BAE(1)  K4-SH-BAE(2)   K4-SH-BAE(3)  
+                             K4-IH-BAE(1)  K4-IH-BAE(2)   K4-IH-BAE(3)  
+                             K4-JG-BAE(1)  K4-JG-BAE(2)   K4-JG-BAE(3). 
+           IF  ACC-GUBUN = 4   MOVE  11       TO  K4-BSMG               
+           ELSE                MOVE  1        TO  K4-BSMG.              
+
+           IF  ACC-GUBUN = 2   MOVE  ACC-VT   TO  K4-HAIYAG-MM   ELSE   
+           IF  ACC-GUBUN = 3   MOVE  ACC-VT   TO  K4-PB          ELSE   
+           IF  ACC-GUBUN = 4   MOVE  ACC-VT   TO  K4-HAIYAG-MM   ELSE   
+           IF  ACC-GUBUN = 10  MOVE  ACC-VT   TO  K4-IH-BAE(3)   ELSE   
+                DISPLAY  ' ACC-GUBUN-ERR = ' ACC-GUBUN.                 
+           PERFORM   120-DATA-ACCUMULATION.                             

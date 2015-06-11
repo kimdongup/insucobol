@@ -1,0 +1,19 @@
+//KERJ7106 JOB (KER),'KER00',CLASS=K,MSGCLASS=X,MSGLEVEL=(1,1)          
+//*       TYPRUN=HOLD,TIME=1440,REGION=4M                               
+//*--------------------------------------------------*                  
+//*  GAEIN  ILBAN + ILSU  MERGE                      *                  
+//*--------------------------------------------------*                  
+//STEP1    EXEC  PGM=KC7106                                             
+//STEPLIB  DD  DSN=PLI.Y2KBATCH.LOADLIB,DISP=SHR                        
+//SYSOUT   DD  SYSOUT=*                                                 
+//SYSPRINT DD  SYSOUT=X                                                 
+//FILEIN1  DD  DSN=KER.G0002.K5,UNIT=SYSDA,VOL=SER=U1WRK3,              
+//         DISP=(OLD,PASS),SPACE=(TRK,(10000,1000),RLSE),               
+//         DCB=(RECFM=FB,LRECL=283,BLKSIZE=14150)                       
+//FILEIN2  DD  DSN=KER.G0002.K1-3.OUT,UNIT=SYSDA,VOL=SER=U1HD09,        
+//         DISP=(OLD,PASS),SPACE=(TRK,(200,50),RLSE),                   
+//         DCB=(RECFM=FB,LRECL=124,BLKSIZE=12400)                       
+//FILEOUT  DD  DSN=KER.G0002.K6,UNIT=SYSDA,VOL=SER=U1WRK3,              
+//         DISP=(NEW,KEEP),SPACE=(TRK,(10000,1000),RLSE),               
+//         DCB=(RECFM=FB,LRECL=283,BLKSIZE=14150)                       
+/*                                                                      

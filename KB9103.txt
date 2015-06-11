@@ -1,0 +1,63 @@
+//KERB9103 JOB (KER),'KER00',CLASS=K,MSGCLASS=X,MSGLEVEL=(1,1)          
+//S1 EXEC YSRCCAT,MBR=K11B9103                                          
+//C.SYSUT1 DD *                                                         
+  6         03  KS-JOSA-YM               PIC 9(6).                      
+            03  KS-JOSA-YM-RE         REDEFINES    KS-JOSA-YM.          
+              04  KS-JOSA-YY              PIC 9(4).                     
+              04  KS-JOSA-MM              PIC 9(2).                     
+ 13         03  KS-JEUNGBEON              PIC 9(7).                     
+ 14         03  KS-SSY                    PIC 9(1).                     
+ 15         03  KS-JJK                    PIC 9(1).                     
+ 16         03  KS-SS-CODE                PIC 9(1).                     
+ 17         03  KS-YUN-CODE               PIC 9(1).                     
+ 20         03  KS-YUN-AGE                PIC 9(3).                     
+ 22         03  KS-IDONG.                                               
+              04  KS-IDONG-A              PIC X(1).                     
+              04  KS-IDONG-B              PIC 9(1).                     
+ 30         03  KS-GYEYAG-YMD             PIC 9(8).                     
+            03  KS-GYEYAG-YMD-RE       REDEFINES   KS-GYEYAG-YMD.       
+              04  KS-GYEYAG-YM            PIC 9(6).                     
+              04  KS-GYEYAG-YM-RE        REDEFINES   KS-GYEYAG-YM.      
+                 05  KS-GYEYAG-YY         PIC 9(4).                     
+                 05  KS-GYEYAG-MM         PIC 9(2).                     
+              04  KS-GYEYAG-DD            PIC 9(2).                     
+ 34         03  KS-BOJONG                 PIC 9(4).                     
+ 38         03  KS-BOJONG-T               PIC 9(4).                     
+ 40         03  KS-NABGI                  PIC 9(2).                     
+ 42         03  KS-MANGI                  PIC 9(2).                     
+ 43         03  KS-NABBANG                PIC 9(1).                     
+ 44         03  KS-SUGEUMCODE             PIC 9(1).                     
+ 45         03  KS-JINDAN                 PIC 9(1).                     
+ 48         03  KS-HOISU                  PIC 9(3).                     
+ 50         03  KS-PINAI                  PIC 9(2).                     
+ 51         03  KS-PISEX                  PIC 9(1).                     
+ 53         03  KS-GYENAI                 PIC 9(2).                     
+ 54         03  KS-GYESEX                 PIC 9(1).                     
+ 58         03  KS-JIGEOP                 PIC 9(4).                     
+ 60         03  KS-JIYEOG                 PIC 9(2).                     
+ 65         03  KS-BOGEUM                 PIC S9(9)    COMP-3.          
+ 71         03  KS-BOLYO                  PIC S9(11)    COMP-3.         
+ 77         03  KS-HABBOLYO               PIC S9(11)    COMP-3.         
+ 82         03  KS-ALPHA                  PIC S9(9)    COMP-3.          
+ 87         03  KS-BETA                   PIC S9(9)    COMP-3.          
+ 92         03  KS-GAMMA                  PIC S9(9)    COMP-3.          
+ 95         03  KS-FROMHOISU              PIC 9(3).                     
+ 98         03  KS-TOHOISU                PIC 9(3).                     
+ 101        03  KS-GUNSU                  PIC S9(5)    COMP-3.          
+ 109        03  KS-MOJIBGIGWAN.                                         
+              04  KS-MOJIBGUG             PIC 9(2).                     
+              04  KS-MOJIBJEOMPO          PIC 9(4).                     
+              04  KS-MO-JEOMPO1           PIC X(1).                     
+              04  KS-MO-JEOMPO2           PIC X(1).                     
+113         03  KS-MOJIBJA                PIC 9(7)     COMP-3.          
+121         03  KS-SUGEUMGIGWAN.                                        
+              04  KS-SUGEUMGUG            PIC 9(2).                     
+              04  KS-SUGEUMJEOMPO         PIC 9(4).                     
+              04  KS-SU-JEOMPO1           PIC X(1).                     
+              04  KS-SU-JEOMPO2           PIC X(1).                     
+125         03  KS-SUGEUMJA               PIC 9(7)     COMP-3.          
+132         03  KS-DANCHE-NO              PIC X(7).                     
+134         03  KS-RD-CODE                PIC X(2).                     
+            03  KS-RD-RE              REDEFINES  KS-RD-CODE.            
+134             04  KS-RD1                PIC X(1).                     
+134             04  KS-RD2                PIC 9(1).                     

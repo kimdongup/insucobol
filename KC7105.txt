@@ -1,0 +1,471 @@
+//KERC7105 JOB (KER),'KER03',CLASS=G,MSGCLASS=X,MSGLEVEL=(1,1)          
+//STEP1 EXEC YCOBBAT,MBR=K00C7105                                       
+//COB.SYSIN DD *                                                        
+PROCESS TEST(STMT,SYM)                                                  
+      *================================*                                
+       IDENTIFICATION          DIVISION.                                
+       PROGRAM-ID.             K00C7105.                                
+       ENVIRONMENT             DIVISION.                                
+       CONFIGURATION           SECTION.                                 
+       INPUT-OUTPUT            SECTION.                                 
+      *================================*                                
+       FILE-CONTROL.                                                    
+           SELECT  K1-FILE   ASSIGN  TO  FILEIN1.                       
+           SELECT  K2-FILE   ASSIGN  TO  FILEIN2.                       
+           SELECT  K4-FILE   ASSIGN  TO  FILEOUT.                       
+       DATA                    DIVISION.                                
+       FILE                    SECTION.                                 
+       FD  K1-FILE         RECORDING MODE      IS      F                
+                           LABEL   RECORD      IS      STANDARD         
+                           BLOCK   CONTAINS   100      RECORDS          
+                           RECORD  CONTAINS   129      CHARACTERS.      
+       01  REC-IN1.                                                     
+                           COPY   K00B9015.                             
+                                                                        
+       FD  K2-FILE         RECORDING MODE      IS      F                
+                           LABEL   RECORD      IS      STANDARD         
+                           BLOCK   CONTAINS   100      RECORDS          
+                           RECORD  CONTAINS   122      CHARACTERS.      
+       01  REC-IN2.                                                     
+                           COPY   K00B9016.                             
+                                                                        
+       FD  K4-FILE         RECORDING MODE      IS      F                
+                           LABEL   RECORD      IS      STANDARD         
+                           BLOCK   CONTAINS    50      RECORDS          
+                           RECORD  CONTAINS   283      CHARACTERS.      
+       01  REC-OUT.                                                     
+                           COPY   K00B9018.                             
+       EJECT                                                            
+      *--------------------------------*                                
+       WORKING-STORAGE         SECTION.                                 
+      *--------------------------------*                                
+       01  REC-9007.    COPY    K00B9048.                               
+       01  WORK-SPACE.                                                  
+      *- '97.10.1일　이전　계약------*                                
+         02  BURI-BOJ              PIC 9(4).                            
+             88  NO-JK             VALUE  2220 THRU 2253 2380 THRU 2403.
+             88  JK-YEON           VALUE  2160 THRU 2171 2341 THRU 2348 
+                                          2180 THRU 2191 2320 THRU 2325 
+                                          2330 THRU 2335                
+                                          2411 THRU 2422 2461 THRU 2468 
+                                          2441 THRU 2446 2451 THRU 2456 
+                                                                        
+                                          2300 THRU 2315 2351 THRU 2358 
+                                          2361 THRU 2366 2425 THRU 2440 
+                                          2471 THRU 2478 2481 THRU 2486.
+             88  BJ-YEON           VALUE  2030 THRU 2077 2080 THRU 2103 
+                                          2121 THRU 2132 2140 THRU 2151 
+                                          7041 THRU 7044 8030 THRU 8033.
+             88  MU-BOJ            VALUE  5501 THRU 5504 5511 THRU 5513 
+                                          5120 THRU 5125 7071 THRU 7072 
+                                          8011 THRU 8016                
+                                          5147 THRU 5149 5505 THRU 5508 
+                                          5171 THRU 5179 5182 THRU 5185 
+                                          5191      5192 5200           
+                                          5210 THRU 5217 5220      5221 
+                                          5230 THRU 5232 5240           
+                                          7073 8017 8018 8201      8202 
+                                          5631 THRU 5633 5651 5661      
+                                          5671 THRU 5678 5641 THRU 5643 
+                                          5691 5681 5682 5250 5260 5270 
+                                          8381 8382 8391                
+991006                                    5280 5290 5291.               
+                                                                        
+         02  K1-CNT                PIC 9(7).                            
+         02  K2-CNT                PIC 9(7).                            
+         02  K4-CNT                PIC 9(7).                            
+         02  ER-CNT1               PIC 9(7).                            
+         02  ER-CNT2               PIC 9(7).                            
+         02  SA                    PIC 9(6).                            
+         02  GWA                   PIC 9(2).                            
+         02  NG                    PIC 9(2).                            
+         02  NB                    PIC 9(4).                            
+         02  VT-M                  PIC S9(7)V9(7).                      
+         02  WT-Y                  PIC S9(7)V9(7).                      
+         02  CGA-MM                PIC S9(7)V9(7).                      
+         02  CGA-DD                PIC S9(2).                           
+         02  CGA-VT                PIC S9(9).                           
+         02  K1-KEY.                                                    
+            03  WK1-JEUNGBEON       PIC 9(7).                           
+            03  WK1-BOJONG-T        PIC 9(4).                           
+         02  K2-KEY.                                                    
+            03  WK2-JEUNGBEON       PIC 9(7).                           
+            03  WK2-BOJONG-T        PIC 9(4).                           
+                    COPY    KB9908.                                     
+                    COPY    K11B9909.                                   
+         02  IYUL                 PIC 9(2)V9(6).                        
+         02  NABGI                PIC 9(2).                             
+         02  GIGAN                PIC S9(7).                            
+         02  I                    PIC 9(3).                             
+         02  J                    PIC 9(3).                             
+         02  J-J                  PIC 9V9(6).                           
+         02  K                    PIC 9(3).                             
+         02  WK-SEONSU-BOLYO      PIC S9(9)    COMP-3.                  
+         02  C-BOLYO              PIC S9(9).                            
+         02  WK-F-YM              PIC 9(6).                             
+         02  WK-FYM-RE         REDEFINES  WK-F-YM.                      
+            03  WK-F-YY           PIC 9(4).                             
+            03  WK-F-MM           PIC 9(2).                             
+         02  WK-T-YM              PIC 9(6).                             
+         02  WK-TYM-RE         REDEFINES  WK-T-YM.                      
+            03  WK-T-YY           PIC 9(4).                             
+            03  WK-T-MM           PIC 9(2).                             
+         02  F-YM                 PIC 9(6).                             
+         02  FYM-RE            REDEFINES  F-YM.                         
+            03  F-YY              PIC 9(4).                             
+            03  F-MM              PIC 9(2).                             
+         02  T-YM                PIC 9(6).                              
+         02  TYM-RE            REDEFINES  T-YM.                         
+            03  T-YY              PIC 9(4).                             
+            03  T-MM              PIC 9(2).                             
+                                                                        
+       01  REC-SWITCH.                                                  
+           02  FILE-EOF-SWITCH-1       PIC X(3)  VALUE  'NO '.          
+               88  FILE-EOF-1          VALUE     'YES'.                 
+           02  FILE-EOF-SWITCH-2       PIC X(3)  VALUE  'NO '.          
+               88  FILE-EOF-2          VALUE     'YES'.                 
+           02  SS       PIC 9(4)       VALUE   100.                     
+           02  I-YUL    PIC 9(1)V9(4)  VALUE 00000.                     
+       EJECT                                                            
+      *=================================*                               
+       PROCEDURE               DIVISION.                                
+      *=================================*                               
+      *----------*                                                      
+       000-BODY.                                                        
+      *----------*                                                      
+           OPEN        INPUT     K1-FILE      K2-FILE                   
+                       OUTPUT    K4-FILE.                               
+           MOVE        ZERO      TO     WORK-SPACE.                     
+           PERFORM         110-READ-FILEIN-1.                           
+           PERFORM         120-READ-FILEIN-2.                           
+           PERFORM         100-PG-CONTROL       UNTIL  (FILE-EOF-1      
+                                                OR      FILE-EOF-2).    
+           PERFORM         200-PG-CONTROL       UNTIL   FILE-EOF-1.     
+           PERFORM         300-PG-CONTROL       UNTIL   FILE-EOF-2.     
+           DISPLAY    '     *======================================*'.  
+           DISPLAY    '     *   K1-FILE  TOTAL  =  '  K1-CNT.           
+           DISPLAY    '     *   K2-FILE  TOTAL  =  '  K2-CNT.           
+           DISPLAY    '     *   K1-FILE  ERROR  =  '  ER-CNT1.          
+           DISPLAY    '     *   K2-FILE  ERROR  =  '  ER-CNT2.          
+           DISPLAY    '     *   OUT      TOTAL  =  '  K4-CNT.           
+           DISPLAY    '     *======================================*'.  
+           CLOSE    K1-FILE    K2-FILE   K4-FILE.                       
+           STOP RUN.                                                    
+       EJECT                                                            
+      *---------------*                                                 
+       100-PG-CONTROL.                                                  
+      *---------------*                                                 
+           IF  K1-KEY   =  K2-KEY                                       
+                  PERFORM          130-MATCH-CHEORI                     
+                  PERFORM          110-READ-FILEIN-1                    
+                  PERFORM          120-READ-FILEIN-2.                   
+           IF  K1-KEY   >  K2-KEY                                       
+                  PERFORM          140-K2-ERR-CHEORI                    
+                  PERFORM          120-READ-FILEIN-2.                   
+           IF  K1-KEY   <  K2-KEY                                       
+                  PERFORM          150-K1-ERR-CHEORI                    
+                  PERFORM          110-READ-FILEIN-1.                   
+      *---------------*                                                 
+       200-PG-CONTROL.                                                  
+      *---------------*                                                 
+           PERFORM          150-K1-ERR-CHEORI.                          
+           PERFORM          110-READ-FILEIN-1.                          
+      *---------------*                                                 
+       300-PG-CONTROL.                                                  
+      *---------------*                                                 
+           PERFORM          140-K2-ERR-CHEORI.                          
+           PERFORM          120-READ-FILEIN-2.                          
+      *-----------------*                                               
+       110-READ-FILEIN-1.                                               
+      *-----------------*                                               
+           READ    K1-FILE   END   MOVE  'YES'  TO  FILE-EOF-SWITCH-1.  
+           IF  NOT  FILE-EOF-1                                          
+                       ADD      1               TO  K1-CNT              
+                       MOVE   K1-JEUNGBEON      TO  WK1-JEUNGBEON       
+                       MOVE   K1-BOJONG-T       TO  WK1-BOJONG-T.       
+      *-----------------*                                               
+       120-READ-FILEIN-2.                                               
+      *-----------------*                                               
+           READ    K2-FILE   END   MOVE  'YES'  TO  FILE-EOF-SWITCH-2.  
+           IF  NOT  FILE-EOF-2                                          
+                       ADD      1               TO  K2-CNT              
+                       MOVE   K2-JEUNGBEON      TO  WK2-JEUNGBEON       
+                       MOVE   K2-BOJONG-T       TO  WK2-BOJONG-T.       
+      *----------------*                                                
+       130-MATCH-CHEORI.                                                
+      *----------------*                                                
+           IF    K1-JEUNGBEON = 870841                                  
+              IF    K1-BOJONG-T = 2182                                  
+                     MOVE  56455     TO   K1-VT(1)                      
+                     MOVE  73364     TO   K1-VT1(1)  K4-VT(2)           
+                     MOVE  77871     TO   K1-VT1(2)  K4-VT(3)           
+                     MOVE  82747     TO   K1-VT1(3)                     
+                     MOVE  750       TO   K1-IYUL                       
+                     MOVE  3000      TO   K1-ALPHA.                     
+           MOVE  K1-JOSA-YMD        TO  K4-JOSA-YMD.                    
+           MOVE  K1-JEUNGBEON       TO  K4-JEUNGBEON.                   
+           MOVE  K1-BSMG            TO  K4-BSMG.                        
+           MOVE  K1-BOJONG          TO  K4-BOJONG    WK-BOJONG.         
+           MOVE  K1-BOJONG-T        TO  K4-BOJONG-T  WK-BOJONG-T.       
+           IF K4-BOJONG > 8000     MOVE   4        TO  K4-SSYD  ELSE    
+           IF K4-BOJONG > 6000     MOVE   3        TO  K4-SSYD  ELSE    
+           IF K4-BOJONG > 5000     MOVE   2        TO  K4-SSYD  ELSE    
+                                   MOVE   1        TO  K4-SSYD.         
+           IF K4-BOJONG = 2260     MOVE   3        TO  K4-SSYD.         
+           IF (K4-BOJONG-T = 9510 OR 9621)                              
+                 MOVE  ZERO         TO  K4-BOLYO                        
+           ELSE  MOVE  K2-BOLYO     TO  K4-BOLYO.                       
+           MOVE  K1-JT              TO  K4-JT.                          
+           MOVE  K1-0-9             TO  K4-0-9.                         
+           MOVE  K1-GITAGUBUN-CODE  TO  K4-GUBUN1-CODE.                 
+           MOVE  K1-MIJIGB-IJA      TO  K4-MIJIGB-IJA.                  
+           MOVE  K1-NABGI           TO  K4-NABGI.                       
+           MOVE  K1-MANGI           TO  K4-MANGI.                       
+           MOVE  K1-NABBANG         TO  K4-NABBANG.                     
+           MOVE  K2-LNAB-HOISU      TO  K4-LNAB-HOISU.                  
+           MOVE  K1-GYENAI          TO  K4-GYENAI.                      
+           MOVE  K1-GYESEX          TO  K4-GYESEX.                      
+           MOVE  K1-PINAI           TO  K4-PINAI.                       
+           MOVE  K1-PISEX           TO  K4-PISEX.                       
+           MOVE  K1-YNGM-AGE        TO  K4-YNGM-AGE.                    
+           MOVE  K1-SUGM-CODE       TO  K4-SUGM-CODE.                   
+           MOVE  ZERO               TO  K4-FILLER1  K4-FILLER2.         
+           MOVE  K2-BOGEUM          TO  K4-BOGEUM.                      
+           MOVE  K2-HABBOLYO        TO  K4-HABBOLYO.                    
+           MOVE  K2-GYE-YMD         TO  K4-GYE-YMD.                     
+           MOVE  K2-LNAB-YM         TO  K4-LNAB-YM.                     
+           MOVE  K2-DIV-YM          TO  K4-DIV-YM.                      
+           MOVE  K1-GNGWA-YM        TO  K4-GNGWA-YM.                    
+           MOVE  K1-MIGNGWA-MM      TO  K4-MIGNGWA-MM.                  
+           MOVE  K2-SEON-HOISU      TO  K4-SEON-HOISU.                  
+           MOVE  K2-GY-GIGAN        TO  K4-GY-GIGAN.                    
+           MOVE  K2-JIGB-YMD        TO  K4-JIGB-YMD.                    
+           MOVE  K2-JIGBS           TO  K4-JIGBS.                       
+           MOVE  K1-VT-KEY          TO  K4-VT-KEY1.                     
+           MOVE  K1-VT-SEX          TO  K4-VT-SEX.                      
+           MOVE  K1-IYUL            TO  K4-IYUL.                        
+           MOVE  K1-ALPHA           TO  K4-ALPHA.                       
+           MOVE  K1-VT-TABLE        TO  K4-VT-TABLE.                    
+           MOVE  ZERO    TO       K4-PURE     K4-HAIYAG  K4-PB.         
+           IF  NB-BOJ                                                   
+             IF   K4-NABBANG = 8 OR 9   MOVE  12          TO  NB        
+             ELSE                       MOVE  K4-NABBANG  TO  NB.       
+           IF  (T-NOHOO OR T-NON-TAX OR T-JAYU OR T-JIG-UDAESEOLGYE OR  
+                T-NON-UDAEJEOCHUK OR T-JAETECH OR T-GEOCHI OR           
+990917          T-JAETECH-II OR T-NEW-JAETECH OR T-MILLENIUM-CHILD)     
+                   MOVE  ZERO  TO  K4-PURE-YY    K4-PURE-MM  K4-PB      
+                                   K4-HAIYAG-YY  K4-HAIYAG-MM           
+           ELSE    PERFORM         131-JUNBIGEUM-SANCHUL                
+              IF  K4-BSMG  = 1                                          
+                IF   K4-0-9 = 7 OR 9                                    
+                     PERFORM      132-WAN-NAB-CHEORI.                   
+                                                                        
+           MOVE     ZERO    TO   K4-IJA  K4-SEONSU-IJA.                 
+           MOVE     ZERO    TO   K4-MI-SEON-GEUM.                       
+           IF  (K4-BSMG < 3  AND  K4-MHSS > ZERO)                       
+               IF T-GYOYUK    OR  T-WOMAN-2J    OR  T-ABBA-SALANG     OR
+                  T-WON-BUBU  OR  T-HAENG-SEOL  OR  T-FREE-YUHAENG    OR
+                  T-MU-URIJIB OR  T-MU-N-URIJIB OR  T-MU-POWER-DRIVER OR
+991209            T-MU-CHILD  OR  T-ABBA-YEONGEUM-B OR T-SUPER-NUGUNA   
+                  COMPUTE  K4-MI-SEON-GEUM  ROUNDED   = K4-MHSS         
+                                          * K4-BOGEUM / SS - K2-JIGBS   
+               ELSE  IF  T-JAETECH-II                                   
+                  COMPUTE  K4-MI-SEON-GEUM  ROUNDED   = K4-MHSS         
+                                          * K4-BOGEUM * 10 - K2-JIGBS   
+991129         ELSE  IF  T-HANARO                                       
+  .               COMPUTE  K4-MI-SEON-GEUM  ROUNDED   = (K4-MHSS        
+  .                                       * 500000 * K4-BOGEUM / 10000) 
+  .                                       - K2-JIGBS.                   
+           IF  NOT T-GYOYUK                                             
+               IF  K4-MI-SEON-GEUM < ZERO                               
+                   MOVE    ZERO    TO    K4-MI-SEON-GEUM                
+               ELSE                      NEXT   SENTENCE                
+           ELSE  IF (K4-MI-SEON-GEUM < ZERO AND K4-MI-SEON-GEUM > -1000)
+                   MOVE    ZERO    TO    K4-MI-SEON-GEUM  K4-MHSS.      
+           IF  K4-MI-SEON-GEUM < ZERO                                   
+              IF  K4-0-9 = 8                                            
+                    MOVE  ZERO  TO   K4-PURE-YY       K4-PURE-MM        
+                                     K4-HAIYAG-YY     K4-HAIYAG-MM      
+                                     K4-MI-SEON-GEUM  K4-PB             
+              ELSE                                                      
+                    DISPLAY ' MHSS < ZERO => ' K4-JEUNGBEON ' ' K4-BSMG 
+                            ' BOJ = ' K4-BOJONG-T  ' MHSS = ' K4-MHSS   
+                            ' S  = ' K4-BOGEUM     ' MS-GEUM = '        
+                                  K4-MI-SEON-GEUM  ' JIGB = ' K2-JIGBS. 
+                                                                        
+           MOVE    ZERO               TO  K4-BAIDANGGEUM.               
+           MOVE  K2-DIV0(1)           TO  K4-HG-0.                      
+           MOVE  K2-DIV0(2)           TO  K4-SH-0.                      
+           MOVE  K2-DIV0(3)           TO  K4-IH-0.                      
+           MOVE  K2-DIV0(4)           TO  K4-JG-0.                      
+           MOVE  K2-DIV1(1)           TO  K4-HG-BAE(1).                 
+           MOVE  K2-DIV2(1)           TO  K4-HG-BAE(2).                 
+           MOVE  K2-DIV1(2)           TO  K4-SH-BAE(1).                 
+           MOVE  K2-DIV2(2)           TO  K4-SH-BAE(2).                 
+           MOVE  K2-DIV1(3)           TO  K4-IH-BAE(1).                 
+           MOVE  K2-DIV2(3)           TO  K4-IH-BAE(2).                 
+           MOVE  K2-DIV1(4)           TO  K4-JG-BAE(1).                 
+           MOVE  K2-DIV2(4)           TO  K4-JG-BAE(2).                 
+           MOVE  K2-SUGMGIGWAN        TO  K4-SUGMGIGWAN.                
+           MOVE  K2-JUN-CODE          TO  K4-JUN-CODE.                  
+           MOVE    ZERO         TO   K4-HG-BAE (3)    K4-SH-BAE(3)      
+                                     K4-IH-BAE (3)    K4-JG-BAE(3)      
+                                     K4-SEONSU-IJA    WK-SEONSU-BOLYO.  
+           IF  K4-BSMG = 2                                              
+              IF   K4-LNAB-YY * 12 + K4-LNAB-MM                         
+                           < (K4-JOSA-YY - 1) * 12 + (K4-JOSA-MM - 2)   
+                             MOVE   8   TO   K4-BSMG                    
+              ELSE           MOVE   7   TO   K4-BSMG.                   
+                                                                        
+           IF  MU-BOJ        MOVE  ZERO  TO  K4-HG-BAE(3)               
+                                             K4-SH-BAE(3)               
+                                             K4-IH-BAE(3)               
+                                             K4-JG-BAE(3)               
+           ELSE              PERFORM  133-BAE-IJA  THRU  133-EXIT.      
+           IF  K4-SEON-HOISU > ZERO  PERFORM      134-SEON-IJA.         
+                                                                        
+           WRITE    REC-OUT.                                            
+           ADD   1                 TO  K4-CNT.                          
+      *---------------------*                                           
+       131-JUNBIGEUM-SANCHUL.                                           
+      *----------------------*                                          
+           COMPUTE  VT-M  ROUNDED = (K4-VT1(2) - K4-VT(2))              
+                                   * K4-GNGWA-MM / 12.                  
+           COMPUTE  K4-PURE-MM ROUNDED =  VT-M      *  K4-BOGEUM / SS.  
+           COMPUTE  K4-PURE-YY ROUNDED =  K4-VT(2)  *  K4-BOGEUM / SS.  
+           IF T-GABOK OR ((T-JIG-JEOCHUK) AND (K4-GYE-YMD > 19970930))  
+                      OR T-HANARO                                       
+000202               NEXT  SENTENCE                                     
+  .   *              MOVE  K4-PURE-YY  TO  K4-PURE-YY                   
+  .   *              MOVE  K4-PURE-MM  TO  K4-PURE-MM                   
+           ELSE                                                         
+             IF  K4-PURE-YY + K4-PURE-MM < ZERO                         
+                     MOVE     ZERO     TO  K4-PURE-YY                   
+                                           K4-PURE-MM.                  
+                                                                        
+           IF   NB-BOJ   COMPUTE    VT-M  ROUNDED = K4-VT-PB / NB       
+           ELSE          COMPUTE    VT-M  ROUNDED = K4-VT-PB / 12.      
+                                                                        
+           COMPUTE  K4-PB ROUNDED  =  K4-BOGEUM  *  VT-M                
+                                   *  K4-MIGNGWA-MM / SS.               
+                                                                        
+           MOVE  K4-GNGWA-YY           TO   GWA.                        
+000202     IF  K4-BSMG  =  2                                            
+  .             IF  K4-GNGWA-YM > 0212                                  
+                     IF  K4-NABGI > 7  MOVE     7       TO  NG          
+                     ELSE              MOVE  K4-NABGI   TO  NG          
+                ELSE IF  K4-NABGI > 10 MOVE    10       TO  NG          
+                     ELSE              MOVE  K4-NABGI   TO  NG          
+           ELSE                                                         
+                IF  K4-NABGI >  7      MOVE     7       TO  NG          
+                ELSE                   MOVE  K4-NABGI   TO  NG.         
+                                                                        
+           IF   NG  >  GWA                                              
+              IF   K4-VT-NABBANG = 9      MOVE  ZERO       TO  SA       
+              ELSE                        MOVE  K4-ALPHA   TO  SA       
+           ELSE                           MOVE  ZERO       TO  SA.      
+           IF   K4-NABBANG = 8 OR 9                                     
+              IF   K4-VT-NABGI < 2     MOVE  ZERO       TO  SA          
+                                       MOVE  1          TO  NG.         
+           COMPUTE  WT-Y  ROUNDED  =  K4-VT(2) - (NG - GWA) * SA / NG.  
+           COMPUTE  K4-HAIYAG-YY   ROUNDED   =  WT-Y * K4-BOGEUM / SS.  
+           COMPUTE  VT-M  ROUNDED  = (K4-VT1(2) - K4-VT(2) + SA / NG)   
+                                   *  K4-GNGWA-MM / 12.                 
+           COMPUTE  K4-HAIYAG-MM   ROUNDED   =  VT-M * K4-BOGEUM / SS.  
+           IF  K4-HAIYAG-YY + K4-HAIYAG-MM > K4-PURE-YY + K4-PURE-MM    
+                   MOVE   K4-PURE-YY    TO   K4-HAIYAG-YY               
+                   MOVE   K4-PURE-MM    TO   K4-HAIYAG-MM.              
+                                                                        
+           IF T-GABOK OR ((T-JIG-JEOCHUK) AND (K4-GYE-YMD > 19970930))  
+                      OR T-HANARO                                       
+000202               NEXT  SENTENCE                                     
+  .   *              MOVE  K4-HAIYAG-YY  TO  K4-HAIYAG-YY               
+  .   *              MOVE  K4-HAIYAG-MM  TO  K4-HAIYAG-MM               
+           ELSE                                                         
+             IF  K4-HAIYAG-YY + K4-HAIYAG-MM < ZERO                     
+                     MOVE     ZERO       TO  K4-HAIYAG-YY               
+                                             K4-HAIYAG-MM.              
+      *------------------*                                              
+       132-WAN-NAB-CHEORI.                                              
+      *------------------*                                              
+           COMPUTE CGA-MM   = (K4-VT1(2)   -  K4-VT(2)) / 365.          
+           COMPUTE CGA-DD   =  K4-JOSA-DD  -  K4-GYE-DD.                
+           IF  CGA-DD < ZERO   MOVE  ZERO TO  CGA-DD.                   
+                                                                        
+           COMPUTE CGA-VT ROUNDED = K4-BOGEUM * CGA-MM * CGA-DD / SS.   
+           ADD  CGA-VT   TO   K4-PURE-MM  K4-HAIYAG-MM.                 
+      *------------*                                                    
+       133-BAE-IJA.                                                     
+      *------------*                                                    
+           MOVE    ZERO   TO       KI-HG-WON     KI-SH-WON              
+                                   KI-IH-WON     KI-JG-WON              
+                                   KI-HG-WONRI   KI-SH-WONRI            
+                                   KI-IH-WONRI   KI-JG-WONRI.           
+           IF  K4-HG-0 = ZERO  ADD   K4-HG-BAE(1)  K4-HG-BAE(2)         
+                               TO    KI-HG-WON                          
+           ELSE                MOVE  ZERO  TO  KI-HG-WON.               
+           IF  K4-SH-0 = ZERO  ADD   K4-SH-BAE(1)  K4-SH-BAE(2)         
+                               TO    KI-SH-WON                          
+           ELSE                MOVE  ZERO  TO  KI-SH-WON.               
+           IF  K4-IH-0 = ZERO  ADD   K4-IH-BAE(1)  K4-IH-BAE(2)         
+                               TO    KI-IH-WON                          
+           ELSE                MOVE  ZERO  TO  KI-IH-WON.               
+           IF  K4-JG-0 = ZERO  ADD   K4-JG-BAE(1)  K4-JG-BAE(2)         
+                               TO    KI-JG-WON                          
+           ELSE                MOVE  ZERO  TO  KI-JG-WON.               
+           MOVE  K4-JEUNGBEON  TO  KI-JEUNGBEON.                        
+           MOVE  K4-BOJONG     TO  KI-BOJONG.                           
+           MOVE  K4-BOJONG-T   TO  KI-BOJONG-T.                         
+           MOVE  K4-BSMG       TO  KI-BSMG.                             
+           MOVE  K4-GYE-YMD    TO  KI-GYE-YMD.                          
+           MOVE  ZERO          TO  KI-BAL-YMD.                          
+           MOVE  K4-DIV-YM     TO  KI-DIV-YM.                           
+           MOVE  K4-JOSA-YMD   TO  KI-JIGB-YMD.                         
+           IF  K1-GYE-YMD  >  19990331                                  
+                                   MOVE  6500  TO  KI-IYUL              
+           ELSE                                                         
+                                   MOVE  7500  TO  KI-IYUL.             
+           CALL    'K00M8043'   USING    REC-9007.                      
+           COMPUTE  K4-HG-BAE(3)  =  KI-HG-WONRI  -  KI-HG-WON.         
+           COMPUTE  K4-SH-BAE(3)  =  KI-SH-WONRI  -  KI-SH-WON.         
+           COMPUTE  K4-IH-BAE(3)  =  KI-IH-WONRI  -  KI-IH-WON.         
+           COMPUTE  K4-JG-BAE(3)  =  KI-JG-WONRI  -  KI-JG-WON.         
+      *---------*                                                       
+       133-EXIT.    EXIT.                                               
+      *---------*                                                       
+      *-------------*                                                   
+       134-SEON-IJA.                                                    
+      *-------------*                                                   
+           MOVE     ZERO  TO   C-BOLYO.                                 
+           COMPUTE  IYUL   =   K4-IYUL  /  10000.                       
+                                                                        
+           PERFORM  134-1-IJA-COM   VARYING   K  FROM  1  BY  1         
+                                    UNTIL     K  >  K4-SEON-HOISU.      
+           COMPUTE  WK-SEONSU-BOLYO =  K4-BOLYO  *  K4-SEON-HOISU.      
+           IF  T-NOHOO       MOVE   ZERO   TO  K4-SEONSU-IJA            
+           ELSE     COMPUTE  K4-SEONSU-IJA = WK-SEONSU-BOLYO - C-BOLYO. 
+      *--------------*                                                  
+       134-1-IJA-COM.                                                   
+      *--------------*                                                  
+           IF  K4-NABBANG  =  3                                         
+                        COMPUTE  NB = (K - 1) *  3 + K4-MIGNGWA-MM      
+           ELSE  IF  K4-NABBANG  =  6                                   
+                        COMPUTE  NB = (K - 1) *  6 + K4-MIGNGWA-MM      
+           ELSE  IF  K4-NABBANG  =  8                                   
+                        COMPUTE  NB = (K - 1) * 12 + K4-MIGNGWA-MM      
+           ELSE         COMPUTE  NB =  K - 1.                           
+                                                                        
+           DIVIDE   NB   BY  12     GIVING  I      REMAINDER  J.        
+           COMPUTE  J-J  ROUNDED  =  1 / ((1  +  IYUL) ** I   *         
+                                          (1  +  IYUL  * J / 12)).      
+           COMPUTE  C-BOLYO  ROUNDED = C-BOLYO + K4-BOLYO * J-J.        
+      *-----------------*                                               
+       140-K2-ERR-CHEORI.                                               
+      *-----------------*                                               
+           ADD     1                    TO   ER-CNT2.                   
+           DISPLAY  '  **   K2-RECORD   ERROR  ==  '    K2-KEY.         
+      *-----------------*                                               
+       150-K1-ERR-CHEORI.                                               
+      *-----------------*                                               
+           ADD     1                    TO   ER-CNT1.                   
+           DISPLAY  '  **   K1-RECORD   ERROR  ==  '    K1-KEY.         

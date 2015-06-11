@@ -1,0 +1,313 @@
+//KERC7112 JOB (KER),'KER01',CLASS=G,MSGCLASS=X,MSGLEVEL=(1,1)          
+//STEP1 EXEC YCOBBAT,MBR=KC7112                                         
+//COB.SYSIN DD *                                                        
+       IDENTIFICATION          DIVISION.                                
+       PROGRAM-ID.             KC7112.                                  
+      *==========================================*                      
+      *REMARKS.                CHECK   LIST                             
+      *==========================================*                      
+       ENVIRONMENT             DIVISION.                                
+       CONFIGURATION           SECTION.                                 
+       SPECIAL-NAMES.          C01  IS   PGSK.                          
+       INPUT-OUTPUT            SECTION.                                 
+       FILE-CONTROL.                                                    
+           SELECT   FILE-IN    ASSIGN  TO  FILEIN.                      
+           SELECT   FILE-LIST  ASSIGN  TO  PRINT.                       
+       DATA            DIVISION.                                        
+       FILE            SECTION.                                         
+       FD  FILE-IN     RECORDING   MODE        IS  F                    
+                       LABEL       RECORD          STANDARD             
+                       BLOCK       CONTAINS    50  RECORDS              
+                       RECORD      CONTAINS   283  CHARACTERS.          
+       01  REC-IN.                                                      
+                       COPY   KB9018.                                   
+       FD  FILE-LIST   LABEL       RECORDS    ARE  OMITTED.             
+       01  REC-LIST           PIC X(132).                               
+      *-----------------------*                                         
+       WORKING-STORAGE SECTION.                                         
+      *-----------------------*                                         
+       01  WBA.                                                         
+980115                 COPY   KB9908.                                   
+  .                    COPY   KB9909.                                   
+         02  NABGI                 PIC 9(2).                            
+         02  NABBANG               PIC 9(2).                            
+         02  ZERO-B                PIC 9.                               
+         02  BOJONG-C              PIC X(4).                            
+         02  I                     PIC 9(2).                            
+         02  TT1                   PIC 9(2).                            
+         02  TT2                   PIC 9(2).                            
+       01  CNT.                                                         
+         02  T1                    PIC 9(5).                            
+         02  T2                    PIC 9(5).                            
+         02  T3                    PIC 9(5).                            
+         02  T4                    PIC 9(5).                            
+         02  T5                    PIC 9(5).                            
+         02  T6                    PIC 9(5).                            
+         02  T7                    PIC 9(5).                            
+         02  T8                    PIC 9(5).                            
+       01  LIST1.                                                       
+           02  L-JEUNGBEON           PIC Z(10)9.                        
+           02  L-BSMG                PIC Z(4)9.                         
+           02  L-0-9                 PIC Z(7)9.                         
+           02  L-BOJONG              PIC Z(6)9.                         
+           02  L-BOJONG-T            PIC Z(6)9.                         
+           02  L-NABGI               PIC Z(4)9.                         
+           02  L-MANGI               PIC Z(4)9.                         
+           02  L-NABBANG             PIC Z(4)9.                         
+           02  L-PINAI               PIC Z(4)9.                         
+           02  L-PISEX               PIC Z(4)9.                         
+           02  L-GYENAI              PIC Z(4)9.                         
+           02  L-GYESEX              PIC Z(4)9.                         
+           02  L-GYEYAG-YMD          PIC Z(8)9.                         
+           02  L-LNAB-YM             PIC Z(8)9.                         
+           02  L-LNAB-HWOISU         PIC Z(5)9.                         
+           02  L-GNGWA-YM            PIC Z(5)9.                         
+           02  L-MIGNGWA-MM          PIC Z(5)9.                         
+           02  L-SEON-HWOISU         PIC Z(5)9.                         
+           02  L-DIV-YM              PIC Z(5)9.                         
+           02  L-HABBOLYO            PIC -(9)9.                         
+           02  FILLER                PIC X(01)   VALUE SPACE.           
+       01  LIST2.                                                       
+           02  FILLER                PIC X(06)   VALUE  SPACE.          
+           02  L-VT-KEY              PIC X(15).                         
+           02  L-VT-1                PIC -(9)9.                         
+           02  L-VT1-1               PIC -(9)9.                         
+           02  L-VT-2                PIC -(9)9.                         
+           02  L-VT1-2               PIC -(9)9.                         
+           02  L-VT-3                PIC -(9)9.                         
+           02  L-VT1-3               PIC -(9)9.                         
+           02  L-VT-PB               PIC -(9)9.                         
+           02  L-ALPHA               PIC -(9)9.                         
+           02  L-IYUL                PIC -(9)9.                         
+           02  L-MHSS                PIC -(9)9.                         
+           02  L-VT-JNG              PIC -(9)9.                         
+           02  FILLER                PIC X(01)    VALUE  SPACE.         
+       01  LIST3.                                                       
+           02  L-BOGEUM              PIC -(10)9.                        
+           02  L-BOLYO               PIC -(9)9.                         
+           02  L-PURE-YY             PIC -(9)9.                         
+           02  L-PURE-MM             PIC -(9)9.                         
+           02  L-HAIYAG-YY           PIC -(9)9.                         
+           02  L-HAIYAG-MM           PIC -(9)9.                         
+           02  L-PB                  PIC -(9)9.                         
+           02  L-MI-SEON-GEUM        PIC -(9)9.                         
+           02  L-JNG-BAIDANG         PIC -(9)9.                         
+           02  L-SILHYO-IJA          PIC -(9)9.                         
+           02  L-SEONSU-IJA          PIC -(9)9.                         
+           02  L-JIGB-HAB            PIC -(9)9.                         
+           02  FILLER                PIC X(11)   VALUE SPACE.           
+       01  LIST4.                                                       
+           02  L-HG-BAE1             PIC -(10)9.                        
+           02  L-HG-BAE2             PIC -(09)9.                        
+           02  L-HG-BAE3             PIC -(09)9.                        
+           02  L-SH-BAE1             PIC -(09)9.                        
+           02  L-SH-BAE2             PIC -(09)9.                        
+           02  L-SH-BAE3             PIC -(09)9.                        
+           02  L-IH-BAE1             PIC -(09)9.                        
+           02  L-IH-BAE2             PIC -(09)9.                        
+           02  L-IH-BAE3             PIC -(09)9.                        
+           02  L-JG-BAE1             PIC -(09)9.                        
+           02  L-JG-BAE2             PIC -(09)9.                        
+           02  L-JG-BAE3             PIC -(09)9.                        
+           02  L-HG-0                PIC ZZZ.                           
+           02  L-SH-0                PIC ZZZ.                           
+           02  L-IH-0                PIC ZZZ.                           
+           02  L-JG-0                PIC ZZZ.                           
+      *    02  FILLER                PIC X(2)   VALUE SPACE.            
+       01  I-KEY.                                                       
+           02  I-BOJONG           PIC 9(4).                             
+           02  I-NABGI            PIC 9(2).                             
+           02  I-MANGI            PIC 9(2).                             
+           02  I-NABBANG          PIC 9.                                
+           02  I-PINAI            PIC 9(2).                             
+           02  I-GYEONGGWA-YY     PIC 9(2).                             
+       01  REC-DANCHE             PIC 9(4).                             
+           88  DANCHE-BOJ         VALUE   8000 THRU 8999.               
+       01  REC-SAVE.                                                    
+           02  D-JEUNGBEON        PIC 9(7).                             
+           02  S-JEUNGBEON        PIC 9(7).                             
+           02  S-KEY              PIC X(13).                            
+       01  REC-CNT.                                                     
+           02  CNT-IN             PIC 9(7).                             
+           02  CNT-OUT            PIC 9(7).                             
+           02  CNT-D              PIC 9(1).                             
+           02  CNT-PGSK           PIC 9(2).                             
+       01  REC-LINE.                                                    
+           02  LINE-1         PIC X(132)   VALUE SPACE.                 
+           02  LINE-2         PIC X(132)   VALUE ALL '-'.               
+           02  LINE-3         PIC X(132)   VALUE ALL '='.               
+       01  REC-TITLE.                                                   
+           02  TITLE1.                                                  
+               03  FILLER    PIC X(21)  VALUE  '    JNGBEON BSMG     '. 
+               03  FILLER    PIC X(21)  VALUE  '0-9    BOJ  BOJ-T  NA'. 
+               03  FILLER    PIC X(21)  VALUE  'B  MAN   NB PNAI PSEX'. 
+               03  FILLER    PIC X(21)  VALUE  ' GNAI GSEX  CTR-YMD  '. 
+               03  FILLER    PIC X(21)  VALUE  'LNAB-YM HOISU GNGWA  '. 
+               03  FILLER    PIC X(21)  VALUE  'MI++ SUN-H  D-YM   HA'. 
+               03  FILLER    PIC X(6)   VALUE  'B-LYO '.                
+           02  TITLE2.                                                  
+               03  FILLER    PIC X(21)  VALUE  '               VT-KEY'. 
+               03  FILLER    PIC X(21)  VALUE  '     VTS-1     VTT-1 '. 
+               03  FILLER    PIC X(21)  VALUE  '    VTS-2     VTT-2  '. 
+               03  FILLER    PIC X(21)  VALUE  '   VTS-3     VTT-3   '. 
+               03  FILLER    PIC X(21)  VALUE  '  VT-PB     ALPHA    '. 
+               03  FILLER    PIC X(21)  VALUE  '  IYUL   VT-MHSS    V'. 
+               03  FILLER    PIC X(6)   VALUE  'T-JNG '.                
+           02  TITLE3.                                                  
+               03  FILLER    PIC X(21)  VALUE  '     BOGEUM     BOLYO'. 
+               03  FILLER    PIC X(21)  VALUE  '   PURE-YY   PURE-MM '. 
+               03  FILLER    PIC X(21)  VALUE  'HAIYAG-YY HAIYAG-MM  '. 
+               03  FILLER    PIC X(21)  VALUE  '  TOT-PB  MISUN-GM   '. 
+               03  FILLER    PIC X(21)  VALUE  'JNG-BAE   SIL-IJA   S'. 
+               03  FILLER    PIC X(21)  VALUE  'UN-IJA   SNG-GUB     '. 
+               03  FILLER    PIC X(6)   VALUE  '      '.                
+           02  TITLE4.                                                  
+               03  FILLER    PIC X(21)  VALUE  '    HWAG-JN   HWAG-DN'. 
+               03  FILLER    PIC X(21)  VALUE  '  HWAG-IJA   SCHA-JN '. 
+               03  FILLER    PIC X(21)  VALUE  '  SCHA-DN  SCHA-IJA  '. 
+               03  FILLER    PIC X(21)  VALUE  ' ICHA-JN   ICHA-DN  I'. 
+               03  FILLER    PIC X(21)  VALUE  'CHA-IJA    JNG-JN    '. 
+               03  FILLER    PIC X(21)  VALUE  'JNG-DN   JNG-IJA HG S'. 
+               03  FILLER    PIC X(6)   VALUE  'H IH  '.                
+      *=================================*                               
+       PROCEDURE               DIVISION.                                
+      *=================================*                               
+           OPEN    INPUT    FILE-IN    OUTPUT       FILE-LIST.          
+           MOVE    ZERO     TO  CNT    REC-SAVE     REC-CNT.            
+      *--------*                                                        
+       READ-RTN.                                                        
+      *--------*                                                        
+           READ    FILE-IN    AT  END   GO  TO  LAST-RTN.               
+           MOVE    K4-BOJONG-T      TO  WK-BOJONG-T.                    
+           IF  T-NOHOO OR T-NON-TAX OR T-JAYU OR T-JIG-UDAESEOLGYE OR   
+               T-NON-UDAEJEOCHUK OR T-JAETECH OR T-GEOCHI OR            
+991006         T-JAETECH-II OR T-NEW-JAETECH OR T-MILLENIUM-CHILD       
+                                        GO  TO  READ-RTN.               
+      *    IF K4-BSMG NOT = 1           GO  TO  READ-RTN.               
+           ADD     1                TO  CNT-IN.                         
+           MOVE    K4-BOJONG        TO  I-BOJONG.                       
+           MOVE    K4-NABGI         TO  I-NABGI.                        
+           MOVE    K4-MANGI         TO  I-MANGI.                        
+           MOVE    K4-NABBANG       TO  I-NABBANG.                      
+           MOVE    K4-PINAI         TO  I-PINAI.                        
+           MOVE    K4-GNGWA-YY      TO  I-GYEONGGWA-YY.                 
+           IF    I-KEY = S-KEY                                          
+             IF K4-JEUNGBEON = S-JEUNGBEON   PERFORM  LIST-RTN          
+                               THRU  LIST-EXIT                          
+             ELSE                            NEXT          SENTENCE     
+           ELSE       MOVE  I-KEY        TO  S-KEY                      
+                      MOVE  K4-JEUNGBEON TO  S-JEUNGBEON                
+                      PERFORM  LIST-RTN   THRU LIST-EXIT.               
+           GO       TO      READ-RTN.                                   
+      *--------*                                                        
+       LIST-RTN.                                                        
+      *--------*                                                        
+           IF K4-BOJONG   = BOJONG-C                                    
+              IF K4-BSMG  = 1  ADD 1 TO T1                              
+              IF K4-BSMG  = 2  ADD 1 TO T2                              
+              IF K4-BSMG  = 3  ADD 1 TO T3                              
+              IF K4-BSMG  = 4  ADD 1 TO T4                              
+              IF K4-BSMG  = 7  ADD 1 TO T5                              
+              IF K4-BSMG  = 9  ADD 1 TO T6                              
+              IF K4-BSMG  = 10 ADD 1 TO T7                              
+           ELSE     MOVE    K4-BOJONG   TO  BOJONG-C                    
+                    MOVE    ZERO TO     CNT.                            
+           IF T1 >  10      GO   TO  LIST-EXIT.                         
+           IF T2 >  10      GO   TO  LIST-EXIT.                         
+           IF T3 >  10      GO   TO  LIST-EXIT.                         
+           IF T4 >  10      GO   TO  LIST-EXIT.                         
+           IF T5 >  10      GO   TO  LIST-EXIT.                         
+           IF T6 >  10      GO   TO  LIST-EXIT.                         
+           IF T7 >  10      GO   TO  LIST-EXIT.                         
+      *---(LIST 1)------------------------------------------------------
+           MOVE  K4-JEUNGBEON         TO   L-JEUNGBEON.                 
+           MOVE  K4-BSMG              TO   L-BSMG.                      
+           MOVE  K4-0-9               TO   L-0-9.                       
+           MOVE  K4-BOJONG            TO   L-BOJONG.                    
+           MOVE  K4-BOJONG-T          TO   L-BOJONG-T.                  
+           MOVE  K4-NABGI             TO   L-NABGI.                     
+           MOVE  K4-MANGI             TO   L-MANGI.                     
+           MOVE  K4-NABBANG           TO   L-NABBANG.                   
+           MOVE  K4-PINAI             TO   L-PINAI.                     
+           MOVE  K4-PISEX             TO   L-PISEX.                     
+           MOVE  K4-GYENAI            TO   L-GYENAI.                    
+           MOVE  K4-GYESEX            TO   L-GYESEX.                    
+           MOVE  K4-GYE-CYMD(3:6)     TO   L-GYEYAG-YMD.                
+           MOVE  K4-LNAB-CYM(3:4)     TO   L-LNAB-YM.                   
+           MOVE  K4-LNAB-HWOISU       TO   L-LNAB-HWOISU.               
+           MOVE  K4-GNGWA-YM          TO   L-GNGWA-YM.                  
+           MOVE  K4-MIGNGWA-MM        TO   L-MIGNGWA-MM.                
+           MOVE  K4-SEON-HWOISU       TO   L-SEON-HWOISU.               
+           MOVE  K4-DIV-YM            TO   L-DIV-YM.                    
+           MOVE  K4-HABBOLYO          TO   L-HABBOLYO.                  
+      *---(LIST 2)------------------------------------------------------
+           MOVE  K4-VT-KEY            TO   L-VT-KEY.                    
+           MOVE  K4-VT (1)            TO   L-VT-1.                      
+           MOVE  K4-VT1(1)            TO   L-VT1-1.                     
+           MOVE  K4-VT (2)            TO   L-VT-2.                      
+           MOVE  K4-VT1(2)            TO   L-VT1-2.                     
+           MOVE  K4-VT (3)            TO   L-VT-3.                      
+           MOVE  K4-VT1(3)            TO   L-VT1-3.                     
+           MOVE  K4-VT-PB             TO   L-VT-PB.                     
+           MOVE  K4-ALPHA             TO   L-ALPHA.                     
+           MOVE  K4-IYUL              TO   L-IYUL.                      
+           MOVE  K4-MHSS              TO   L-MHSS.                      
+           MOVE  K4-JNG-JEOGRIB       TO   L-VT-JNG.                    
+      *---(LIST 3)------------------------------------------------------
+           MOVE  K4-BOGEUM            TO   L-BOGEUM.                    
+           MOVE  K4-BOLYO             TO   L-BOLYO.                     
+           MOVE  K4-PURE-YY           TO   L-PURE-YY.                   
+           MOVE  K4-PURE-MM           TO   L-PURE-MM.                   
+           MOVE  K4-HAIYAG-YY         TO   L-HAIYAG-YY.                 
+           MOVE  K4-HAIYAG-MM         TO   L-HAIYAG-MM.                 
+           MOVE  K4-PB                TO   L-PB.                        
+           MOVE  K4-MI-SEON-GEUM      TO   L-MI-SEON-GEUM.              
+           MOVE  K4-JNG-BAIDANG       TO   L-JNG-BAIDANG.               
+           MOVE  K4-IJA               TO   L-SILHYO-IJA.                
+           MOVE  K4-SEONSU-IJA        TO   L-SEONSU-IJA.                
+           MOVE  K4-JIGBS             TO   L-JIGB-HAB.                  
+      *---(LIST 4)------------------------------------------------------
+           MOVE  K4-HG-BAE(1)         TO   L-HG-BAE1.                   
+           MOVE  K4-HG-BAE(2)         TO   L-HG-BAE2.                   
+           MOVE  K4-HG-BAE(3)         TO   L-HG-BAE3.                   
+           MOVE  K4-SH-BAE(1)         TO   L-SH-BAE1.                   
+           MOVE  K4-SH-BAE(2)         TO   L-SH-BAE2.                   
+           MOVE  K4-SH-BAE(3)         TO   L-SH-BAE3.                   
+           MOVE  K4-IH-BAE(1)         TO   L-IH-BAE1.                   
+           MOVE  K4-IH-BAE(2)         TO   L-IH-BAE2.                   
+           MOVE  K4-IH-BAE(3)         TO   L-IH-BAE3.                   
+           MOVE  K4-JG-BAE(1)         TO   L-JG-BAE1.                   
+           MOVE  K4-JG-BAE(2)         TO   L-JG-BAE2.                   
+           MOVE  K4-JG-BAE(3)         TO   L-JG-BAE3.                   
+           MOVE  K4-HG-0              TO   L-HG-0.                      
+           MOVE  K4-SH-0              TO   L-SH-0.                      
+           MOVE  K4-IH-0              TO   L-IH-0.                      
+      *    MOVE  K4-JG-0              TO   L-JG-0.                      
+      *-----------------------------------------------------------------
+           IF  CNT-PGSK  =  ZERO  OR  14                                
+                       MOVE   ZERO   TO      CNT-PGSK                   
+                       WRITE  REC-LIST  FROM  LINE-3   AFTER  PGSK      
+                       WRITE  REC-LIST  FROM  TITLE1   AFTER  1         
+                       WRITE  REC-LIST  FROM  TITLE2   AFTER  1         
+                       WRITE  REC-LIST  FROM  TITLE3   AFTER  1         
+                       WRITE  REC-LIST  FROM  TITLE4   AFTER  1         
+                       WRITE  REC-LIST  FROM  LINE-3   AFTER  1.        
+           WRITE    REC-LIST   FROM     LIST1   AFTER  1.               
+           WRITE    REC-LIST   FROM     LIST2   AFTER  1.               
+           WRITE    REC-LIST   FROM     LIST3   AFTER  1.               
+           WRITE    REC-LIST   FROM     LIST4   AFTER  1.               
+           WRITE    REC-LIST   FROM     LINE-2  AFTER  1.               
+           ADD       1         TO       CNT-OUT   CNT-PGSK.             
+      *----------*                                                      
+       LIST-EXIT.    EXIT.                                              
+      *----------*                                                      
+      *--------*                                                        
+       LAST-RTN.                                                        
+      *--------*                                                        
+           WRITE  REC-LIST  FROM  LINE-1   AFTER  PGSK.                 
+           DISPLAY    '     *================================*'.        
+           DISPLAY    '     *   FILE-IN  TOTAL  =  '   CNT-IN.          
+           DISPLAY    '     *   FILE-OUT TOTAL  =  '   CNT-OUT.         
+           DISPLAY    '     *================================*'.        
+           CLOSE     FILE-IN    FILE-LIST.                              
+           STOP RUN.                                                    

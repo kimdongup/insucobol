@@ -1,0 +1,229 @@
+//KERD5002 JOB (KER),'KER03',CLASS=G,MSGCLASS=X,MSGLEVEL=(1,1)
+//STEP1 EXEC YCOBBAT,MBR=KD5002
+//COB.SYSIN DD *
+      * ================================================================
+      * =      배당체크　리스트                                       
+      * ================================================================
+       IDENTIFICATION          DIVISION.                                
+       PROGRAM-ID.             KD5002.
+      *REMARKS.                CHECK   LIST                             
+       ENVIRONMENT             DIVISION.                                
+       CONFIGURATION           SECTION.                                 
+       SPECIAL-NAMES.          C01  IS   PGSK.                          
+       INPUT-OUTPUT            SECTION.                                 
+       FILE-CONTROL.                                                    
+           SELECT   FILE-IN    ASSIGN  TO  FILEIN.
+           SELECT   FILE-LIST  ASSIGN  TO  PRINT.                       
+       DATA            DIVISION.                                        
+       FILE            SECTION.                                         
+       FD  FILE-IN     RECORDING   MODE        IS  F                    
+                       LABEL       RECORD          STANDARD             
+                       BLOCK       CONTAINS   100  RECORDS
+                       RECORD      CONTAINS   134  CHARACTERS.
+       01  REC-DIV.                                                     
+1          02  BD-BSMG                PIC     9(1).                     
+2          02  BD-SSYD                PIC     9(1).
+9          02  BD-JEUNGBEON           PIC     9(7).                     
+13         02  BD-BOJONG              PIC     9(4).                     
+17         02  BD-BOJONG-T            PIC     9(4).                     
+19         02  BD-NABGI               PIC     9(2).                     
+21         02  BD-MANGI               PIC     9(2).                     
+22         02  BD-NABBANG             PIC     9(1).                     
+24         02  BD-PINAI               PIC     9(2).                     
+25         02  BD-PISEX               PIC     9(1).                     
+27         02  BD-GYENAI              PIC     9(2).                     
+28         02  BD-GYESEX              PIC     9(1).                     
+36         02  BD-GYE-CYMD            PIC     9(8).                     
+42         02  BD-LNAB-CYM            PIC     9(6).                     
+45         02  BD-LNAB-HWOISU         PIC     9(3).                     
+49         02  BD-GNGWA-YM            PIC     9(4).                     
+           02  BD-GNGWAYM         REDEFINES   BD-GNGWA-YM.              
+               03  BD-GNGWA-YY       PIC     9(2).
+               03  BD-GNGWA-MM       PIC     9(2).
+53         02  BD-DIV-YM              PIC     9(4).
+57         02  BD-BOGEUM              PIC     S9(7)       COMP-3.       
+62         02  BD-BOLYO               PIC     S9(9)       COMP-3.       
+65         02  BD-IYUL                PIC     S9(5)       COMP-3.       
+68         02  BD-ALPHA               PIC     S9(5)       COMP-3.       
+84         02  BD-VTVT             OCCURS     2.                        
+               03  BD-VT              PIC     S9(7)       COMP-3.
+               03  BD-VT1             PIC     S9(7)       COMP-3.
+88         02  BD-PB                  PIC     S9(7)       COMP-3.
+93         02  BD-HG-WT               PIC     S9(9)       COMP-3.       
+98         02  BD-HG-BAE              PIC     S9(9)       COMP-3.       
+103        02  BD-IH-WT               PIC     S9(9)       COMP-3.       
+108        02  BD-IH-BAE              PIC     S9(9)       COMP-3.       
+113        02  BD-JG-BAE              PIC     S9(9)       COMP-3.       
+118        02  BD-SH-PR1              PIC     S9(8)V9     COMP-3.
+122        02  BD-SH-YUL-1            PIC     S9V9(6)     COMP-3.
+127        02  BD-SH-BAE              PIC     S9(9)       COMP-3.       
+129        02  BD-GUN                 PIC      9(2).
+131        02  BD-YUN-AGE             PIC      9(2).
+132        02  BD-JUN-CODE            PIC      9(1).
+134        02  FILLER                 PIC      X(2).
+
+       FD  FILE-LIST   RECORDING   MODE        IS  F                    
+                       LABEL       RECORDS    ARE  OMITTED.             
+       01  REC-LIST           PIC X(200).                               
+      *-----------------------*                                         
+       WORKING-STORAGE SECTION.                                         
+      *-----------------------*                                         
+       01  WORK-BOJONG.                                                 
+           COPY KBBOJ88.
+       01  LIST1.                                                       
+           02  L-JEUNGBEON           PIC Z(10).
+           02  L-BSMG                PIC Z(06).
+           02  L-BOJONG              PIC Z(07).
+           02  L-BOJONG-T            PIC Z(07).
+           02  L-NABGI               PIC Z(04).
+           02  L-MANGI               PIC Z(04).
+           02  L-NABBANG             PIC Z(04).
+           02  L-BOGEUM              PIC Z(09).
+           02  L-BOLYO               PIC Z(12).
+           02  L-PINAI               PIC Z(04)9.
+           02  L-PISEX               PIC Z(05).
+           02  L-GYENAI              PIC Z(05).
+           02  L-GYESEX              PIC Z(05).
+           02  L-GYEYAG-CYMD         PIC Z(09).
+           02  L-LNAB-CYM            PIC Z(08).
+           02  L-LNAB-HWOISU         PIC Z(06).
+           02  L-GNGWA-YM            PIC Z(08).
+           02  L-DIV-YM              PIC Z(08).
+           02  L-RISK-P              PIC ZZZZZZZ.Z.
+           02  FILLER                PIC X(01)   VALUE SPACE.
+       01  LIST2.                                                       
+           02  L-HG-GEUM             PIC Z(9)9.
+           02  L-SH-GEUM             PIC Z(9)9.
+           02  L-IH-GEUM             PIC Z(9)9.
+           02  L-JG-GEUM             PIC Z(9)9.
+           02  L-SH-RATE             PIC ZZZ.ZZZZZZ.
+           02  L-IH-WT               PIC -(9)9.
+           02  L-VT-1                PIC -(10)9.
+           02  L-VT1-1               PIC -(9)9.
+           02  L-VT-2                PIC -(9)9.
+           02  L-VT1-2               PIC -(9)9.
+           02  L-PB                  PIC Z(9)9.
+           02  L-ALPHA               PIC Z(9)9.
+           02  L-IYUL                PIC Z(9)9.
+           02  FILLER                PIC X(01)    VALUE  SPACE.
+       01  I-KEY.                                                       
+           02  I-BOJONG           PIC 9(4).                             
+           02  I-NABGI            PIC 9(2).                             
+           02  I-MANGI            PIC 9(2).                             
+           02  I-NABBANG          PIC 9.                                
+           02  I-PINAI            PIC 9(2).                             
+           02  I-GYEONGGWA-YY     PIC 9(2).                             
+       01  REC-DANCHE             PIC 9(4).                             
+           88  DANCHE-BOJ         VALUE   8000 THRU 8999.               
+       01  REC-SAVE.                                                    
+           02  D-JEUNGBEON        PIC 9(7).                             
+           02  S-JEUNGBEON        PIC 9(7).                             
+           02  S-KEY              PIC X(13).                            
+       01  REC-CNT.                                                     
+           02  ZERO-B             PIC 9.
+           02  I                  PIC 9(7).
+           02  CNT-IN             PIC 9(7).                             
+           02  CNT-CHECK          PIC 9(7).                             
+           02  CNT-OUT            PIC 9(7).                             
+           02  CNT-SKIP           PIC 9(7).                             
+           02  CNT-PGSK           PIC 9(7).                             
+       01  REC-LINE.                                                    
+           02  LINE-1         PIC X(132)   VALUE SPACE.                 
+           02  LINE-2         PIC X(132)   VALUE ALL '-'.               
+           02  LINE-3         PIC X(132)   VALUE ALL '='.               
+       01  REC-TITLE.                                                   
+           02  TITLE1.                                                  
+               03  FILLER    PIC X(21)  VALUE  '   JNGBEON  BSMG  BOJ'.
+               03  FILLER    PIC X(21)  VALUE  'NG  BOJ-T  NG  MG NAB'.
+               03  FILLER    PIC X(21)  VALUE  '   BOGEUM       BOLYO'.
+               03  FILLER    PIC X(21)  VALUE  ' PAGE  SEX  GYE  SEX '.
+               03  FILLER    PIC X(21)  VALUE  ' GY-CYMD LNB-CYM  HOI'.
+               03  FILLER    PIC X(21)  VALUE  'SU  GNG-YM  DIV-CYM  '.
+               03  FILLER    PIC X(12)   VALUE 'RISK-P '.
+           02  TITLE2.                                                  
+               03  FILLER    PIC X(21)  VALUE  '   HG-GEUM   SH-GEUM '.
+               03  FILLER    PIC X(21)  VALUE  '  IH-GEUM   JG-GEUM  '.
+               03  FILLER    PIC X(21)  VALUE  ' SH-RATE     IH-WT   '.
+               03  FILLER    PIC X(21)  VALUE  '   VT0-1     VT1-1   '.
+               03  FILLER    PIC X(21)  VALUE  '  VT0-2     VT1-2    '.
+               03  FILLER    PIC X(21)  VALUE  ' VT-PB     ALPHA     '.
+               03  FILLER    PIC X(6)   VALUE  ' IYUL '.
+      *=================================*                               
+       PROCEDURE               DIVISION.                                
+      *=================================*                               
+           OPEN    INPUT    FILE-IN    OUTPUT   FILE-LIST.              
+           MOVE    ZERO     TO     REC-SAVE     REC-CNT.                
+      *--------*                                                        
+       READ-RTN.                                                        
+      *--------*                                                        
+           READ    FILE-IN          AT  END   GO  TO  LAST-RTN.         
+           ADD     1                TO  CNT-IN                          
+                                        CNT-SKIP.                       
+           MOVE    BD-BOJONG      TO    WK-BOJONG.                      
+           IF  HANARO  OR JIG-JEOCHUK  OR  GABOK
+                 NEXT  SENTENCE
+           ELSE
+                 GO  TO  READ-RTN.
+      *    IF CNT-SKIP = 500
+                 PERFORM               LIST-RTN
+                 MOVE    ZERO     TO   CNT-SKIP.
+           GO    TO      READ-RTN.                                      
+      *--------*                                                        
+       LIST-RTN.                                                        
+      *--------*                                                        
+      *---(LIST 1)------------------------------------------------------
+           MOVE  BD-JEUNGBEON         TO   L-JEUNGBEON.                 
+           MOVE  BD-BSMG              TO   L-BSMG.                      
+           MOVE  BD-BOJONG            TO   L-BOJONG.                    
+           MOVE  BD-BOJONG-T          TO   L-BOJONG-T.                  
+           MOVE  BD-NABGI             TO   L-NABGI.                     
+           MOVE  BD-MANGI             TO   L-MANGI.                     
+           MOVE  BD-NABBANG           TO   L-NABBANG.                   
+           MOVE  BD-BOGEUM            TO   L-BOGEUM.
+           MOVE  BD-BOLYO             TO   L-BOLYO.
+           MOVE  BD-PINAI             TO   L-PINAI.                     
+           MOVE  BD-PISEX             TO   L-PISEX.                     
+           MOVE  BD-GYENAI            TO   L-GYENAI.                    
+           MOVE  BD-GYESEX            TO   L-GYESEX.                    
+           MOVE  BD-GYE-CYMD          TO   L-GYEYAG-CYMD.               
+           MOVE  BD-LNAB-CYM          TO   L-LNAB-CYM.                  
+           MOVE  BD-LNAB-HWOISU       TO   L-LNAB-HWOISU.               
+           MOVE  BD-GNGWA-YM          TO   L-GNGWA-YM.                  
+           MOVE  BD-DIV-YM            TO   L-DIV-YM.                    
+           MOVE  BD-SH-PR1            TO   L-RISK-P.
+      *---(LIST 2)------------------------------------------------------
+      *    MOVE  BD-HG-WT             TO   L-HG-WT.
+           MOVE  BD-SH-YUL-1          TO   L-SH-RATE.
+           MOVE  BD-IH-WT             TO   L-IH-WT.
+           MOVE  BD-HG-BAE            TO   L-HG-GEUM.
+           MOVE  BD-SH-BAE            TO   L-SH-GEUM.
+           MOVE  BD-IH-BAE            TO   L-IH-GEUM.
+           MOVE  BD-JG-BAE            TO   L-JG-GEUM.
+           MOVE  BD-ALPHA             TO   L-ALPHA.
+           MOVE  BD-VT (1)            TO   L-VT-1.
+           MOVE  BD-VT1(1)            TO   L-VT1-1.
+           MOVE  BD-VT (2)            TO   L-VT-2.
+           MOVE  BD-VT1(2)            TO   L-VT1-2.
+           MOVE  BD-IYUL              TO   L-IYUL.                      
+           MOVE  BD-PB                TO   L-PB.
+      *-----------------------------------------------------------------
+           IF  CNT-PGSK  =  ZERO  OR  20
+                       MOVE   ZERO   TO      CNT-PGSK                   
+                       WRITE  REC-LIST  FROM  LINE-3   AFTER  PGSK      
+                       WRITE  REC-LIST  FROM  TITLE1   AFTER  1         
+                       WRITE  REC-LIST  FROM  TITLE2   AFTER  1         
+                       WRITE  REC-LIST  FROM  LINE-3   AFTER  1.        
+           WRITE    REC-LIST   FROM     LIST1   AFTER  1.               
+           WRITE    REC-LIST   FROM     LIST2   AFTER  1.               
+           WRITE    REC-LIST   FROM     LINE-2  AFTER  1.               
+           ADD       1         TO       CNT-OUT   CNT-PGSK.             
+      *--------*                                                        
+       LAST-RTN.                                                        
+      *--------*                                                        
+           WRITE  REC-LIST  FROM  LINE-1   AFTER  PGSK.                 
+           DISPLAY    '     *================================*'.        
+           DISPLAY    '     *   FILE-IN  TOTAL  =  '   CNT-IN.          
+           DISPLAY    '     *   FILE-OUT TOTAL  =  '   CNT-OUT.         
+           DISPLAY    '     *================================*'.        
+           CLOSE     FILE-IN    FILE-LIST.                              
+           STOP RUN.                                                    

@@ -1,0 +1,16 @@
+//KERJ7105 JOB (KER),'KER01',CLASS=K,MSGCLASS=X,MSGLEVEL=(1,1)          
+//*       TYPRUN=HOLD,TIME=1440,REGION=4M                               
+//STEP1    EXEC  PGM=KC7105                                             
+//STEPLIB  DD  DSN=PLI.Y2KBATCH.LOADLIB,DISP=SHR                        
+//SYSOUT   DD  SYSOUT=*                                                 
+//SYSDBOUT DD  SYSOUT=X                                                 
+//SYSPRINT DD  SYSOUT=X                                                 
+//FILEIN1  DD  DSN=KER.G0002.KX4,UNIT=SYSDA,VOL=SER=U1WRK4,             
+//         DISP=(OLD,KEEP)                                              
+//FILEIN2  DD  DSN=KER.G0002.KX1-2,UNIT=SYSDA,VOL=SER=U1WRK1,           
+//         DISP=(OLD,KEEP)                                              
+//FILEOUT  DD  DSN=KER.G0002.K5,UNIT=SYSDA,VOL=SER=U1WRK4,              
+//         DISP=(NEW,KEEP),SPACE=(TRK,(10000,1000),RLSE),               
+//         DCB=(RECFM=FB,LRECL=283,BLKSIZE=14150)                       
+/*                                                                      
+//                                                                      

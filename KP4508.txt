@@ -1,0 +1,593 @@
+//KERC4508 JOB (KER),'KER04',CLASS=S,MSGCLASS=X,MSGLEVEL=(1,1)
+//STEP1 EXEC YCOBBAT,MBR=K11C4508
+//COB.SYSIN DD *
+      *=================================*
+       IDENTIFICATION          DIVISION.
+       PROGRAM-ID.             K11C4508.
+       ENVIRONMENT             DIVISION.
+       CONFIGURATION           SECTION.
+      *--------------------------------*
+       SPECIAL-NAMES.          C01  IS   PGSK
+                               CSP  IS   DUP.
+       INPUT-OUTPUT            SECTION.
+       FILE-CONTROL.
+           SELECT  FILE-IN     ASSIGN    TO  FILEIN.
+      *    SELECT  FILE-PRINT  ASSIGN    TO  PRINT.
+           SELECT  FILE-OUT1   ASSIGN    TO  FILEOUT1.
+      *    SELECT  FILE-OUT2   ASSIGN    TO  FILEOUT2.
+      *=================================*
+       DATA                    DIVISION.
+      *=================================*
+       FILE                    SECTION.
+      *--------------------------------*
+       FD  FILE-IN     RECORDING   MODE       IS    F
+                       LABEL       RECORD           STANDARD
+                       BLOCK       CONTAINS   100   RECORDS
+                       RECORD      CONTAINS   202   CHARACTERS.
+       01  REC-IN.     COPY        K11B9303.
+
+      *FD  FILE-PRINT  RECORDING   MODE       IS    F
+      *                LABEL       RECORD           OMITTED.
+      *01  REC-PRINT            PIC  X(200).
+       FD  FILE-OUT1   RECORDING   MODE       IS    F
+                       LABEL       RECORD           OMITTED.
+       01  REC-OUT1             PIC X(132).
+      *FD  FILE-OUT2   RECORDING   MODE       IS    F
+      *                LABEL       RECORD           OMITTED.
+      *01  REC-OUT2             PIC X(132).
+      *================================*
+       WORKING-STORAGE         SECTION.
+      *================================*
+      **********************
+      *   MEMORY   GROUP   *
+      **********************
+       01  REC-WORK.
+         02  I                   PIC   9(04).
+         02  WK-SSY              PIC   9(02).
+         02  WK-JEUNGBEON        PIC   9(07).
+         02  WK-YUN-CODE         PIC   9(02).
+         02  K                   PIC   9(04).
+         02  KK                  PIC  S9(09).
+         02  T                   PIC   9(04).
+         02  WK-SP               PIC  S9(09).
+         02  CNT-IN              PIC   9(07).
+         02  CNT-OUT             PIC   9(07).
+       01  REC-BOJONG.
+              COPY     KBBOJ88.
+      *==============================================================*
+       01  BOJONG-TABLE.
+           03  BOJ-TAB              OCCURS  210.
+               04  BOJ-T            OCCURS  10.
+                   05  B-P          PIC S9(13).
+       01  BOJONG-TABLE2.
+           03  BOJ-TABB             OCCURS  210.
+               04  BOJ-TT           OCCURS  10.
+                   05  B-Q          PIC S9(13).
+      **********************
+      *   PRINT    GROUP   *
+      **********************
+       01  REC-HEAD.
+           03  FILLER                  PIC X(6).
+           03  P-YY                    PIC 9(4).
+           03  FILLER                  PIC X(4)    VALUE   '년'.
+           03  P-MM                    PIC 9(2).
+           03  FILLER                  PIC X(4)    VALUE   '월'.
+           03  HG-SSY                  PIC X(14).
+           03  FILLER                  PIC X(19).
+           03  FILLER                  PIC X(45)   VALUE
+              ' 보종별　수보　분해'.
+       01  DANWI.
+           03  FILLER                  PIC X(150) VALUE SPACE.
+           03  FILLER                  PIC X(21)
+                                 VALUE  ' ( 단위 : 원 )   '.
+
+       01  P-SAUBBI.
+           03  FILLER                  PIC X.
+           03  L-9                     PIC X(20).
+           03  L-BOLYO                 PIC ----,---,---,---,--9.
+           03  L-ALPHA                 PIC ----,---,---,---,--9.
+           03  L-BETA                  PIC ----,---,---,---,--9.
+           03  L-GAMMA                 PIC ----,---,---,---,--9.
+           03  L-WT-ALPHA              PIC ----,---,---,---,--9.
+           03  L-PR                    PIC ----,---,---,---,--9.
+           03  L-WT-SAVE               PIC ----,---,---,---,--9.
+           03  L-TR-RYO                PIC ----,---,---,---,--9.
+       01  P-SAUBBI2.
+           03  LL-GUBUN                PIC ZZ9.
+           03  FILLER                  PIC X(1) VALUE ';'.
+           03  LL-BOLYO                PIC -------------9.
+           03  FILLER                  PIC X(1) VALUE ';'.
+           03  LL-ALPHA                PIC ------------9.
+           03  FILLER                  PIC X(1) VALUE ';'.
+           03  LL-BETA                 PIC ------------9.
+           03  FILLER                  PIC X(1) VALUE ';'.
+           03  LL-GAMMA                PIC -----------9.
+           03  FILLER                  PIC X(2)  VALUE '; '.
+           03  LL-WT-ALPHA             PIC -----------9.
+           03  FILLER                  PIC X(1)  VALUE ';'.
+           03  LL-PR                   PIC -----------9.
+           03  FILLER                  PIC X(1)  VALUE ';'.
+           03  LL-WT-SAVE              PIC -----------9.
+           03  FILLER                  PIC X(1)  VALUE ';'.
+           03  LL-TR-RYO               PIC ----------9.
+           03  FILLER                  PIC X(2)  VALUE '; '.
+           03  LL-SP                   PIC -----------9.
+           03  FILLER                  PIC X(2)  VALUE '; '.
+       01  REC-BOJ-SOURCE.
+          COPY  K11BNAM2 SUPPRESS.
+
+       01  P-TITLE.
+         02  FILLER                  PIC X(65)   VALUE
+           '  보　　　　종　　　　　　수입　보험료　　　　　신계약비'.
+         02  FILLER                  PIC X(65)   VALUE
+           '       유지비　　　　　　　　수금비　　　　　　재원식α'.
+         02  FILLER                  PIC X(65)   VALUE
+           '   위험보험료          WT-저축식　　　　　　퇴　　직'.
+
+       01  REC-YANGSIK.
+           02  YA-SPACE        PIC X(200)   VALUE   SPACE.
+           02  YA-TITLE        PIC X(200)   VALUE   ALL  '='.
+           02  YA-HEAD.
+               03  FILLER      PIC X(48)    VALUE   SPACE.
+               03  FILLER      PIC X(35)    VALUE   ALL  '*'.
+               03  FILLER      PIC X(49)    VALUE   SPACE.
+           02  YA-DATA         PIC X(200)   VALUE   ALL  '-'.
+       01  ACCEPT-DATA.
+         02  ACC-LYO                PIC   9(12).
+         02  FILLER                 PIC   X(1).
+         02  ACC-ALP                PIC   9(10).
+         02  FILLER                 PIC   X(1).
+         02  ACC-BET                PIC   9(10).
+         02  FILLER                 PIC   X(1).
+         02  ACC-PR                 PIC   9(10).
+         02  FILLER                 PIC   X(1).
+         02  ACC-PS                 PIC   9(12).
+
+       01  REC-SWITCH.
+           02  FILE-EOF-SW     PIC X(3)    VALUE   'NO '.
+               88  FILE-EOF                VALUE   'YES'.
+           02  FIRST-DATA-SW   PIC X(3)    VALUE   'YES'.
+               88  FIRST-DATA              VALUE   'YES'.
+       EJECT
+      *=============================*
+       PROCEDURE           DIVISION.
+      *=============================*
+       000-BODY.
+           OPEN   INPUT    FILE-IN
+                  OUTPUT   FILE-OUT1.
+      *           OUTPUT   FILE-PRINT  FILE-OUT1  FILE-OUT2.
+           INITIALIZE      BOJONG-TABLE   REC-WORK    REC-BOJONG
+                           BOJONG-TABLE2  REC-HEAD    P-SAUBBI.
+           PERFORM         110-READ-SELECT.
+           PERFORM         100-PG-CONTROL  UNTIL   FILE-EOF.
+           PERFORM         130-ACC-DATA.
+           PERFORM         200-DATA-PRINT-CONTROL.
+      *    WRITE    REC-PRINT   FROM   YA-SPACE    AFTER  PGSK.
+      *    WRITE    REC-PRINT   FROM   YA-SPACE    AFTER  2 LINE.
+      *    CLOSE           FILE-IN    FILE-PRINT  FILE-OUT1  FILE-OUT2.
+           CLOSE           FILE-IN    FILE-OUT1.
+           STOP            RUN.
+      *=============================*
+
+       100-PG-CONTROL.
+           PERFORM          120-BOJONG-DATA-CHORI.
+           PERFORM          110-READ-SELECT.
+       110-READ-SELECT.
+           READ     FILE-IN   END    MOVE 'YES'  TO   FILE-EOF-SW.
+           IF  NOT  FILE-EOF         ADD   1     TO   CNT-IN
+      *       IF  KS-IDONG-A = 'S'   NEXT  SENTENCE
+      *       ELSE                   GO   TO     110-READ-SELECT.
+           IF  FIRST-DATA
+                  MOVE   KS-JOSA-YY    TO   P-YY
+                  MOVE   KS-JOSA-MM    TO   P-MM
+                  MOVE   'NO '         TO   FIRST-DATA-SW.
+
+       120-BOJONG-DATA-CHORI.
+           IF KS-IDONG-A = 'S'
+                COMPUTE  WK-SP  = KS-BOLYO * KS-HOISU
+           ELSE                   MOVE    ZERO    TO  WK-SP.
+           PERFORM             121-BOJONG-CONVERSION.
+      *    IF  I = 50  OR 60        MOVE   10   TO   I       ELSE
+      *    IF  I = 51  OR 61        MOVE   11   TO   I       ELSE
+      *    IF  I = 52               MOVE   12   TO   I       ELSE
+      *    IF  I = 53               MOVE   13   TO   I       ELSE
+      *    IF  I = 54               MOVE   14   TO   I       ELSE
+      *    IF  I = 170              MOVE   131  TO   I       ELSE
+      *    IF  I = 171              MOVE   132  TO   I       ELSE
+      *    IF  I = 172              MOVE   133  TO   I.
+           IF  KS-IDONG-A < 'F' OR (KS-IDONG-A = 'S' OR 'T')
+              IF   KS-NABBANG  = 3  OR 6  OR  8
+                                 PERFORM   122-NABBANG.
+
+           ADD    KS-HABBOLYO  TO   B-P(I   1)  B-P(210 1).
+           ADD    KS-ALPHA     TO   B-P(I   2)  B-P(210 2).
+           ADD    KS-BETA      TO   B-P(I   3)  B-P(210 3).
+           ADD    KS-GAMMA     TO   B-P(I   4)  B-P(210 4).
+           ADD    KS-WT-ALPHA  TO   B-P(I   5)  B-P(210 5).
+           ADD    KS-PR-RYO    TO   B-P(I   6)  B-P(210 6).
+           ADD    KS-HS-RYO    TO   B-P(I   7)  B-P(210 7).
+           ADD    KS-TR-RYO    TO   B-P(I   8)  B-P(210 8).
+           ADD    WK-SP        TO   B-P(I   9)  B-P(210 9).
+           IF  WK-SSY = 1
+             IF  I < 9
+                ADD   KS-HABBOLYO TO  B-P(9  1)  B-P(49  1)
+                                      B-P(69 1)  B-P(179 1)
+                ADD   KS-ALPHA    TO  B-P(9  2)  B-P(49  2)
+                                      B-P(69 2)  B-P(179 2)
+                ADD   KS-BETA     TO  B-P(9  3)  B-P(49  3)
+                                      B-P(69 3)  B-P(179 3)
+                ADD   KS-GAMMA    TO  B-P(9  4)  B-P(49  4)
+                                      B-P(69 4)  B-P(179 4)
+                ADD   KS-WT-ALPHA TO  B-P(9  5)  B-P(49  5)
+                                      B-P(69 5)  B-P(179 5)
+                ADD   KS-PR-RYO   TO  B-P(9  6)  B-P(49  6)
+                                      B-P(69 6)  B-P(179 6)
+                ADD   KS-HS-RYO   TO  B-P(9  7)  B-P(49  7)
+                                      B-P(69 7)  B-P(179 7)
+                ADD   KS-TR-RYO   TO  B-P(9  8)  B-P(49  8)
+                                      B-P(69 8)  B-P(179 8)
+                ADD   WK-SP       TO  B-P(9  9)  B-P(49  9)
+                                      B-P(69 9)  B-P(179 9)
+             ELSE IF  I < 49
+                ADD  KS-HABBOLYO TO  B-P(49 1) B-P(69 1) B-P(179 1)
+                ADD  KS-ALPHA    TO  B-P(49 2) B-P(69 2) B-P(179 2)
+                ADD  KS-BETA     TO  B-P(49 3) B-P(69 3) B-P(179 3)
+                ADD  KS-GAMMA    TO  B-P(49 4) B-P(69 4) B-P(179 4)
+                ADD  KS-WT-ALPHA TO  B-P(49 5) B-P(69 5) B-P(179 5)
+                ADD  KS-PR-RYO   TO  B-P(49 6) B-P(69 6) B-P(179 6)
+                ADD  KS-HS-RYO   TO  B-P(49 7) B-P(69 7) B-P(179 7)
+                ADD  KS-TR-RYO   TO  B-P(49 8) B-P(69 8) B-P(179 8)
+                ADD  WK-SP       TO  B-P(49 9) B-P(69 9) B-P(179 9)
+             ELSE IF  I < 59
+                ADD  KS-HABBOLYO TO  B-P(59 1) B-P(69 1) B-P(179 1)
+                ADD  KS-ALPHA    TO  B-P(59 2) B-P(69 2) B-P(179 2)
+                ADD  KS-BETA     TO  B-P(59 3) B-P(69 3) B-P(179 3)
+                ADD  KS-GAMMA    TO  B-P(59 4) B-P(69 4) B-P(179 4)
+                ADD  KS-WT-ALPHA TO  B-P(59 5) B-P(69 5) B-P(179 5)
+                ADD  KS-PR-RYO   TO  B-P(59 6) B-P(69 6) B-P(179 6)
+                ADD  KS-HS-RYO   TO  B-P(59 7) B-P(69 7) B-P(179 7)
+                ADD  KS-TR-RYO   TO  B-P(59 8) B-P(69 8) B-P(179 8)
+                ADD  WK-SP       TO  B-P(59 9) B-P(69 9) B-P(179 9)
+             ELSE IF  I < 68
+                ADD  KS-HABBOLYO TO  B-P(68 1) B-P(69 1) B-P(179 1)
+                ADD  KS-ALPHA    TO  B-P(68 2) B-P(69 2) B-P(179 2)
+                ADD  KS-BETA     TO  B-P(68 3) B-P(69 3) B-P(179 3)
+                ADD  KS-GAMMA    TO  B-P(68 4) B-P(69 4) B-P(179 4)
+                ADD  KS-WT-ALPHA TO  B-P(68 5) B-P(69 5) B-P(179 5)
+                ADD  KS-PR-RYO   TO  B-P(68 6) B-P(69 6) B-P(179 6)
+                ADD  KS-HS-RYO   TO  B-P(68 7) B-P(69 7) B-P(179 7)
+                ADD  KS-TR-RYO   TO  B-P(68 8) B-P(69 8) B-P(179 8)
+                ADD  WK-SP       TO  B-P(68 9) B-P(69 9) B-P(179 9)
+             ELSE
+                       DISPLAY ' 1. 생존코드  에러 = ' I     ELSE
+
+           IF  WK-SSY   =  2
+             IF   I < 89
+                ADD  KS-HABBOLYO TO  B-P(89 1) B-P(129 1) B-P(179 1)
+                ADD  KS-ALPHA    TO  B-P(89 2) B-P(129 2) B-P(179 2)
+                ADD  KS-BETA     TO  B-P(89 3) B-P(129 3) B-P(179 3)
+                ADD  KS-GAMMA    TO  B-P(89 4) B-P(129 4) B-P(179 4)
+                ADD  KS-WT-ALPHA TO  B-P(89 5) B-P(129 5) B-P(179 5)
+                ADD  KS-PR-RYO   TO  B-P(89 6) B-P(129 6) B-P(179 6)
+                ADD  KS-HS-RYO   TO  B-P(89 7) B-P(129 7) B-P(179 7)
+                ADD  KS-TR-RYO   TO  B-P(89 8) B-P(129 8) B-P(179 8)
+                ADD  WK-SP       TO  B-P(89 9) B-P(129 9) B-P(179 9)
+             ELSE IF  I < 128
+                ADD  KS-HABBOLYO TO  B-P(128 1) B-P(129 1) B-P(179 1)
+                ADD  KS-ALPHA    TO  B-P(128 2) B-P(129 2) B-P(179 2)
+                ADD  KS-BETA     TO  B-P(128 3) B-P(129 3) B-P(179 3)
+                ADD  KS-GAMMA    TO  B-P(128 4) B-P(129 4) B-P(179 4)
+                ADD  KS-WT-ALPHA TO  B-P(128 5) B-P(129 5) B-P(179 5)
+                ADD  KS-PR-RYO   TO  B-P(128 6) B-P(129 6) B-P(179 6)
+                ADD  KS-HS-RYO   TO  B-P(128 7) B-P(129 7) B-P(179 7)
+                ADD  KS-TR-RYO   TO  B-P(128 8) B-P(129 8) B-P(179 8)
+                ADD  WK-SP       TO  B-P(128 9) B-P(129 9) B-P(179 9)
+             ELSE
+                       DISPLAY ' 2. 사망코드  에러 = ' I      ELSE
+
+           IF  WK-SSY   =  3
+             IF  I < 169
+                ADD  KS-HABBOLYO TO  B-P(169 1) B-P(178 1) B-P(179 1)
+                ADD  KS-ALPHA    TO  B-P(169 2) B-P(178 2) B-P(179 2)
+                ADD  KS-BETA     TO  B-P(169 3) B-P(178 3) B-P(179 3)
+                ADD  KS-GAMMA    TO  B-P(169 4) B-P(178 4) B-P(179 4)
+                ADD  KS-WT-ALPHA TO  B-P(169 5) B-P(178 5) B-P(179 5)
+                ADD  KS-PR-RYO   TO  B-P(169 6) B-P(178 6) B-P(179 6)
+                ADD  KS-HS-RYO   TO  B-P(169 7) B-P(178 7) B-P(179 7)
+                ADD  KS-TR-RYO   TO  B-P(169 8) B-P(178 8) B-P(179 8)
+                ADD  WK-SP       TO  B-P(169 9) B-P(178 9) B-P(179 9)
+             ELSE IF  I < 177
+                ADD  KS-HABBOLYO TO  B-P(177 1) B-P(178 1) B-P(179 1)
+                ADD  KS-ALPHA    TO  B-P(177 2) B-P(178 2) B-P(179 2)
+                ADD  KS-BETA     TO  B-P(177 3) B-P(178 3) B-P(179 3)
+                ADD  KS-GAMMA    TO  B-P(177 4) B-P(178 4) B-P(179 4)
+                ADD  KS-WT-ALPHA TO  B-P(177 5) B-P(178 5) B-P(179 5)
+                ADD  KS-PR-RYO   TO  B-P(177 6) B-P(178 6) B-P(179 6)
+                ADD  KS-HS-RYO   TO  B-P(177 7) B-P(178 7) B-P(179 7)
+                ADD  KS-TR-RYO   TO  B-P(177 8) B-P(178 8) B-P(179 8)
+                ADD  WK-SP       TO  B-P(177 9) B-P(178 9) B-P(179 9)
+             ELSE
+                       DISPLAY ' 3. 양로코드  에러 = ' I    ELSE
+
+           IF  WK-SSY   =  4
+             IF  I < 199
+                ADD  KS-HABBOLYO TO  B-P(199 1)  B-P(209 1)
+                ADD  KS-ALPHA    TO  B-P(199 2)  B-P(209 2)
+                ADD  KS-BETA     TO  B-P(199 3)  B-P(209 3)
+                ADD  KS-GAMMA    TO  B-P(199 4)  B-P(209 4)
+                ADD  KS-WT-ALPHA TO  B-P(199 5)  B-P(209 5)
+                ADD  KS-PR-RYO   TO  B-P(199 6)  B-P(209 6)
+                ADD  KS-HS-RYO   TO  B-P(199 7)  B-P(209 7)
+                ADD  KS-TR-RYO   TO  B-P(199 8)  B-P(209 8)
+                ADD  WK-SP       TO  B-P(199 9)  B-P(209 9)
+             ELSE IF  I < 208
+                ADD  KS-HABBOLYO TO  B-P(208 1)  B-P(209 1)
+                ADD  KS-ALPHA    TO  B-P(208 2)  B-P(209 2)
+                ADD  KS-BETA     TO  B-P(208 3)  B-P(209 3)
+                ADD  KS-GAMMA    TO  B-P(208 4)  B-P(209 4)
+                ADD  KS-WT-ALPHA TO  B-P(208 5)  B-P(209 5)
+                ADD  KS-PR-RYO   TO  B-P(208 6)  B-P(209 6)
+                ADD  KS-HS-RYO   TO  B-P(208 7)  B-P(209 7)
+                ADD  KS-TR-RYO   TO  B-P(208 8)  B-P(209 8)
+                ADD  WK-SP       TO  B-P(208 9)  B-P(209 9)
+             ELSE
+                       DISPLAY ' 4. 사망코드  에러 = ' I.
+       122-NABBANG.
+           ADD    KS-HABBOLYO  TO   B-Q(I   1)  B-Q(210 1).
+           ADD    KS-ALPHA     TO   B-Q(I   2)  B-Q(210 2).
+           ADD    KS-BETA      TO   B-Q(I   3)  B-Q(210 3).
+           ADD    KS-GAMMA     TO   B-Q(I   4)  B-Q(210 4).
+           ADD    KS-WT-ALPHA  TO   B-Q(I   5)  B-Q(210 5).
+           ADD    KS-PR-RYO    TO   B-Q(I   6)  B-Q(210 6).
+           ADD    KS-HS-RYO    TO   B-Q(I   7)  B-Q(210 7).
+           ADD    KS-TR-RYO    TO   B-Q(I   8)  B-Q(210 8).
+           ADD    WK-SP        TO   B-Q(I   9)  B-Q(210 9).
+           IF  WK-SSY = 1
+             IF  I < 9
+                ADD   KS-HABBOLYO TO  B-Q(9  1)  B-Q(49  1)
+                                      B-Q(69 1)  B-Q(179 1)
+                ADD   KS-ALPHA    TO  B-Q(9  2)  B-Q(49  2)
+                                      B-Q(69 2)  B-Q(179 2)
+                ADD   KS-BETA     TO  B-Q(9  3)  B-Q(49  3)
+                                      B-Q(69 3)  B-Q(179 3)
+                ADD   KS-GAMMA    TO  B-Q(9  4)  B-Q(49  4)
+                                      B-Q(69 4)  B-Q(179 4)
+                ADD   KS-WT-ALPHA TO  B-Q(9  5)  B-Q(49  5)
+                                      B-Q(69 5)  B-Q(179 5)
+                ADD   KS-PR-RYO   TO  B-Q(9  6)  B-Q(49  6)
+                                      B-Q(69 6)  B-Q(179 6)
+                ADD   KS-HS-RYO   TO  B-Q(9  7)  B-Q(49  7)
+                                      B-Q(69 7)  B-Q(179 7)
+                ADD   KS-TR-RYO   TO  B-Q(9  8)  B-Q(49  8)
+                                      B-Q(69 8)  B-Q(179 8)
+                ADD   WK-SP       TO  B-Q(9  9)  B-Q(49  9)
+                                      B-Q(69 9)  B-Q(179 9)
+             ELSE IF  I < 49
+                ADD  KS-HABBOLYO TO  B-Q(49 1) B-Q(69 1) B-Q(179 1)
+                ADD  KS-ALPHA    TO  B-Q(49 2) B-Q(69 2) B-Q(179 2)
+                ADD  KS-BETA     TO  B-Q(49 3) B-Q(69 3) B-Q(179 3)
+                ADD  KS-GAMMA    TO  B-Q(49 4) B-Q(69 4) B-Q(179 4)
+                ADD  KS-WT-ALPHA TO  B-Q(49 5) B-Q(69 5) B-Q(179 5)
+                ADD  KS-PR-RYO   TO  B-Q(49 6) B-Q(69 6) B-Q(179 6)
+                ADD  KS-HS-RYO   TO  B-Q(49 7) B-Q(69 7) B-Q(179 7)
+                ADD  KS-TR-RYO   TO  B-Q(49 8) B-Q(69 8) B-Q(179 8)
+                ADD  WK-SP       TO  B-Q(49 9) B-Q(69 9) B-Q(179 9)
+             ELSE IF  I < 59
+                ADD  KS-HABBOLYO TO  B-Q(59 1) B-Q(69 1) B-Q(179 1)
+                ADD  KS-ALPHA    TO  B-Q(59 2) B-Q(69 2) B-Q(179 2)
+                ADD  KS-BETA     TO  B-Q(59 3) B-Q(69 3) B-Q(179 3)
+                ADD  KS-GAMMA    TO  B-Q(59 4) B-Q(69 4) B-Q(179 4)
+                ADD  KS-WT-ALPHA TO  B-Q(59 5) B-Q(69 5) B-Q(179 5)
+                ADD  KS-PR-RYO   TO  B-Q(59 6) B-Q(69 6) B-Q(179 6)
+                ADD  KS-HS-RYO   TO  B-Q(59 7) B-Q(69 7) B-Q(179 7)
+                ADD  KS-TR-RYO   TO  B-Q(59 8) B-Q(69 8) B-Q(179 8)
+                ADD  WK-SP       TO  B-Q(59 9) B-Q(69 9) B-Q(179 9)
+             ELSE IF  I < 68
+                ADD  KS-HABBOLYO TO  B-Q(68 1) B-Q(69 1) B-Q(179 1)
+                ADD  KS-ALPHA    TO  B-Q(68 2) B-Q(69 2) B-Q(179 2)
+                ADD  KS-BETA     TO  B-Q(68 3) B-Q(69 3) B-Q(179 3)
+                ADD  KS-GAMMA    TO  B-Q(68 4) B-Q(69 4) B-Q(179 4)
+                ADD  KS-WT-ALPHA TO  B-Q(68 5) B-Q(69 5) B-Q(179 5)
+                ADD  KS-PR-RYO   TO  B-Q(68 6) B-Q(69 6) B-Q(179 6)
+                ADD  KS-HS-RYO   TO  B-Q(68 7) B-Q(69 7) B-Q(179 7)
+                ADD  KS-TR-RYO   TO  B-Q(68 8) B-Q(69 8) B-Q(179 8)
+                ADD  WK-SP       TO  B-Q(68 9) B-Q(69 9) B-Q(179 9)
+             ELSE
+                       DISPLAY ' 1. 생존코드  에러 = ' I     ELSE
+
+           IF  WK-SSY   =  2
+             IF   I < 89
+                ADD  KS-HABBOLYO TO  B-Q(89 1) B-Q(129 1) B-Q(179 1)
+                ADD  KS-ALPHA    TO  B-Q(89 2) B-Q(129 2) B-Q(179 2)
+                ADD  KS-BETA     TO  B-Q(89 3) B-Q(129 3) B-Q(179 3)
+                ADD  KS-GAMMA    TO  B-Q(89 4) B-Q(129 4) B-Q(179 4)
+                ADD  KS-WT-ALPHA TO  B-Q(89 5) B-Q(129 5) B-Q(179 5)
+                ADD  KS-PR-RYO   TO  B-Q(89 6) B-Q(129 6) B-Q(179 6)
+                ADD  KS-HS-RYO   TO  B-Q(89 7) B-Q(129 7) B-Q(179 7)
+                ADD  KS-TR-RYO   TO  B-Q(89 8) B-Q(129 8) B-Q(179 8)
+                ADD  WK-SP       TO  B-Q(89 9) B-Q(129 9) B-Q(179 9)
+             ELSE IF  I < 128
+                ADD  KS-HABBOLYO TO  B-Q(128 1) B-Q(129 1) B-Q(179 1)
+                ADD  KS-ALPHA    TO  B-Q(128 2) B-Q(129 2) B-Q(179 2)
+                ADD  KS-BETA     TO  B-Q(128 3) B-Q(129 3) B-Q(179 3)
+                ADD  KS-GAMMA    TO  B-Q(128 4) B-Q(129 4) B-Q(179 4)
+                ADD  KS-WT-ALPHA TO  B-Q(128 5) B-Q(129 5) B-Q(179 5)
+                ADD  KS-PR-RYO   TO  B-Q(128 6) B-Q(129 6) B-Q(179 6)
+                ADD  KS-HS-RYO   TO  B-Q(128 7) B-Q(129 7) B-Q(179 7)
+                ADD  KS-TR-RYO   TO  B-Q(128 8) B-Q(129 8) B-Q(179 8)
+                ADD  WK-SP       TO  B-Q(128 9) B-Q(129 9) B-Q(179 9)
+             ELSE
+                       DISPLAY ' 2. 사망코드  에러 = ' I      ELSE
+
+           IF  WK-SSY   =  3
+             IF  I < 169
+                ADD  KS-HABBOLYO TO  B-Q(169 1) B-Q(178 1) B-Q(179 1)
+                ADD  KS-ALPHA    TO  B-Q(169 2) B-Q(178 2) B-Q(179 2)
+                ADD  KS-BETA     TO  B-Q(169 3) B-Q(178 3) B-Q(179 3)
+                ADD  KS-GAMMA    TO  B-Q(169 4) B-Q(178 4) B-Q(179 4)
+                ADD  KS-WT-ALPHA TO  B-Q(169 5) B-Q(178 5) B-Q(179 5)
+                ADD  KS-PR-RYO   TO  B-Q(169 6) B-Q(178 6) B-Q(179 6)
+                ADD  KS-HS-RYO   TO  B-Q(169 7) B-Q(178 7) B-Q(179 7)
+                ADD  KS-TR-RYO   TO  B-Q(169 8) B-Q(178 8) B-Q(179 8)
+                ADD  WK-SP       TO  B-Q(169 9) B-Q(178 9) B-Q(179 9)
+             ELSE IF  I < 177
+                ADD  KS-HABBOLYO TO  B-Q(177 1) B-Q(178 1) B-Q(179 1)
+                ADD  KS-ALPHA    TO  B-Q(177 2) B-Q(178 2) B-Q(179 2)
+                ADD  KS-BETA     TO  B-Q(177 3) B-Q(178 3) B-Q(179 3)
+                ADD  KS-GAMMA    TO  B-Q(177 4) B-Q(178 4) B-Q(179 4)
+                ADD  KS-WT-ALPHA TO  B-Q(177 5) B-Q(178 5) B-Q(179 5)
+                ADD  KS-PR-RYO   TO  B-Q(177 6) B-Q(178 6) B-Q(179 6)
+                ADD  KS-HS-RYO   TO  B-Q(177 7) B-Q(178 7) B-Q(179 7)
+                ADD  KS-TR-RYO   TO  B-Q(177 8) B-Q(178 8) B-Q(179 8)
+                ADD  WK-SP       TO  B-Q(177 9) B-Q(178 9) B-Q(179 9)
+             ELSE
+                       DISPLAY ' 3. 양로코드  에러 = ' I    ELSE
+
+           IF  WK-SSY   =  4
+             IF  I < 199
+                ADD  KS-HABBOLYO TO  B-Q(199 1)  B-Q(209 1)
+                ADD  KS-ALPHA    TO  B-Q(199 2)  B-Q(209 2)
+                ADD  KS-BETA     TO  B-Q(199 3)  B-Q(209 3)
+                ADD  KS-GAMMA    TO  B-Q(199 4)  B-Q(209 4)
+                ADD  KS-WT-ALPHA TO  B-Q(199 5)  B-Q(209 5)
+                ADD  KS-PR-RYO   TO  B-Q(199 6)  B-Q(209 6)
+                ADD  KS-HS-RYO   TO  B-Q(199 7)  B-Q(209 7)
+                ADD  KS-TR-RYO   TO  B-Q(199 8)  B-Q(209 8)
+                ADD  WK-SP       TO  B-Q(199 9)  B-Q(209 9)
+             ELSE IF  I < 208
+                ADD  KS-HABBOLYO TO  B-Q(208 1)  B-Q(209 1)
+                ADD  KS-ALPHA    TO  B-Q(208 2)  B-Q(209 2)
+                ADD  KS-BETA     TO  B-Q(208 3)  B-Q(209 3)
+                ADD  KS-GAMMA    TO  B-Q(208 4)  B-Q(209 4)
+                ADD  KS-WT-ALPHA TO  B-Q(208 5)  B-Q(209 5)
+                ADD  KS-PR-RYO   TO  B-Q(208 6)  B-Q(209 6)
+                ADD  KS-HS-RYO   TO  B-Q(208 7)  B-Q(209 7)
+                ADD  KS-TR-RYO   TO  B-Q(208 8)  B-Q(209 8)
+                ADD  WK-SP       TO  B-Q(208 9)  B-Q(209 9)
+             ELSE
+                       DISPLAY ' 4. 사망코드  에러 = ' I.
+
+      *---------------------*
+       121-BOJONG-CONVERSION.
+      *---------------------*
+           MOVE   KS-BOJONG    TO    WK-BOJONG.
+           MOVE   ZERO         TO    I.
+           MOVE   KS-JEUNGBEON  TO   WK-JEUNGBEON.
+           MOVE   KS-SSY        TO   WK-SSY.
+           MOVE   KS-YUN-CODE   TO   WK-YUN-CODE.
+           COPY  K11BCONV.
+      *-------------*
+       130-ACC-DATA.
+      *-------------*
+           ACCEPT     ACCEPT-DATA.
+           ADD   ACC-LYO TO B-P(200 1) B-P(208 1) B-P(209 1) B-P(210 1).
+           ADD   ACC-ALP TO B-P(200 2) B-P(208 2) B-P(209 2) B-P(210 2)
+                            B-P(200 5) B-P(208 5) B-P(209 5) B-P(210 5).
+           ADD   ACC-BET TO B-P(200 3) B-P(208 3) B-P(209 3) B-P(210 3).
+           ADD   ACC-PR  TO B-P(200 6) B-P(208 6) B-P(209 6) B-P(210 6).
+           ADD   ACC-PS  TO B-P(200 7) B-P(208 7) B-P(209 7) B-P(210 7).
+
+           ADD   ACC-LYO TO B-Q(200 1) B-Q(208 1) B-Q(209 1) B-Q(210 1).
+           ADD   ACC-ALP TO B-Q(200 2) B-Q(208 2) B-Q(209 2) B-Q(210 2)
+                            B-Q(200 5) B-Q(208 5) B-Q(209 5) B-Q(210 5).
+           ADD   ACC-BET TO B-Q(200 3) B-Q(208 3) B-Q(209 3) B-Q(210 3).
+           ADD   ACC-PR  TO B-Q(200 6) B-Q(208 6) B-Q(209 6) B-Q(210 6).
+           ADD   ACC-PS  TO B-Q(200 7) B-Q(208 7) B-Q(209 7) B-Q(210 7).
+           ACCEPT         ACCEPT-DATA.
+      *----------------------*
+       200-DATA-PRINT-CONTROL.
+      *----------------------*
+           MOVE     1            TO        T.
+           ADD      1            TO        K.
+           MOVE    ZERO          TO        I.
+      *    PERFORM      900-HEAD-TITLE.
+           PERFORM 210-BO-MOVE VARYING I FROM 1 BY 1 UNTIL I > 210.
+      *    PERFORM 220-BO-MOVE VARYING I FROM 1 BY 1 UNTIL I > 210.
+      *------------*
+       210-BO-MOVE.
+      *------------*
+           MOVE   I             TO    LL-GUBUN.
+      *    MOVE   BO-SO (I)     TO    L-9.
+      *    MOVE   B-P(I  1)    TO    L-BOLYO.
+      *    MOVE   B-P(I  2)    TO    L-ALPHA.
+      *    MOVE   B-P(I  3)    TO    L-BETA.
+      *    MOVE   B-P(I  4)    TO    L-GAMMA.
+      *    MOVE   B-P(I  5)    TO    L-WT-ALPHA.
+      *    MOVE   B-P(I  6)    TO    L-PR.
+      *    MOVE   B-P(I  7)    TO    L-WT-SAVE.
+      *    MOVE   B-P(I  8)    TO    L-TR-RYO.
+      *    IF (NOT B-P(I 1) = ZERO) OR (NOT (B-P(I 2) + B-P(I 3) +
+      *          + B-P(I 4) = ZERO)) OR (NOT (B-P(I 6) + B-P(I 7)
+      *          + B-P(I 8) = ZERO))
+      *        WRITE   REC-PRINT   FROM  P-SAUBBI   AFTER 1.
+      *    COMPUTE  B-P(I 1) ROUNDED = B-P(I 1) / 1000.
+      *    COMPUTE  B-P(I 2) ROUNDED = B-P(I 2) / 1000.
+      *    COMPUTE  B-P(I 3) ROUNDED = B-P(I 3) / 1000.
+      *    COMPUTE  B-P(I 4) ROUNDED = B-P(I 4) / 1000.
+      *    COMPUTE  B-P(I 5) ROUNDED = B-P(I 5) / 1000.
+      *    COMPUTE  B-P(I 6) ROUNDED = B-P(I 6) / 1000.
+      *    COMPUTE  B-P(I 7) ROUNDED = B-P(I 7) / 1000.
+      *    COMPUTE  B-P(I 8) ROUNDED = B-P(I 8) / 1000.
+      *    COMPUTE  B-P(I 9) ROUNDED = B-P(I 9) / 1000.
+           MOVE   B-P(I  1)    TO    LL-BOLYO.
+           MOVE   B-P(I  2)    TO    LL-ALPHA.
+           MOVE   B-P(I  3)    TO    LL-BETA.
+           MOVE   B-P(I  4)    TO    LL-GAMMA.
+           MOVE   B-P(I  5)    TO    LL-WT-ALPHA.
+           MOVE   B-P(I  6)    TO    LL-PR.
+           MOVE   B-P(I  7)    TO    LL-WT-SAVE.
+           MOVE   B-P(I  8)    TO    LL-TR-RYO.
+           MOVE   B-P(I  9)    TO    LL-SP.
+           WRITE   REC-OUT1    FROM  P-SAUBBI2.
+      *    IF  I  =  9   OR 49 OR  59  OR  68  OR  69  OR  89  OR
+      *              128 OR 129 OR  169 OR  177 OR  178  OR  179  OR
+      *              199 OR 208  OR 209 OR 210
+      *              WRITE   REC-PRINT   FROM  YA-TITLE    AFTER 1
+      *    ELSE
+      *    IF (NOT B-P(I 1) = ZERO) OR (NOT (B-P(I 2) + B-P(I 3) +
+      *          + B-P(I 4) = ZERO)) OR (NOT (B-P(I 6) + B-P(I 7)
+      *          + B-P(I 8) = ZERO))
+      *              WRITE   REC-PRINT   FROM  YA-DATA     AFTER 1.
+      *
+      *    IF  I  = 69  OR  129 OR  179
+      *              ADD      1   TO    T
+      *              PERFORM      900-HEAD-TITLE.
+           MOVE      SPACE        TO    P-SAUBBI.
+
+       220-BO-MOVE.
+      *    COMPUTE  B-Q(I 1) ROUNDED = B-Q(I 1) / 1000.
+      *    COMPUTE  B-Q(I 2) ROUNDED = B-Q(I 2) / 1000.
+      *    COMPUTE  B-Q(I 3) ROUNDED = B-Q(I 3) / 1000.
+      *    COMPUTE  B-Q(I 4) ROUNDED = B-Q(I 4) / 1000.
+      *    COMPUTE  B-Q(I 5) ROUNDED = B-Q(I 5) / 1000.
+      *    COMPUTE  B-Q(I 6) ROUNDED = B-Q(I 6) / 1000.
+      *    COMPUTE  B-Q(I 7) ROUNDED = B-Q(I 7) / 1000.
+      *    COMPUTE  B-Q(I 8) ROUNDED = B-Q(I 8) / 1000.
+      *    COMPUTE  B-Q(I 9) ROUNDED = B-Q(I 9) / 1000.
+           MOVE   I             TO    LL-GUBUN.
+           MOVE   BO-SO (I)      TO    L-9.
+           MOVE   B-Q(I  1)    TO    L-BOLYO     LL-BOLYO.
+           MOVE   B-Q(I  2)    TO    L-ALPHA     LL-ALPHA.
+           MOVE   B-Q(I  3)    TO    L-BETA      LL-BETA.
+           MOVE   B-Q(I  4)    TO    L-GAMMA     LL-GAMMA.
+           MOVE   B-Q(I  5)    TO    L-WT-ALPHA  LL-WT-ALPHA.
+           MOVE   B-Q(I  6)    TO    L-PR        LL-PR.
+           MOVE   B-Q(I  7)    TO    L-WT-SAVE   LL-WT-SAVE.
+           MOVE   B-Q(I  8)    TO    L-TR-RYO    LL-TR-RYO.
+           MOVE   B-Q(I  9)    TO    LL-SP.
+      *    WRITE   REC-OUT2    FROM  P-SAUBBI2.
+       900-HEAD-TITLE.
+           IF   T  =  1       MOVE  '생　　존 '  TO  HG-SSY  ELSE
+           IF   T  =  2       MOVE  '사　　망 '  TO  HG-SSY  ELSE
+           IF   T  =  3       MOVE  '양　　로 '  TO  HG-SSY  ELSE
+           IF   T  =  4       MOVE  '단　　체 '  TO  HG-SSY  ELSE
+                              MOVE  '           '  TO  HG-SSY.
+
+      *    WRITE    REC-PRINT   FROM   YA-SPACE     AFTER  PGSK.
+      *    WRITE    REC-PRINT   FROM   YA-HEAD      AFTER  1.
+      *    WRITE    REC-PRINT   FROM   REC-HEAD     AFTER  1.
+      *    WRITE    REC-PRINT   FROM   YA-HEAD      AFTER  1.
+      *    WRITE    REC-PRINT   FROM   DANWI        AFTER  1.
+      *    WRITE    REC-PRINT   FROM   YA-TITLE     AFTER  2.
+      *    WRITE    REC-PRINT   FROM   P-TITLE      AFTER  1.
+      *    WRITE    REC-PRINT   FROM   YA-TITLE     AFTER  1.

@@ -1,0 +1,763 @@
+//KERC4505 JOB (KER),'KER00',CLASS=G,MSGCLASS=X,MSGLEVEL=(1,1)          
+//STEP1 EXEC YCOBBAT,MBR=K11C4505                                       
+//COB.SYSIN DD *                                                        
+PROCESS TEST(NONE,SYM)                                                  
+      *================================================================*
+      *=   CREATION DATE : 1999. 6. 11                               =* 
+      *================================================================*
+       IDENTIFICATION          DIVISION.
+       PROGRAM-ID.             K11C4505.
+       ENVIRONMENT             DIVISION.
+       CONFIGURATION           SECTION.
+       INPUT-OUTPUT            SECTION.
+       FILE-CONTROL.
+           SELECT   FILE-IN1   ASSIGN  TO  FILEIN1.
+           SELECT   FILE-IN2   ASSIGN  TO  FILEIN2.
+           SELECT   FILE-OUT   ASSIGN  TO  FILEOUT.
+      *=================================* 
+       DATA                    DIVISION. 
+       FILE                    SECTION. 
+       FD  FILE-IN1            RECORDING  MODE      IS   F              
+                               LABEL      RECORD         STANDARD       
+                               BLOCK      CONTAINS  100  RECORDS        
+                               RECORD     CONTAINS  202  CHARACTERS.    
+       01  REC-IN1             PIC    X(202).                           
+       FD  FILE-IN2            RECORDING  MODE      IS   F              
+                               LABEL      RECORD         STANDARD       
+                               BLOCK      CONTAINS  100  RECORDS        
+                               RECORD     CONTAINS  202  CHARACTERS.    
+       01  REC-IN2             PIC    X(202).                           
+                                                                        
+       FD  FILE-OUT            RECORDING       MODE    IS  F            
+                               LABEL   RECORD      STANDARD             
+                               BLOCK   CONTAINS   100  RECORDS          
+                               RECORD  CONTAINS   202  CHARACTERS.      
+       01  REC-OUT             PIC    X(202).                           
+      *================================*                                
+       WORKING-STORAGE         SECTION.                                 
+           COPY      K11B9026     SUPPRESS.                             
+       01  REC-KS.                                                      
+           COPY      K11B9303   SUPPRESS.                               
+       01  ABC-KEY.                                                     
+           02  ABC.                                                     
+               03  ABC-BOJONG       PIC 9(4).                           
+               03  ABC-NABGI        PIC 9(2).                           
+               03  ABC-MANGI        PIC 9(2).                           
+               03  ABC-NABBANG      PIC 9(1).                           
+               03  ABC-PINAI        PIC 9(2).                           
+               03  ABC-GYUNGKWA     PIC 9(2).                           
+               03  ABC-SEX          PIC 9(1).                           
+           02  K                    PIC 9V9(6).                         
+           02  BOHUMGEM-ABC.                                            
+               03  S-ALPHA          PIC 9(5).                           
+               03  S-BETA1          PIC 9(4)V9.                         
+               03  S-BETA2          PIC 9(4)V9.                         
+               03  S-GAMMA          PIC 9(4)V9.                         
+           02  BORYO-ABC.                                               
+               03  P-ALPHA          PIC 9V9(4).                         
+               03  P-BETA1          PIC 9V9(4).                         
+               03  P-BETA2          PIC 9V9(4).                         
+               03  P-GAMMA          PIC 9V9(4).                         
+           02  ABC-E                PIC 9(1).                           
+       01  REC-WORK.                                                    
+                     COPY      KBBOJ88    SUPPRESS.                     
+           02  AA                   PIC S9(9).                          
+           02  BB                   PIC S9(9).                          
+           02  CC                   PIC 9(7).                           
+           02  SS                   PIC 9(7).                           
+           02  S-BOLYO              PIC S9(11).                         
+           02  M                    PIC 9(7).                           
+           02  N                    PIC S9(7).                          
+           02  GUN                  PIC S9(5).                          
+           02  WK-P-GAMMA           PIC 9V9(4).                         
+           02  WK-PR                PIC 9(7).                           
+           02  J                    PIC 9(3).                           
+           02  II                   PIC 9(3).                           
+           02  NAB                  PIC 9(2).                           
+           02  WK-NABGI             PIC 9(2).                           
+           02  WK-PINAI             PIC 9(2).                           
+           02  WK-BOGEUM            PIC 9(9).                           
+           02  WK-BOLYO             PIC 9(10).                          
+           02  WK-PB                PIC 9(7).                           
+           02  WK-S-A               PIC 9(7)V9(4).                      
+           02  WK-V-A               PIC S9(9)V9(3).                     
+           02  WK-ALPHA             PIC S9(9)V9(3).                     
+           02  WK-BETA              PIC S9(9)V9(3).                     
+           02  WK-GAMMA             PIC S9(9)V9(3).                     
+           02  WK-JO                PIC S9(9)V9(3).                     
+           02  WK-T-P               PIC S9(9).                          
+           02  WK-PB-RYO            PIC S9(9).                          
+           02  WK-WOL-PB            PIC S9(9)V9(2).                     
+           02  WK-JAEWON            PIC S9(9)V9(2).                     
+           02  CNT-IN1              PIC 9(7).                           
+           02  CNT-IN2              PIC 9(7).                           
+           02  CNT-OUT              PIC 9(7).                           
+           02  GUBUN-A-P            PIC S9(12).                         
+           02  GUBUN-A-PR           PIC S9(12).                         
+           02  GUBUN-A-VA           PIC S9(12).                         
+           02  GUBUN-A-A            PIC S9(12).                         
+           02  GUBUN-A-B            PIC S9(12).                         
+           02  GUBUN-A-C            PIC S9(12).                         
+           02  GUBUN-B-P            PIC S9(12).                         
+           02  GUBUN-B-PR           PIC S9(12).                         
+           02  GUBUN-B-VA           PIC S9(12).                         
+           02  GUBUN-B-A            PIC S9(12).                         
+           02  GUBUN-B-B            PIC S9(12).                         
+           02  GUBUN-B-C            PIC S9(12).                         
+           02  GUBUN-C-P            PIC S9(12).                         
+           02  GUBUN-C-PR           PIC S9(12).                         
+           02  GUBUN-C-VA           PIC S9(12).                         
+           02  GUBUN-C-A            PIC S9(12).                         
+           02  GUBUN-C-B            PIC S9(12).                         
+           02  GUBUN-C-C            PIC S9(12).                         
+           02  GUBUN-D-P            PIC S9(12).                         
+           02  GUBUN-D-PR           PIC S9(12).                         
+           02  GUBUN-D-VA           PIC S9(12).                         
+           02  GUBUN-D-A            PIC S9(12).                         
+           02  GUBUN-D-B            PIC S9(12).                         
+           02  GUBUN-D-C            PIC S9(12).                         
+           02  GUBUN-E-P            PIC S9(12).                         
+           02  GUBUN-E-PR           PIC S9(12).                         
+           02  GUBUN-E-VA           PIC S9(12).                         
+           02  GUBUN-E-A            PIC S9(12).                         
+           02  GUBUN-E-B            PIC S9(12).                         
+           02  GUBUN-E-C            PIC S9(12).                         
+           02  GUBUN-F-P            PIC S9(12).                         
+           02  GUBUN-F-PR           PIC S9(12).                         
+           02  GUBUN-F-VA           PIC S9(12).                         
+           02  GUBUN-F-A            PIC S9(12).                         
+           02  GUBUN-F-B            PIC S9(12).                         
+           02  GUBUN-F-C            PIC S9(12).                         
+           02  GUBUN-G-P            PIC S9(12).                         
+           02  GUBUN-G-PR           PIC S9(12).                         
+           02  GUBUN-G-VA           PIC S9(12).                         
+           02  GUBUN-G-A            PIC S9(12).                         
+           02  GUBUN-G-B            PIC S9(12).                         
+           02  GUBUN-G-C            PIC S9(12).                         
+           02  GUBUN-H-P            PIC S9(12).                         
+           02  GUBUN-H-PR           PIC S9(12).                         
+           02  GUBUN-H-VA           PIC S9(12).                         
+           02  GUBUN-H-A            PIC S9(12).                         
+           02  GUBUN-H-B            PIC S9(12).                         
+           02  GUBUN-H-C            PIC S9(12).                         
+           02  GUBUN-I-P            PIC S9(12).                         
+           02  GUBUN-I-PR           PIC S9(12).                         
+           02  GUBUN-I-VA           PIC S9(12).                         
+           02  GUBUN-I-A            PIC S9(12).                         
+           02  GUBUN-I-B            PIC S9(12).                         
+           02  GUBUN-I-C            PIC S9(12).                         
+           02  GUBUN-J-P            PIC S9(12).                         
+           02  GUBUN-J-PR           PIC S9(12).                         
+           02  GUBUN-J-VA           PIC S9(12).                         
+           02  GUBUN-J-A            PIC S9(12).                         
+           02  GUBUN-J-B            PIC S9(12).                         
+           02  GUBUN-J-C            PIC S9(12).                         
+           02  GUBUN-K-P            PIC S9(12).                         
+           02  GUBUN-K-PR           PIC S9(12).                         
+           02  GUBUN-K-VA           PIC S9(12).                         
+           02  GUBUN-K-A            PIC S9(12).                         
+           02  GUBUN-K-B            PIC S9(12).                         
+           02  GUBUN-K-C            PIC S9(12).                         
+           02  GUBUN-M-P            PIC S9(12).                         
+           02  GUBUN-M-PR           PIC S9(12).                         
+           02  GUBUN-M-VA           PIC S9(12).                         
+           02  GUBUN-M-A            PIC S9(12).                         
+           02  GUBUN-M-B            PIC S9(12).                         
+           02  GUBUN-M-C            PIC S9(12).                         
+           02  GUBUN-S-P            PIC S9(12).                         
+           02  GUBUN-S-PR           PIC S9(12).                         
+           02  GUBUN-S-VA           PIC S9(12).                         
+           02  GUBUN-S-A            PIC S9(12).                         
+           02  GUBUN-S-B            PIC S9(12).                         
+           02  GUBUN-S-C            PIC S9(12).                         
+           02  GUBUN-T-P            PIC S9(12).                         
+           02  GUBUN-T-PR           PIC S9(12).                         
+           02  GUBUN-T-VA           PIC S9(12).                         
+           02  GUBUN-T-A            PIC S9(12).                         
+           02  GUBUN-T-B            PIC S9(12).                         
+           02  GUBUN-T-C            PIC S9(12).                         
+           02  GUBUN-TOT-P            PIC S9(12).                       
+           02  GUBUN-TOT-PR           PIC S9(12).                       
+           02  GUBUN-TOT-VA           PIC S9(12).                       
+           02  GUBUN-TOT-A            PIC S9(12).                       
+           02  GUBUN-TOT-B            PIC S9(12).                       
+           02  GUBUN-TOT-C            PIC S9(12).                       
+       01  REC-SWITCH.                                                  
+           02  FILE-EOF-SWITCH     PIC X(3)   VALUE 'NO '.              
+               88  FILE-EOF1                  VALUE 'YES'.              
+           02  FILE-EOF-SWITCH2    PIC X(3)   VALUE 'NO '.              
+               88  FILE-EOF2                  VALUE 'YES'.              
+       EJECT                                                            
+      *=================================*                               
+       PROCEDURE               DIVISION.                                
+      *=================================*                               
+           OPEN      INPUT FILE-IN1  OUTPUT  FILE-OUT.                  
+           OPEN      INPUT FILE-IN2.                                    
+           MOVE      ZERO       TO  REC-WORK     ABC-KEY.               
+           MOVE      1200       TO   SS.                                
+      *---------*                                                       
+       READ1-RTN.                                                       
+      *---------*                                                       
+           READ      FILE-IN1   END     GO   TO  READ2-RTN.             
+           MOVE    REC-IN1    TO  REC-KS.                               
+           ADD    1  TO    CNT-IN1.                                     
+                                                                        
+           MOVE   KS-BOJONG-T   TO   WK-BOJONG-T.                       
+           MOVE   KS-BOJONG     TO   WK-BOJONG.                         
+                                                                        
+           IF   SAENGJON  MOVE   1   TO  KS-SSY    ELSE                 
+           IF   SAMANG    MOVE   2   TO  KS-SSY    ELSE                 
+           IF   YANGRO    MOVE   3   TO  KS-SSY    ELSE                 
+                          MOVE   4   TO  KS-SSY.                        
+           IF  KS-NABBANG > 7      MOVE      12      TO  NAB            
+           ELSE                    MOVE  KS-NABBANG  TO  NAB.           
+           IF  KS-IDONG-A = 'G'    MOVE      1       TO  NAB.           
+           IF  KS-IDONG-A = 'F'    MOVE  KS-HABBOLYO TO  KS-PS-RYO      
+                                                         KS-HS-RYO.     
+           IF  KS-IDONG-A = 'I'    MOVE KS-HABBOLYO  TO  KS-GAMMA.      
+                                                                        
+           IF  KS-IDONG-A = 'F' OR 'H' OR 'I'                           
+                                    PERFORM      WRITE-RTN              
+                                    GO       TO  READ1-RTN.             
+                                                                        
+           MOVE   KS-BOLYO    TO   WK-BOLYO.                            
+           MOVE   KS-BOGEUM   TO   WK-BOGEUM.                           
+           IF  T-GMRI-LIN1                                              
+             IF  KS-NABBANG = 9   COMPUTE  WK-BOGEUM = WK-BOLYO / 1000  
+             ELSE                 COMPUTE  WK-BOGEUM = WK-BOLYO / 10.   
+
+           MOVE   ZERO    TO  WK-PR   AA.                               
+           IF  T-GMRI-LIN1                                              
+               IF  NOT  TK-CHUGANABIB                                   
+                        PERFORM               RISK-P-RTN                
+                        COMPUTE  KS-PR-RYO  = WK-PR * KS-HOISU.         
+           GO     TO        130-1-CALL.                                 
+      ***********************************************************       
+      *----------*                                                      
+       RISK-P-RTN.                                                      
+      *----------*                                                      
+           IF  T-GEOCHI OR T-JAETECH-II                                 
+                       MOVE         1       TO   M                      
+                       MOVE      ZERO       TO   N.                     
+980216     IF  T-JAETECH                                                
+                   IF  KS-MANGI = 2                                     
+                       MOVE      3000       TO   AA                     
+                   ELSE                                                 
+                       MOVE      5000       TO   AA                     
+                   END-IF                                               
+                   DIVIDE  WK-BOLYO   BY   1000000                      
+                                      GIVING   M  REMAINDER   N         
+                   IF   N > 0                                           
+                               ADD      1   TO  M                       
+                              MOVE   ZERO   TO  N                       
+                   END-IF                                               
+           END-IF.                                                      
+980706     IF  T-NEW-JAETECH                                            
+                       MOVE      5000       TO   AA                     
+                   DIVIDE  WK-BOLYO   BY   1000000                      
+                                      GIVING   M  REMAINDER   N         
+                   IF   N > 0                                           
+                               ADD      1   TO  M                       
+                              MOVE   ZERO   TO  N                       
+                   END-IF                                               
+           END-IF.                                                      
+           IF  T-NON-TAX OR T-NON-UDAEJEOCHUK                           
+                       MOVE      5000       TO   AA                     
+                       MOVE         1       TO   M                      
+                       MOVE      ZERO       TO   N.                     
+           IF  T-NO-SEOL                                                
+                       MOVE      3600       TO   AA                     
+                       DIVIDE    WK-BOLYO   BY   200000                 
+                                 GIVING     M    REMAINDER   N.         
+           IF  T-NO-JEOK                                                
+                       MOVE      5000       TO   AA                     
+                       DIVIDE    WK-BOLYO   BY   1000000                
+                                 GIVING     M    REMAINDER   N.         
+           IF  T-NO-BOK                                                 
+981012        IF  KS-GYEYAG-YY <  1994                                  
+                       MOVE      4000       TO   AA                     
+                       DIVIDE    WK-BOLYO   BY   500000                 
+                                 GIVING     M    REMAINDER   N          
+              ELSE     MOVE      4000       TO   AA                     
+                       DIVIDE    WK-BOLYO   BY   1000000                
+                                 GIVING     M    REMAINDER   N.         
+           IF  KS-NABBANG  =  9                                         
+                     COMPUTE  WK-PINAI  =  KS-PINAI   -   14            
+981012                             + (KS-JOSA-YY -  KS-GYEYAG-YY)       
+               IF  KS-JOSA-MM  <  KS-GYEYAG-MM                          
+                             ADD    -1     TO   WK-PINAI                
+               ELSE          NEXT          SENTENCE                     
+           ELSE                                                         
+                  COMPUTE  WK-PINAI  = (KS-PINAI - 14) + (KS-TOHOISU    
+                                           -  1)  * KS-NABBANG / 12.    
+           IF  85-GANEE               MOVE   2    TO   II.              
+           IF  1-HOI                  MOVE   4    TO   II.              
+           IF  NO-BOK                                                   
+              IF        2-HOI         MOVE   6    TO   II               
+              ELSE  IF  (KS-BOJONG-T > 2489) AND (KS-BOJONG-T < 2500)   
+                                      MOVE  20    TO   II               
+              ELSE                    MOVE  12    TO   II.              
+           IF  NO-JEOK                                                  
+              IF     2-HOI            MOVE   8    TO   II               
+              ELSE                    MOVE  14    TO   II.              
+           IF  NON-TAX OR NON-UDAEJEOCHUK                               
+              IF     2-HOI            MOVE  10    TO   II               
+              ELSE                    MOVE  16    TO   II.              
+
+           IF  JIG-UDAESEOLGYE                                          
+990510        IF  KS-GYEYAG-YMD >= 19990401                             
+   .                                     MOVE  36    TO   II            
+              ELSE                                                      
+                 IF     3-HOI            MOVE  18    TO   II            
+   .             ELSE                    DISPLAY ' ERROR ' KS-JEUNGBEON.
+
+980216     IF  JAETECH                                                  
+990510        IF  KS-GYEYAG-YMD >= 19990401                             
+   .                                     MOVE  32    TO   II            
+   .          ELSE                                                      
+980216           IF     3-HOI            MOVE  22    TO   II            
+   .             ELSE                    DISPLAY ' ERROR ' KS-JEUNGBEON.
+
+980216     IF  JAETECH-II                                               
+990510        IF  KS-GYEYAG-YMD >= 19990401                             
+   .                                     MOVE  34    TO   II            
+   .          ELSE                                                      
+                 IF     3-HOI            MOVE  24    TO   II            
+   .             ELSE                    DISPLAY ' ERROR ' KS-JEUNGBEON.
+
+980216     IF  GEOCHI                                                   
+990510        IF  KS-GYEYAG-YMD >= 19990401                             
+   .                                     MOVE  38    TO   II            
+   .          ELSE                                                      
+                 IF     3-HOI            MOVE  26    TO   II            
+   .             ELSE                    DISPLAY ' ERROR ' KS-JEUNGBEON.
+
+980706     IF  NEW-JAETECH                                              
+990510        IF  KS-GYEYAG-YMD >= 19990401                             
+   .                                     MOVE  30    TO   II            
+              ELSE                                                      
+                 IF     3-HOI            MOVE  28    TO   II            
+   .             ELSE                    DISPLAY ' ERROR ' KS-JEUNGBEON.
+
+           IF  KS-PISEX  =  1   ADD   -1    TO   II.                    
+           IF  KS-NABBANG  <   9                                        
+                        PERFORM         121-JURIB-WK-PR                 
+           ELSE IF NOT GEOCHI                                           
+                   COMPUTE  WK-PR  ROUNDED = R-NH(II WK-PINAI 5)        
+                                           * WK-BOLYO / 100000          
+                        MOVE    1    TO   M                             
+                        MOVE   ZERO  TO  AA                             
+980216          ELSE                                                    
+                   COMPUTE  WK-PR  ROUNDED = R-NH(II WK-PINAI 5)        
+                                           * WK-BOLYO / 1000000         
+                        MOVE    1    TO   M                             
+                        MOVE   ZERO  TO  AA.                            
+                                                                        
+      *----------------------*                                          
+       121-JURIB-WK-PR.                                                 
+      *----------------------*                                          
+           IF  M > ZERO    COMPUTE  WK-PR = R-NH(II WK-PINAI 4) * M     
+           ELSE            MOVE     ZERO    TO      WK-PR.              
+           IF  N > 0       PERFORM          121-1-CHUGA-WK-PR.          
+           COMPUTE  AA = AA * M.                                        
+      *------------------------*                                        
+       121-1-CHUGA-WK-PR.                                               
+      *------------------------*                                        
+           IF   AA = 3600                                               
+                IF   N > 100000    MOVE    4    TO    J         ELSE    
+                IF   N > 50000     MOVE    3    TO    J         ELSE    
+                IF   N > 20000     MOVE    2    TO    J         ELSE    
+                                   MOVE    1    TO    J                 
+           ELSE                                                         
+                IF   N > 200000    MOVE    4    TO    J         ELSE    
+                IF   N > 100000    MOVE    3    TO    J         ELSE    
+                IF   N > 50000     MOVE    2    TO    J         ELSE    
+                                   MOVE    1    TO    J.                
+           ADD  R-NH (II WK-PINAI J)  TO  WK-PR.                        
+           ADD      1       TO     M.                                   
+      *-----------*                                                     
+       130-1-CALL.                                                      
+      *-----------*                                                     
+           MOVE     KS-BOJONG-T      TO       ABC-BOJONG.               
+           MOVE     KS-NABGI         TO       ABC-NABGI.                
+           IF       ABC-NABGI = ZERO  MOVE 1  TO  ABC-NABGI.            
+           MOVE     KS-MANGI         TO       ABC-MANGI.                
+           MOVE     KS-NABBANG       TO       ABC-NABBANG.              
+           MOVE     KS-PINAI         TO       ABC-PINAI.                
+           MOVE     KS-PISEX         TO       ABC-SEX.                  
+           MOVE     ABC-NABGI        TO       WK-NABGI.                 
+                                                                        
+           CALL    'K11M8007'        USING    ABC-KEY.                  
+                                                                        
+           IF  ABC-E > ZERO                                             
+                    DISPLAY  ' * E = ' ABC-E  ' BOJONG = ' ABC-BOJONG   
+                                     ' JNGBEON  =  ' KS-JEUNGBEON       
+                                     ' BOLYO    =  ' WK-BOLYO           
+                                     ' ABC-KEY1 =  ' ABC                
+                    MOVE    ZERO   TO  BOHUMGEM-ABC  BORYO-ABC   ABC-E. 
+           IF   KS-IDONG-A = 'G' OR 'X'                                 
+              IF  S-BETA2 + P-BETA2 = ZERO   GO  TO  READ1-RTN.         
+
+           IF  KS-JJK = 1      MOVE    P-GAMMA   TO  WK-P-GAMMA         
+           ELSE  IF P-GAMMA = ZERO                                      
+                       COMPUTE P-BETA1 = P-BETA1 - WK-P-GAMMA           
+                       MOVE    WK-P-GAMMA         TO  P-GAMMA.          
+           MOVE   1   TO  K.                                            
+                                                                        
+      *-----------------------------------------------------*           
+       130-2-SAUBBI-SANCHUL.                                            
+      *----------------( WOL-ALPHA  CALCULATE )---------------*         
+           MOVE   ZERO     TO    WK-ALPHA WK-BETA  WK-GAMMA WK-V-A.     
+           IF  KS-IDONG-B < 3                                           
+                  COMPUTE   WK-ALPHA   ROUNDED = ((WK-BOGEUM * S-ALPHA  
+                     * NAB / SS) * K  + WK-BOLYO * P-ALPHA) * KS-HOISU. 
+      *----------------( VT-ALPHA   CALCULATE )--------------*          
+           COMPUTE  WK-V-A  ROUNDED = (((WK-BOGEUM * S-ALPHA * NAB / SS)
+                      + WK-BOLYO * P-ALPHA) * KS-HOISU) / WK-NABGI.     
+           IF KS-IDONG-A = 'G' OR 'X'                                   
+                        MOVE  ZERO  TO  WK-V-A.                         
+                                                                        
+      *----------------( BETA      CALCULATE )---------------*          
+           COMPUTE WK-BETA  ROUNDED =((WK-BOGEUM * S-BETA1 * NAB        
+                         / SS) * K + (WK-BOLYO  * P-BETA1)) * KS-HOISU  
+                        + (AA - WK-PR) * KS-HOISU                       
+           IF   KS-NABBANG = 9  OR KS-IDONG-A = 'G'                     
+              IF  S-BETA2 > ZERO  OR  P-BETA2 > ZERO                    
+                 COMPUTE WK-BETA  ROUNDED =((WK-BOGEUM * S-BETA2 * NAB  
+                         / SS)  + (WK-BOLYO * P-BETA2) * NAB / 12       
+                         + (WK-PR * NAB / 12)) * KS-HOISU.              
+      *----------------( GAMMA      CALCULATE )---------------*         
+           IF  NOT  (KS-IDONG-A  =  'G' OR 'X')                         
+                 COMPUTE   WK-GAMMA  ROUNDED  =  ((WK-BOGEUM * S-GAMMA  
+                   * NAB / SS) * K + (WK-BOLYO * P-GAMMA)) * KS-HOISU.  
+           IF  WK-BETA  <  ZERO                                         
+                   COMPUTE   WK-GAMMA   =   WK-GAMMA  +  WK-BETA        
+                   MOVE      ZERO      TO   WK-BETA.                    
+           COMPUTE     WK-T-P    ROUNDED =  WK-BOLYO  *  KS-HOISU.      
+           IF  KS-IDONG = 'A1'  AND KS-NABBANG = 9                      
+                                 MOVE  KS-VT  TO  WK-PB                 
+           ELSE                  MOVE  KS-PB  TO  WK-PB.                
+           COMPUTE     WK-PB-RYO ROUNDED =  WK-PB  *  WK-BOGEUM         
+                                         *  KS-HOISU  /  100.           
+           IF  NOT NB-BOJ                                               
+                  COMPUTE WK-WOL-PB ROUNDED = WK-PB-RYO * NAB / 12      
+           ELSE             MOVE    WK-PB-RYO  TO WK-WOL-PB.            
+           COMPUTE WK-JAEWON = WK-T-P - WK-WOL-PB - WK-V-A              
+                                      - WK-GAMMA  - WK-BETA.            
+           IF   WK-JAEWON <  ZERO                                       
+              IF KS-JJK = 2   NEXT   SENTENCE                           
+              ELSE
+                DISPLAY  KS-IDONG ' POL = ' KS-JEUNGBEON  ' T-P ' WK-T-P
+                   ' ' WK-JAEWON   ' BOJ = ' KS-BOJONG ' ' KS-BOJONG-T  
+                   ' PB-R ' WK-PB-RYO ' PB-T ' WK-WOL-PB                
+                   ' PB ' WK-PB ' ' KS-NABBANG ' A= ' WK-V-A            
+                                               ' B= ' WK-BETA           
+                   ' C= ' WK-GAMMA ' S=' WK-BOGEUM ' ' KS-NABBANG.      
+           IF   KS-NABBANG = 9    MOVE  S-BETA2   TO  S-BETA1.          
+
+           ADD  S-ALPHA  S-BETA1  GIVING  WK-S-A.                       
+           IF   S-ALPHA + S-BETA1 = ZERO                                
+                          ADD  P-ALPHA  P-BETA1  GIVING  WK-S-A.        
+
+           IF   NOT  (KS-IDONG-A = 'G' OR 'X' OR 'M')                   
+            IF   WK-PB > ZERO                                           
+             IF   WK-JAEWON <  ZERO                                     
+                       COMPUTE  WK-JO  = WK-JAEWON * S-ALPHA / WK-S-A   
+                       ADD   WK-JO   TO  WK-V-A                         
+                       COMPUTE  WK-BETA = WK-BETA + (WK-JAEWON - WK-JO) 
+                IF  WK-V-A  < ZERO                                      
+                       COMPUTE  WK-BETA  = WK-BETA + WK-V-A             
+                       MOVE  ZERO   TO   WK-V-A                         
+                 IF  WK-BETA < ZERO                                     
+                     COMPUTE  WK-GAMMA  = WK-GAMMA  + WK-BETA           
+                     MOVE  ZERO   TO   WK-BETA.                         
+      *--------*                                                        
+       TAPE-RTN.                                                        
+      *--------*                                                        
+      *-----------------( GUNSU  CALCULATION )--------------------*     
+           COMPUTE  KS-WT-ALPHA  ROUNDED = WK-V-A   * 1.                
+           COMPUTE  KS-ALPHA     ROUNDED = WK-ALPHA * 1.                
+           COMPUTE  KS-BETA      ROUNDED = WK-BETA  * 1.                
+           COMPUTE  KS-GAMMA     ROUNDED = WK-GAMMA * 1.                
+           IF  KS-IDONG-A = 'G' OR 'X'    PERFORM     WRITE-RTN         
+                                          GO          TO READ1-RTN.     
+980706     IF  (T-NOHOO OR T-JAETECH OR T-NEW-JAETECH)                  
+                                   AND  KS-NABBANG < 9                  
+                      MOVE     M      TO    GUN                         
+           ELSE       MOVE     1      TO    GUN.                        
+           IF  KS-JJK > 1             MOVE    ZERO   TO  GUN.           
+           COMPUTE    KS-GUNSU  =  GUN  *  KS-HOISU.                    
+      *-----------------------------------------------------------*     
+           COMPUTE  WK-T-P = WK-BOLYO * KS-HOISU.                       
+           IF  WK-T-P  < (KS-ALPHA + KS-BETA + KS-GAMMA)                
+                  COMPUTE  KS-ALPHA  =  WK-T-P - KS-BETA - KS-GAMMA.    
+           IF  KS-ALPHA  <  ZERO                                        
+                   MOVE   ZERO   TO  KS-ALPHA  KS-BETA  KS-GAMMA.       
+           IF   KS-IDONG-B < 3                                          
+                   PERFORM               WRITE-RTN                      
+                   GO            TO      READ1-RTN.                     
+                                                                        
+980114     COMPUTE    AA    ROUNDED  =                                  
+                (WK-BOGEUM * (S-ALPHA + S-BETA1) *  K / 100)            
+   .          + (WK-T-P  * (P-ALPHA + P-BETA1 + P-GAMMA) * 12 / NAB).   
+           COMPUTE  AA   ROUNDED  =  AA - WK-T-P * 12 / NAB.            
+           COMPUTE  BB   ROUNDED  =                                     
+                     WK-T-P - (KS-BETA + KS-GAMMA) / KS-HOISU.          
+           IF  (AA  >  ZERO)   AND  (BB  >  ZERO)                       
+                    COMPUTE    AA    ROUNDED    =  AA    -    BB        
+                            * (KS-FROMHOISU  -  12 / NAB  -  1)         
+             IF  AA > ZERO    PERFORM  ALPHA-CHUGA-RTN.                 
+                                                                        
+           PERFORM             WRITE-RTN.                               
+           GO     TO           READ1-RTN.                               
+      *---------------*                                                 
+       ALPHA-CHUGA-RTN.                                                 
+      *---------------*                                                 
+           COMPUTE  S-BOLYO  ROUNDED = AA - BB  * KS-HOISU.             
+           IF   S-BOLYO > ZERO    ADD  BB  TO  KS-ALPHA                 
+           ELSE                   ADD  AA  TO  KS-ALPHA.                
+      *---------*                                                       
+       WRITE-RTN.                                                       
+      *---------*                                                       
+           IF   KS-IDONG-A = 'T'                                        
+               IF   NOT KS-JOSA-MM = 4                                  
+                       MOVE   ZERO   TO  KS-HABBOLYO.                   
+           IF   KS-IDONG-A = 'C' OR 'J' OR 'K'                          
+                      COMPUTE KS-WT-ALPHA =  KS-WT-ALPHA * -1           
+                      COMPUTE KS-PR-RYO   =  KS-PR-RYO   * -1           
+                      COMPUTE KS-ALPHA    =  KS-ALPHA    * -1           
+                      COMPUTE KS-BETA     =  KS-BETA     * -1           
+                      COMPUTE KS-GAMMA    =  KS-GAMMA    * -1           
+                      COMPUTE KS-GUNSU    =  KS-GUNSU    * -1.          
+           IF  KS-IDONG-A = 'S'                                         
+                      COMPUTE KS-WT-ALPHA =  KS-WT-ALPHA * -1           
+                      COMPUTE KS-PR-RYO   =  KS-PR-RYO   * -1           
+                      COMPUTE KS-ALPHA    =  KS-ALPHA    * -1           
+                      COMPUTE KS-BETA     =  KS-BETA     * -1           
+                      COMPUTE KS-GAMMA    =  KS-GAMMA    * -1           
+              IF  KS-JOSA-MM = 3                                        
+                      COMPUTE KS-GUNSU    =  KS-GUNSU    * -1           
+              ELSE       MOVE   ZERO  TO  KS-HABBOLYO.                  
+           WRITE     REC-OUT      FROM   REC-KS.                        
+           ADD       1              TO   CNT-OUT.                       
+           IF  KS-IDONG-A = 'A'                                         
+                   ADD    KS-HABBOLYO  TO  GUBUN-A-P                    
+                   ADD    KS-WT-ALPHA  TO  GUBUN-A-VA                   
+                   ADD    KS-PR-RYO    TO  GUBUN-A-PR                   
+                   ADD    KS-ALPHA     TO  GUBUN-A-A                    
+                   ADD    KS-BETA      TO  GUBUN-A-B                    
+                   ADD    KS-GAMMA     TO  GUBUN-A-C          ELSE      
+           IF  KS-IDONG-A = 'B' OR 'D'                                  
+                   ADD    KS-HABBOLYO  TO  GUBUN-B-P                    
+                   ADD    KS-WT-ALPHA  TO  GUBUN-B-VA                   
+                   ADD    KS-PR-RYO    TO  GUBUN-B-PR                   
+                   ADD    KS-ALPHA     TO  GUBUN-B-A                    
+                   ADD    KS-BETA      TO  GUBUN-B-B                    
+                   ADD    KS-GAMMA     TO  GUBUN-B-C          ELSE      
+      *    IF  KS-IDONG-A = 'C' OR 'J' OR 'K'                           
+           IF  KS-IDONG-A = 'C'                                         
+                   ADD    KS-HABBOLYO  TO  GUBUN-C-P                    
+                   ADD    KS-WT-ALPHA  TO  GUBUN-C-VA                   
+                   ADD    KS-PR-RYO    TO  GUBUN-C-PR                   
+                   ADD    KS-ALPHA     TO  GUBUN-C-A                    
+                   ADD    KS-BETA      TO  GUBUN-C-B                    
+                   ADD    KS-GAMMA     TO  GUBUN-C-C          ELSE      
+           IF  KS-IDONG-A = 'E'                                         
+                   ADD    KS-HABBOLYO  TO  GUBUN-E-P                    
+                   ADD    KS-WT-ALPHA  TO  GUBUN-E-VA                   
+                   ADD    KS-PR-RYO    TO  GUBUN-E-PR                   
+                   ADD    KS-ALPHA     TO  GUBUN-E-A                    
+                   ADD    KS-BETA      TO  GUBUN-E-B                    
+                   ADD    KS-GAMMA     TO  GUBUN-E-C          ELSE      
+           IF  KS-IDONG-A = 'F'                                         
+                   ADD    KS-HABBOLYO  TO  GUBUN-F-P                    
+                   ADD    KS-WT-ALPHA  TO  GUBUN-F-VA                   
+                   ADD    KS-PR-RYO    TO  GUBUN-F-PR                   
+                   ADD    KS-ALPHA     TO  GUBUN-F-A                    
+                   ADD    KS-BETA      TO  GUBUN-F-B                    
+                   ADD    KS-GAMMA     TO  GUBUN-F-C          ELSE      
+980216     IF  KS-IDONG-A = 'G' OR 'X'                                  
+                   ADD    KS-HABBOLYO  TO  GUBUN-G-P                    
+                   ADD    KS-WT-ALPHA  TO  GUBUN-G-VA                   
+                   ADD    KS-PR-RYO    TO  GUBUN-G-PR                   
+                   ADD    KS-ALPHA     TO  GUBUN-G-A                    
+                   ADD    KS-BETA      TO  GUBUN-G-B                    
+                   ADD    KS-GAMMA     TO  GUBUN-G-C          ELSE      
+           IF  KS-IDONG-A = 'H'                                         
+                   ADD    KS-HABBOLYO  TO  GUBUN-H-P                    
+                   ADD    KS-WT-ALPHA  TO  GUBUN-H-VA                   
+                   ADD    KS-PR-RYO    TO  GUBUN-H-PR                   
+                   ADD    KS-ALPHA     TO  GUBUN-H-A                    
+                   ADD    KS-BETA      TO  GUBUN-H-B                    
+                   ADD    KS-GAMMA     TO  GUBUN-H-C          ELSE      
+           IF  KS-IDONG-A = 'I'                                         
+                   ADD    KS-HABBOLYO  TO  GUBUN-I-P                    
+                   ADD    KS-WT-ALPHA  TO  GUBUN-I-VA                   
+                   ADD    KS-PR-RYO    TO  GUBUN-I-PR                   
+                   ADD    KS-ALPHA     TO  GUBUN-I-A                    
+                   ADD    KS-BETA      TO  GUBUN-I-B                    
+                   ADD    KS-GAMMA     TO  GUBUN-I-C          ELSE      
+           IF  KS-IDONG-A = 'J'                                         
+                   ADD    KS-HABBOLYO  TO  GUBUN-J-P                    
+                   ADD    KS-WT-ALPHA  TO  GUBUN-J-VA                   
+                   ADD    KS-PR-RYO    TO  GUBUN-J-PR                   
+                   ADD    KS-ALPHA     TO  GUBUN-J-A                    
+                   ADD    KS-BETA      TO  GUBUN-J-B                    
+                   ADD    KS-GAMMA     TO  GUBUN-J-C          ELSE      
+           IF  KS-IDONG-A = 'K'                                         
+                   ADD    KS-HABBOLYO  TO  GUBUN-K-P                    
+                   ADD    KS-WT-ALPHA  TO  GUBUN-K-VA                   
+                   ADD    KS-PR-RYO    TO  GUBUN-K-PR                   
+                   ADD    KS-ALPHA     TO  GUBUN-K-A                    
+                   ADD    KS-BETA      TO  GUBUN-K-B                    
+                   ADD    KS-GAMMA     TO  GUBUN-K-C          ELSE      
+           IF  KS-IDONG-A = 'S'                                         
+                   ADD    KS-HABBOLYO  TO  GUBUN-S-P                    
+                   ADD    KS-WT-ALPHA  TO  GUBUN-S-VA                   
+                   ADD    KS-PR-RYO    TO  GUBUN-S-PR                   
+                   ADD    KS-ALPHA     TO  GUBUN-S-A                    
+                   ADD    KS-BETA      TO  GUBUN-S-B                    
+                   ADD    KS-GAMMA     TO  GUBUN-S-C          ELSE      
+           IF  KS-IDONG-A = 'T'                                         
+                   ADD    KS-HABBOLYO  TO  GUBUN-T-P                    
+                   ADD    KS-WT-ALPHA  TO  GUBUN-T-VA                   
+                   ADD    KS-PR-RYO    TO  GUBUN-T-PR                   
+                   ADD    KS-ALPHA     TO  GUBUN-T-A                    
+                   ADD    KS-BETA      TO  GUBUN-T-B                    
+                   ADD    KS-GAMMA     TO  GUBUN-T-C.                   
+           ADD    KS-HABBOLYO    TO    GUBUN-TOT-P.                     
+           ADD    KS-WT-ALPHA    TO    GUBUN-TOT-VA.                    
+           ADD    KS-PR-RYO      TO    GUBUN-TOT-PR.                    
+           ADD    KS-ALPHA       TO    GUBUN-TOT-A.                     
+           ADD    KS-BETA        TO    GUBUN-TOT-B.                     
+           ADD    KS-GAMMA       TO    GUBUN-TOT-C.                     
+           MOVE   ZERO  TO   WK-PR  AA  M   N   S-BOLYO.                
+      *---------*                                                       
+       READ2-RTN.                                                       
+      *---------*                                                       
+           READ      FILE-IN2    END     GO       TO   LAST-RTN.        
+           MOVE      REC-IN2     TO  REC-KS.                            
+           IF  KS-IDONG-A = 'S'  NEXT   SENTENCE                        
+           ELSE                  GO  TO  READ2-RTN.                     
+
+           ADD       1           TO     KS-JOSA-MM  CNT-IN2.            
+           IF KS-JOSA-MM > 12      MOVE   1    TO   KS-JOSA-MM          
+                                   ADD    1    TO   KS-JOSA-YY.         
+           MOVE        'T'         TO     KS-IDONG-A.                   
+           COMPUTE   KS-ALPHA    = KS-ALPHA    * (-1).                  
+           COMPUTE   KS-BETA     = KS-BETA     * (-1).                  
+           COMPUTE   KS-GAMMA    = KS-GAMMA    * (-1).                  
+           COMPUTE   KS-PS-RYO   = KS-PS-RYO   * (-1).                  
+           COMPUTE   KS-HS-RYO   = KS-HS-RYO   * (-1).                  
+           COMPUTE   KS-PR-RYO   = KS-PR-RYO   * (-1).                  
+           COMPUTE   KS-TR-RYO   = KS-TR-RYO   * (-1).                  
+           COMPUTE   KS-WT-ALPHA = KS-WT-ALPHA * (-1).                  
+           IF   KS-BOLYO < ZERO   COMPUTE  KS-BOLYO = KS-BOLYO * (-1).  
+           IF  KS-JOSA-MM = 4                                           
+                        COMPUTE   KS-HABBOLYO = KS-BOLYO * KS-HOISU     
+           ELSE         MOVE      ZERO     TO   KS-HABBOLYO.            
+           PERFORM   WRITE-RTN.                                         
+           GO  TO    READ2-RTN.                                         
+      *--------*                                                        
+       LAST-RTN.                                                        
+      *--------*                                                        
+           CLOSE   FILE-IN1  FILE-OUT.                                  
+           CLOSE   FILE-IN2.                                            
+           DISPLAY   '     **********************************'.         
+           DISPLAY   '     **    CNT-IN1  = '  CNT-IN1.                 
+           DISPLAY   '     **    CNT-IN2  = '  CNT-IN2.                 
+           DISPLAY   '     **    CNT-OUT  = '  CNT-OUT.                 
+           DISPLAY   '     **********************************'.         
+           DISPLAY   '     ** (SINGYEYAG)....................'.         
+           DISPLAY   '     **    A   BOLYO  =  '   GUBUN-A-P.           
+           DISPLAY   '     **        V-A    =  '   GUBUN-A-VA.          
+           DISPLAY   '     **        PR-P   =  '   GUBUN-A-PR.          
+           DISPLAY   '     **        ALPHA  =  '   GUBUN-A-A.           
+           DISPLAY   '     **        BETA   =  '   GUBUN-A-B.           
+           DISPLAY   '     **        GAMMA  =  '   GUBUN-A-C.           
+           DISPLAY   '     ** (YUJI-BOLYO)...................'.         
+           DISPLAY   '     **    B   BOLYO  =  '   GUBUN-B-P.           
+           DISPLAY   '     **        V-A    =  '   GUBUN-B-VA.          
+           DISPLAY   '     **        PR-P   =  '   GUBUN-B-PR.          
+           DISPLAY   '     **        ALPHA  =  '   GUBUN-B-A.           
+           DISPLAY   '     **        BETA   =  '   GUBUN-B-B.           
+           DISPLAY   '     **        GAMMA  =  '   GUBUN-B-C.           
+           DISPLAY   '     ** (COOLING-OFF)..................'.         
+           DISPLAY   '     **    C   BOLYO  =  '   GUBUN-C-P.           
+           DISPLAY   '     **        V-A    =  '   GUBUN-C-VA.          
+           DISPLAY   '     **        PR-P   =  '   GUBUN-C-PR.          
+           DISPLAY   '     **        ALPHA  =  '   GUBUN-C-A.           
+           DISPLAY   '     **        BETA   =  '   GUBUN-C-B.           
+           DISPLAY   '     **        GAMMA  =  '   GUBUN-C-C.           
+           DISPLAY   '     ** (MINAB)........................'.         
+           DISPLAY   '     **    E   BOLYO  =  '   GUBUN-E-P.           
+           DISPLAY   '     **        V-A    =  '   GUBUN-E-VA.          
+           DISPLAY   '     **        PR-P   =  '   GUBUN-E-PR.          
+           DISPLAY   '     **        ALPHA  =  '   GUBUN-E-A.           
+           DISPLAY   '     **        BETA   =  '   GUBUN-E-B.           
+           DISPLAY   '     **        GAMMA  =  '   GUBUN-E-C.           
+           DISPLAY   '     ** (VT-CHA).......................'.         
+           DISPLAY   '     **    F   BOLYO  =  '   GUBUN-F-P.           
+           DISPLAY   '     **        V-A    =  '   GUBUN-F-VA.          
+           DISPLAY   '     **        PR-P   =  '   GUBUN-F-PR.          
+           DISPLAY   '     **        ALPHA  =  '   GUBUN-F-A.           
+           DISPLAY   '     **        BETA   =  '   GUBUN-F-B.           
+           DISPLAY   '     **        GAMMA  =  '   GUBUN-F-C.           
+           DISPLAY   '     ** (WANNAB, GEOCHI)...............'.         
+           DISPLAY   '     **    G.X BOLYO  =  '   GUBUN-G-P.           
+           DISPLAY   '     **        V-A    =  '   GUBUN-G-VA.          
+           DISPLAY   '     **        PR-P   =  '   GUBUN-G-PR.          
+           DISPLAY   '     **        ALPHA  =  '   GUBUN-G-A.           
+           DISPLAY   '     **        BETA   =  '   GUBUN-G-B.           
+           DISPLAY   '     **        GAMMA  =  '   GUBUN-G-C.           
+           DISPLAY   '     ** (ILSI-MYUNJE) .................'.         
+           DISPLAY   '     **    H   BOLYO  =  '   GUBUN-H-P.           
+           DISPLAY   '     **        V-A    =  '   GUBUN-H-VA.          
+           DISPLAY   '     **        PR-P   =  '   GUBUN-H-PR.          
+           DISPLAY   '     **        ALPHA  =  '   GUBUN-H-A.           
+           DISPLAY   '     **        BETA   =  '   GUBUN-H-B.           
+           DISPLAY   '     ***       GAMMA  =  '   GUBUN-H-C.           
+           DISPLAY   '     ** (HALIN-BOLYO) .................'.         
+           DISPLAY   '     **    I   BOLYO  =  '   GUBUN-I-P.           
+           DISPLAY   '     **        V-A    =  '   GUBUN-I-VA.          
+           DISPLAY   '     **        PR-P   =  '   GUBUN-I-PR.          
+           DISPLAY   '     **        ALPHA  =  '   GUBUN-I-A.           
+           DISPLAY   '     **        BETA   =  '   GUBUN-I-B.           
+           DISPLAY   '     ***       GAMMA  =  '   GUBUN-I-C.           
+           DISPLAY   '     ** (BANSONG - P) .................'.         
+           DISPLAY   '     **    J   BOLYO  =  '   GUBUN-J-P.           
+           DISPLAY   '     **        V-A    =  '   GUBUN-J-VA.          
+           DISPLAY   '     **        PR-P   =  '   GUBUN-J-PR.          
+           DISPLAY   '     **        ALPHA  =  '   GUBUN-J-A.           
+           DISPLAY   '     **        BETA   =  '   GUBUN-J-B.           
+           DISPLAY   '     ***       GAMMA  =  '   GUBUN-J-C.           
+           DISPLAY   '     ** (CHUISO - P ) .................'.         
+           DISPLAY   '     **    K   BOLYO  =  '   GUBUN-K-P.           
+           DISPLAY   '     **        V-A    =  '   GUBUN-K-VA.          
+           DISPLAY   '     **        PR-P   =  '   GUBUN-K-PR.          
+           DISPLAY   '     **        ALPHA  =  '   GUBUN-K-A.           
+           DISPLAY   '     **        BETA   =  '   GUBUN-K-B.           
+           DISPLAY   '     ***       GAMMA  =  '   GUBUN-K-C.           
+           DISPLAY   '     ** (SUNSU-BOLYO) .................'.         
+           DISPLAY   '     **    S   BOLYO  =  '   GUBUN-S-P.           
+           DISPLAY   '     **        V-A    =  '   GUBUN-S-VA.          
+           DISPLAY   '     **        PR-P   =  '   GUBUN-S-PR.          
+           DISPLAY   '     **    S   ALPHA  =  '   GUBUN-S-A.           
+           DISPLAY   '     **    S   BETA   =  '   GUBUN-S-B.           
+           DISPLAY   '     ***   S   GAMMA  =  '   GUBUN-S-C.           
+           DISPLAY   '     ** ( JUNS-BOLYO) .................'.         
+           DISPLAY   '     **    T   BOLYO  =  '   GUBUN-T-P.           
+           DISPLAY   '     **        V-A    =  '   GUBUN-T-VA.          
+           DISPLAY   '     **        PR-P   =  '   GUBUN-T-PR.          
+           DISPLAY   '     **        ALPHA  =  '   GUBUN-T-A.           
+           DISPLAY   '     **        BETA   =  '   GUBUN-T-B.           
+           DISPLAY   '     ***       GAMMA  =  '   GUBUN-T-C.           
+           DISPLAY   '     ** ( TOT -BOLYO) .................'.         
+           DISPLAY   '     **    TOT BOLYO  =  '   GUBUN-TOT-P.         
+           DISPLAY   '     **        V-A    =  '   GUBUN-TOT-VA.        
+           DISPLAY   '     **        PR-P   =  '   GUBUN-TOT-PR.        
+           DISPLAY   '     **        ALPHA  =  '   GUBUN-TOT-A.         
+           DISPLAY   '     **        BETA   =  '   GUBUN-TOT-B.         
+           DISPLAY   '     ***       GAMMA  =  '   GUBUN-TOT-C.         
+           DISPLAY   '     **********************************'.         
+           STOP    RUN.                                                 

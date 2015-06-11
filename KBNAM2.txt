@@ -1,0 +1,231 @@
+//KERBNAME JOB (KER),'KER04',CLASS=G,MSGCLASS=X,MSGLEVEL=(1,1)          
+//S1 EXEC YSRCCAT,MBR=K11BNAM2                                          
+//C.SYSUT1 DD *                                                         
+          02   BOJONG-SOURCE.
+1          03  FILLER   PIC X(20)     VALUE  '태평양장학　　　　'.
+2          03  FILLER   PIC X(20)     VALUE  '새　교　육　　　　'.
+3          03  FILLER   PIC X(20)     VALUE  '엑설런트교육　　　'.
+4          03  FILLER   PIC X(20)     VALUE  '아가사랑교육　　　'.
+5          03  FILLER   PIC X(20)     VALUE  '                    '.
+6          03  FILLER   PIC X(20)     VALUE  '                    '.
+7          03  FILLER   PIC X(20)     VALUE  '                    '.
+8          03  FILLER   PIC X(20)     VALUE  '                    '.
+9          03  FILLER   PIC X(20)     VALUE  '교육보험계　　　　'.
+
+10         03  FILLER   PIC X(20)     VALUE  '노후설계연금      '.
+11         03  FILLER   PIC X(20)     VALUE  '노후복지연금      '.
+12         03  FILLER   PIC X(20)     VALUE  '새생활　연금      '.
+13         03  FILLER   PIC X(20)     VALUE  '장수설계연금      '.
+14         03  FILLER   PIC X(20)     VALUE  '가족사랑연금      '.
+15         03  FILLER   PIC X(20)     VALUE  '신가족비적격      '.
+16         03  FILLER   PIC X(20)     VALUE  '아빠　비적격      '.
+17         03  FILLER   PIC X(20)     VALUE  '우리사랑비적      '.
+18         03  FILLER   PIC X(20)     VALUE  '새우리사랑　      '.
+19         03  FILLER   PIC X(20)     VALUE  '                    '.
+20         03  FILLER   PIC X(20)     VALUE  '                    '.
+21         03  FILLER   PIC X(20)     VALUE  '                    '.
+22         03  FILLER   PIC X(20)     VALUE  '                    '.
+23         03  FILLER   PIC X(20)     VALUE  '                    '.
+24         03  FILLER   PIC X(20)     VALUE  '                    '.
+25         03  FILLER   PIC X(20)     VALUE  '                    '.
+26         03  FILLER   PIC X(20)     VALUE  '                    '.
+27         03  FILLER   PIC X(20)     VALUE  '                    '.
+28         03  FILLER   PIC X(20)     VALUE  '                    '.
+29         03  FILLER   PIC X(20)     VALUE  '                    '.
+30         03  FILLER   PIC X(20)     VALUE  '                    '.
+31         03  FILLER   PIC X(20)     VALUE  '노후적립연금      '.
+32         03  FILLER   PIC X(20)     VALUE  '신가족사랑연금    '.
+33         03  FILLER   PIC X(20)     VALUE  '한사랑　연금      '.
+34         03  FILLER   PIC X(20)     VALUE  '직장인우대연금    '.
+35         03  FILLER   PIC X(20)     VALUE  '우리사랑연금      '.
+36         03  FILLER   PIC X(20)     VALUE  '아빠사랑연금      '.
+37         03  FILLER   PIC X(20)     VALUE  '                    '.
+38         03  FILLER   PIC X(20)     VALUE  '                    '.
+39         03  FILLER   PIC X(20)     VALUE  '                    '.
+40         03  FILLER   PIC X(20)     VALUE  '                    '.
+41         03  FILLER   PIC X(20)     VALUE  '                    '.
+42         03  FILLER   PIC X(20)     VALUE  '                    '.
+43         03  FILLER   PIC X(20)     VALUE  '                    '.
+44         03  FILLER   PIC X(20)     VALUE  '                    '.
+45         03  FILLER   PIC X(20)     VALUE  '                    '.
+46         03  FILLER   PIC X(20)     VALUE  '                    '.
+47         03  FILLER   PIC X(20)     VALUE  '                    '.
+48         03  FILLER   PIC X(20)     VALUE  '                    '.
+49         03  FILLER   PIC X(20)     VALUE  '일반생존계        '.
+
+50         03  FILLER   PIC X(20)     VALUE  '노설　전환        '.
+51         03  FILLER   PIC X(20)     VALUE  '노복　전환        '.
+52         03  FILLER   PIC X(20)     VALUE  '새생활전환        '.
+53         03  FILLER   PIC X(20)     VALUE  '장수　전환        '.
+54         03  FILLER   PIC X(20)     VALUE  '가족　전환        '.
+55         03  FILLER   PIC X(20)     VALUE  '                    '.
+56         03  FILLER   PIC X(20)     VALUE  '                    '.
+57         03  FILLER   PIC X(20)     VALUE  '                    '.
+58         03  FILLER   PIC X(20)     VALUE  '                    '.
+59         03  FILLER   PIC X(20)     VALUE  '전환계약계        '.
+
+60         03  FILLER   PIC X(20)     VALUE  '노설거치전환      '.
+61         03  FILLER   PIC X(20)     VALUE  '노복거치전환      '.
+62         03  FILLER   PIC X(20)     VALUE  '                    '.
+63         03  FILLER   PIC X(20)     VALUE  '                    '.
+64         03  FILLER   PIC X(20)     VALUE  '                    '.
+65         03  FILLER   PIC X(20)     VALUE  '                    '.
+66         03  FILLER   PIC X(20)     VALUE  '                    '.
+67         03  FILLER   PIC X(20)     VALUE  '                    '.
+68         03  FILLER   PIC X(20)     VALUE  '거치전환계        '.
+69         03  FILLER   PIC X(20)     VALUE  '생　존　계        '.
+
+70         03  FILLER   PIC X(20)     VALUE  '２１Ｃ　암（１）  '.
+71         03  FILLER   PIC X(20)     VALUE  '암치료(1)         '.
+72         03  FILLER   PIC X(20)     VALUE  '무）어린이 1      '.
+73         03  FILLER   PIC X(20)     VALUE  '무）사랑안심      '.
+74         03  FILLER   PIC X(20)     VALUE  '무）종신보험      '.
+75         03  FILLER   PIC X(20)     VALUE  '무）안심사랑      '.
+76         03  FILLER   PIC X(20)     VALUE  '무）고객사랑상해  '.
+77         03  FILLER   PIC X(20)     VALUE  '                    '.
+78         03  FILLER   PIC X(20)     VALUE  '                    '.
+79         03  FILLER   PIC X(20)     VALUE  '                    '.
+80         03  FILLER   PIC X(20)     VALUE  '                    '.
+81         03  FILLER   PIC X(20)     VALUE  '                    '.
+82         03  FILLER   PIC X(20)     VALUE  '                    '.
+83         03  FILLER   PIC X(20)     VALUE  '                    '.
+84         03  FILLER   PIC X(20)     VALUE  '                    '.
+85         03  FILLER   PIC X(20)     VALUE  '                    '.
+86         03  FILLER   PIC X(20)     VALUE  '                    '.
+87         03  FILLER   PIC X(20)     VALUE  '                    '.
+88         03  FILLER   PIC X(20)     VALUE  '                    '.
+89         03  FILLER   PIC X(20)     VALUE  '순수보장계        '.
+
+90         03  FILLER   PIC X(20)     VALUE  '무지　개          '.
+91         03  FILLER   PIC X(20)     VALUE  '２１Ｃ　암（２）  '.
+92         03  FILLER   PIC X(20)     VALUE  '암치료(2)         '.
+93         03  FILLER   PIC X(20)     VALUE  '태평양　큰마음    '.
+94         03  FILLER   PIC X(20)     VALUE  '여　성(2)         '.
+95         03  FILLER   PIC X(20)     VALUE  '무）특별보장      '.
+96         03  FILLER   PIC X(20)     VALUE  '건강생활　        '.
+97         03  FILLER   PIC X(20)     VALUE  '무）신건강        '.
+98         03  FILLER   PIC X(20)     VALUE  '아빠사랑　        '.
+99         03  FILLER   PIC X(20)     VALUE  '무배당암　        '.
+100        03  FILLER   PIC X(20)     VALUE  '길벗보장          '.
+101        03  FILLER   PIC X(20)     VALUE  '미즈암　          '.
+102        03  FILLER   PIC X(20)     VALUE  '미스터암          '.
+103        03  FILLER   PIC X(20)     VALUE  '무）알파플러스    '.
+104        03  FILLER   PIC X(20)     VALUE  '무）어린이 2      '.
+105        03  FILLER   PIC X(20)     VALUE  '무）파워운전자    '.
+106        03  FILLER   PIC X(20)     VALUE  '무）슈퍼보장누구나'.
+107        03  FILLER   PIC X(20)     VALUE  '무）신바람여성건강'.
+108        03  FILLER   PIC X(20)     VALUE  '무）태평양누구나  '.
+109        03  FILLER   PIC X(20)     VALUE  '　　　　　　　　  '.
+110        03  FILLER   PIC X(20)     VALUE  '무）미즈암　　　　'.
+111        03  FILLER   PIC X(20)     VALUE  '무）미스터암      '.
+112        03  FILLER   PIC X(20)     VALUE  '무）새천년건강보험'.
+113        03  FILLER   PIC X(20)     VALUE  '무）새천년누구나  '.
+114        03  FILLER   PIC X(20)     VALUE  '                    '.
+115        03  FILLER   PIC X(20)     VALUE  '                    '.
+116        03  FILLER   PIC X(20)     VALUE  '                    '.
+117        03  FILLER   PIC X(20)     VALUE  '                    '.
+118        03  FILLER   PIC X(20)     VALUE  '                    '.
+119        03  FILLER   PIC X(20)     VALUE  '                    '.
+120        03  FILLER   PIC X(20)     VALUE  '                    '.
+121        03  FILLER   PIC X(20)     VALUE  '                    '.
+122        03  FILLER   PIC X(20)     VALUE  '                    '.
+123        03  FILLER   PIC X(20)     VALUE  '                    '.
+124        03  FILLER   PIC X(20)     VALUE  '                    '.
+125        03  FILLER   PIC X(20)     VALUE  '                    '.
+126        03  FILLER   PIC X(20)     VALUE  '                    '.
+127        03  FILLER   PIC X(20)     VALUE  '                    '.
+128        03  FILLER   PIC X(20)     VALUE  '기타보장계        '.
+129        03  FILLER   PIC X(20)     VALUE  '보　장　계        '.
+
+130        03  FILLER   PIC X(20)     VALUE  '특별적립          '.
+131        03  FILLER   PIC X(20)     VALUE  '새가정복지        '.
+132        03  FILLER   PIC X(20)     VALUE  '비과세가계저축　　'.
+133        03  FILLER   PIC X(20)     VALUE  '근로자우대저축    '.
+134        03  FILLER   PIC X(20)     VALUE  '재테크　　　      '.
+135        03  FILLER   PIC X(20)     VALUE  '재테크2           '.
+136        03  FILLER   PIC X(20)     VALUE  '뉴재테크          '.
+137        03  FILLER   PIC X(20)     VALUE  '하나로　다기능    '.
+138        03  FILLER   PIC X(20)     VALUE  '새천년어린이      '.
+139        03  FILLER   PIC X(20)     VALUE  '                    '.
+140        03  FILLER   PIC X(20)     VALUE  '                    '.
+141        03  FILLER   PIC X(20)     VALUE  '                    '.
+142        03  FILLER   PIC X(20)     VALUE  '                    '.
+143        03  FILLER   PIC X(20)     VALUE  '                    '.
+144        03  FILLER   PIC X(20)     VALUE  '                    '.
+145        03  FILLER   PIC X(20)     VALUE  '                    '.
+146        03  FILLER   PIC X(20)     VALUE  '                    '.
+147        03  FILLER   PIC X(20)     VALUE  '                    '.
+148        03  FILLER   PIC X(20)     VALUE  '                    '.
+149        03  FILLER   PIC X(20)     VALUE  '                    '.
+150        03  FILLER   PIC X(20)     VALUE  '무）우리집저축    '.
+151        03  FILLER   PIC X(20)     VALUE  '무）새우리집저축  '.
+152        03  FILLER   PIC X(20)     VALUE  '원앙부부          '.
+153        03  FILLER   PIC X(20)     VALUE  '자유설계          '.
+154        03  FILLER   PIC X(20)     VALUE  '여성(1)           '.
+155        03  FILLER   PIC X(20)     VALUE  '행복설계          '.
+156        03  FILLER   PIC X(20)     VALUE  '                    '.
+157        03  FILLER   PIC X(20)     VALUE  '                    '.
+158        03  FILLER   PIC X(20)     VALUE  '                    '.
+159        03  FILLER   PIC X(20)     VALUE  '                    '.
+160        03  FILLER   PIC X(20)     VALUE  '                    '.
+161        03  FILLER   PIC X(20)     VALUE  '                    '.
+162        03  FILLER   PIC X(20)     VALUE  '                    '.
+163        03  FILLER   PIC X(20)     VALUE  '                    '.
+164        03  FILLER   PIC X(20)     VALUE  '                    '.
+165        03  FILLER   PIC X(20)     VALUE  '                    '.
+166        03  FILLER   PIC X(20)     VALUE  '                    '.
+167        03  FILLER   PIC X(20)     VALUE  '                    '.
+168        03  FILLER   PIC X(20)     VALUE  '                    '.
+169        03  FILLER   PIC X(20)     VALUE  '일반양로계        '.
+
+170        03  FILLER   PIC X(20)     VALUE  '새가정거치전환    '.
+171        03  FILLER   PIC X(20)     VALUE  '비과세거치전환    '.
+172        03  FILLER   PIC X(20)     VALUE  '근로자거치전환    '.
+173        03  FILLER   PIC X(20)     VALUE  '                    '.
+174        03  FILLER   PIC X(20)     VALUE  '                    '.
+175        03  FILLER   PIC X(20)     VALUE  '                    '.
+176        03  FILLER   PIC X(20)     VALUE  '                    '.
+177        03  FILLER   PIC X(20)     VALUE  '거치전환계        '.
+178        03  FILLER   PIC X(20)     VALUE  '양　로　계        '.
+
+179        03  FILLER   PIC X(20)     VALUE  '개　인　계        '.
+
+180        03  FILLER   PIC X(20)     VALUE  '단체정기          '.
+181        03  FILLER   PIC X(20)     VALUE  '새단체정기        '.
+182        03  FILLER   PIC X(20)     VALUE  '단체신용          '.
+183        03  FILLER   PIC X(20)     VALUE  '직장인보장        '.
+184        03  FILLER   PIC X(20)     VALUE  ' 21C보장          '.
+185        03  FILLER   PIC X(20)     VALUE  '미래로보장        '.
+186        03  FILLER   PIC X(20)     VALUE  '대형보장　        '.
+187        03  FILLER   PIC X(20)     VALUE  '새대형보장        '.
+188        03  FILLER   PIC X(20)     VALUE  '무）단체상해      '.
+189        03  FILLER   PIC X(20)     VALUE  '무）실업기금      '.
+190        03  FILLER   PIC X(20)     VALUE  '                    '.
+191        03  FILLER   PIC X(20)     VALUE  '                    '.
+192        03  FILLER   PIC X(20)     VALUE  '                    '.
+193        03  FILLER   PIC X(20)     VALUE  '                    '.
+194        03  FILLER   PIC X(20)     VALUE  '                    '.
+195        03  FILLER   PIC X(20)     VALUE  '                    '.
+196        03  FILLER   PIC X(20)     VALUE  '                    '.
+197        03  FILLER   PIC X(20)     VALUE  '                    '.
+198        03  FILLER   PIC X(20)     VALUE  '                    '.
+199        03  FILLER   PIC X(20)     VALUE  '단체보장계        '.
+200        03  FILLER   PIC X(20)     VALUE  '종　　　퇴        '.
+201        03  FILLER   PIC X(20)     VALUE  '단체양로　        '.
+202        03  FILLER   PIC X(20)     VALUE  '직장인저축        '.
+203        03  FILLER   PIC X(20)     VALUE  '직．우대설계      '.
+204        03  FILLER   PIC X(20)     VALUE  '                    '.
+205        03  FILLER   PIC X(20)     VALUE  '                    '.
+206        03  FILLER   PIC X(20)     VALUE  '                    '.
+207        03  FILLER   PIC X(20)     VALUE  '                    '.
+208        03  FILLER   PIC X(20)     VALUE  '단체저축계        '.
+209        03  FILLER   PIC X(20)     VALUE  '단　체　계        '.
+
+210        03  FILLER   PIC X(20)     VALUE  '합　　　계        '.
+
+
+          02  BOJONG-SOURCE-RE       REDEFINES   BOJONG-SOURCE.
+            03  BOJONG-SOUR          OCCURS   210.
+               04  BO-SO               PIC X(20).
+
+

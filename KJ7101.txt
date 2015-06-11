@@ -1,0 +1,39 @@
+//KERJ7101 JOB (KER),'KER01',CLASS=K,MSGCLASS=X,MSGLEVEL=(1,1)          
+//*        TYPRUN=HOLD,TIME=1440,REGION=4M                              
+//*-------------------------------------------------------*             
+//*        POLICY-RESERVE BASE-DATA SELECT                *             
+//*-------------------------------------------------------*             
+//STEP1    EXEC  YDBATRUN,PGRM=KC7101,URT=P2READU                       
+//STEPLIB  DD  DSN=PLI.Y2KBATCH.LOADLIB,DISP=SHR                        
+//SYSOUT   DD  SYSOUT=*                                                 
+//SYSPRINT DD  SYSOUT=X                                                 
+//SYSDBOUT DD  *                                                        
+//*= DB-BACKUP TAPE('00.02) ================================*           
+//*        VOL=SER=(CK0497,CK0498,CK0499,CK0500)                        
+//*=========================================================*           
+//FILEIN    DD DSN=PRI.BACKUP.TAPE,UNIT=CTAPE,LABEL=(1,SL),             
+//          VOL=SER=CK0497,                                             
+//          DCB=(RECFM=FB,LRECL=105,BLKSIZE=31500)                      
+//          DD DSN=PRI.BACKUP.TAPE,UNIT=AFF=FILEIN,LABEL=(1,SL),        
+//          VOL=SER=CK0498,                                             
+//          DCB=(RECFM=FB,LRECL=105,BLKSIZE=31500)                      
+//          DD DSN=PRI.BACKUP.TAPE,UNIT=AFF=FILEIN,LABEL=(1,SL),        
+//          VOL=SER=CK0499,                                             
+//          DCB=(RECFM=FB,LRECL=105,BLKSIZE=31500)                      
+//          DD DSN=PRI.BACKUP.TAPE,UNIT=AFF=FILEIN,LABEL=(1,SL),        
+//          VOL=SER=CK0500,                                             
+//          DCB=(RECFM=FB,LRECL=105,BLKSIZE=31500)                      
+//FILOUT1  DD  DSN=KER.G0002.K1-1,UNIT=SYSDA,VOL=SER=U1HD09,            
+//         DISP=(NEW,KEEP),SPACE=(TRK,(2000,300),RLSE),                 
+//         DCB=(RECFM=FB,LRECL=78,BLKSIZE=7800)                         
+//FILOUT2  DD  DSN=KER.G0002.K1-2,UNIT=SYSDA,VOL=SER=U1HD09,            
+//         DISP=(NEW,KEEP),SPACE=(TRK,(5000,500),RLSE),                 
+//         DCB=(RECFM=FB,LRECL=122,BLKSIZE=12200)                       
+//FILOUT3  DD  DSN=KER.G0002.K1-3,UNIT=SYSDA,VOL=SER=U1HD09,            
+//         DISP=(NEW,KEEP),SPACE=(TRK,(500,200),RLSE),                  
+//         DCB=(RECFM=FB,LRECL=124,BLKSIZE=12400)                       
+//PRINT2   DD  SYSOUT=X                                                 
+//SYSIN DD    *                                                         
+2000022911                                                              
+/*                                                                      
+//                                                                      

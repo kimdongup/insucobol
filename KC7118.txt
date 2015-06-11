@@ -1,0 +1,356 @@
+//KERC7118 JOB (KER),'KER01',CLASS=G,MSGCLASS=X,MSGLEVEL=(1,1)          
+//STEP1 EXEC YCOBBAT,MBR=KC7118                                         
+//COB.SYSIN DD *                                                        
+       IDENTIFICATION           DIVISION.                               
+       PROGRAM-ID.              KC7118.                                 
+      *REMARKS.                 KYULSAN   BAIDANG.                      
+       ENVIRONMENT              DIVISION.                               
+       CONFIGURATION            SECTION.                                
+       SPECIAL-NAMES.           C01  IS   PGSK                          
+                                CSP  IS   DUP.                          
+       SOURCE-COMPUTER.         IBM-4381.                               
+       OBJECT-COMPUTER.         IBM-4381.                               
+       INPUT-OUTPUT             SECTION.                                
+       FILE-CONTROL.                                                    
+           SELECT   CH-FILE    ASSIGN   TO   CHFILE.                    
+           SELECT   FILE-OUT   ASSIGN   TO   PRINT.                     
+       DATA                      DIVISION.                              
+       FILE                      SECTION.                               
+       FD  CH-FILE     RECORDING   MODE    IS  F                        
+                       LABEL       RECORD      STANDARD                 
+                       BLOCK       CONTAINS   100  RECORDS              
+                       RECORD      CONTAINS   160  CHARACTERS.          
+       01  CH-REC.                                                      
+           02  CH-KEY.                                                  
+             03  CH-GYEOLSAN-CYM.                                       
+              04 CH-GYEOLSAN-CY     PIC 9(4).                           
+              04 CH-GYEOLSAN-MM     PIC 9(2).                           
+             03  CH-BSMG            PIC 9(2).                           
+             03  CH-SSYD            PIC 9(1).                           
+             03  CH-BOJONG.                                             
+              04 CH-BOJONG-1        PIC 9(1).                           
+              04 CH-BOJONG-2        PIC 9(2).                           
+              04 CH-BOJONG-3        PIC 9(1).                           
+             03  CH-IYUL            PIC S9(5)       COMP-3.             
+           02  CH-GEONSU            PIC S9(7)       COMP-3.             
+           02  CH-BOGEUM            PIC S9(9)       COMP-3.             
+           02  CH-YEON-RESERVE.                                         
+             03  CH-VT-YY           PIC S9(13)      COMP-3.             
+             03  CH-WT-YY           PIC S9(13)      COMP-3.             
+           02  CH-RESERVE-YM.                                           
+             03  CH-VT-YYMM         PIC S9(13)      COMP-3.             
+             03  CH-WT-YYMM         PIC S9(13)      COMP-3.             
+           02  CH-GITA.                                                 
+             03  CH-MIG             PIC S9(13)      COMP-3.             
+             03  CH-MIJIGB          PIC S9(13)      COMP-3.             
+             03  CH-SUNJIGB         PIC S9(13)      COMP-3.             
+           02  CH-IJA               PIC S9(13)      COMP-3.             
+           02  CH-SEON-IJA          PIC S9(13)      COMP-3.             
+           02  CH-BAIDANG-SEG.                                          
+             03  CH-HWAGBAI         OCCURS  3.                          
+                 04  CH-HWAG        PIC S9(11)      COMP-3.             
+             03  CH-SACHABAI        OCCURS  3.                          
+                 04  CH-SACHA       PIC S9(11)      COMP-3.             
+             03  CH-ICHABAI         OCCURS  3.                          
+                 04  CH-ICHA        PIC S9(11)      COMP-3.             
+             03  CH-JANGGIBAI       OCCURS  3.                          
+                 04  CH-JANGGI      PIC S9(11)      COMP-3.             
+       FD  FILE-OUT         LABEL       RECORD    OMITTED.              
+       01  REC-OUT                  PIC  X(132).                        
+      *===============================================================* 
+       WORKING-STORAGE         SECTION.                                 
+      *----------------------*                                          
+      *    MEMORY    GROUP   *                                          
+      *----------------------*                                          
+       01  WORK-SPACE.                                                  
+         02  CNT-IN                 PIC 9(10).                          
+         02  CNT-PRINT              PIC 9(2).                           
+         02  SW                     PIC 9.                              
+         02  S-BSM                  PIC 9(2).                           
+         02  S-SSY                  PIC 9.                              
+         02  S-BOJONG               PIC 9(4).                           
+         02  I                      PIC 9(2).                           
+         02  J                      PIC 9(2).                           
+         02  K                      PIC 9(2).                           
+         02  ZERO-B                 PIC 9.                              
+       01  R-KEY.                                                       
+           02  R-GUBUN             PIC X(6).                            
+           02  R-BOJONG            PIC 9(4).                            
+           02  R-BOJONG-T          PIC 9(4).                            
+           02  R-JIGYEOG           PIC 9(3).                            
+           02  R-JUN               PIC 9(1).                            
+           02  R-OUT.                                                   
+               03  R-OUT1          PIC 9(1).                            
+               03  R-OUT2          PIC 9(2).                            
+               03  R-OUT3          PIC 9(4).                            
+               03  R-OUT4          PIC 9(2).                            
+               03  R-ERR           PIC 9(1).                            
+           02 HAN-BOJ          PIC X(15).                               
+       01  TABLE-1.                                                     
+         02  TAB                 OCCURS  3.                             
+           03  TA                OCCURS  7.                             
+             04  T1-BAI             PIC S9(14).                         
+             04  T2-BAI             PIC S9(14).                         
+             04  T3-BAI             PIC S9(14).                         
+      *----------------------*                                          
+      *    PRINT     GROUP   *                                          
+      *----------------------*                                          
+       01  REC-HEAD.                                                    
+         02  P-HEAD              OCCURS  3.                             
+           03  FILLER               PIC X(6).                           
+           03  H-YY                 PIC 99.                             
+           03  H-4                  PIC X(4).                           
+           03  H-MM                 PIC 99.                             
+           03  H-3                  PIC X(3).                           
+           03  FILLER               PIC X(3).                           
+           03  H-5                  PIC X(5).                           
+           03  FILLER               PIC X(10).                          
+           03  H-BSM-123            PIC Z(2).                           
+           03  FILLER               PIC X(10).                          
+           03  FILLER               PIC XX.                             
+           03  H-9                  PIC X(9).                           
+           03  FILLER               PIC X.                              
+           03  H-22                 PIC X(22).                          
+           03  FILLER               PIC X(32).                          
+           03  H-12                 PIC X(12).                          
+           03  FILLER               PIC X(7).                           
+       01  REC-TITLE.                                                   
+         02  TITLE-S             OCCURS  3     PIC X(132).              
+       01  REC-PRINT.                                                   
+         02  LIST1               OCCURS  3.                             
+           03  L-12                 PIC X(12).                          
+           03  L-HWAG               PIC ZZZZZ,ZZZ,ZZZ,ZZ9.              
+           03  L-TEUG               PIC ZZZZZ,ZZZ,ZZZ,ZZ9.              
+           03  L-SACHA              PIC ZZZZZ,ZZZ,ZZZ,ZZ9.              
+           03  L-JUNG               PIC ZZZZZ,ZZZ,ZZZ,ZZ9.              
+           03  L-ICHA               PIC ZZZZZ,ZZZ,ZZZ,ZZ9.              
+           03  L-JANGGI             PIC ZZZZZ,ZZZ,ZZZ,ZZ9.              
+           03  L-TOTAL              PIC ZZZZZ,ZZZ,ZZZ,ZZ9.              
+           03  FILLER               PIC X.                              
+       01  LIST2.                                                       
+         02  FILLER                PIC X(4).                            
+         02  L-BOJONG              PIC Z(4).                            
+         02  FILLER                PIC X(4).                            
+         02  L-HWAG-T              PIC ZZZZZ,ZZZ,ZZZ,ZZ9.               
+         02  L-TEUG-T              PIC ZZZZZ,ZZZ,ZZZ,ZZ9.               
+         02  L-SACHA-T             PIC ZZZZZ,ZZZ,ZZZ,ZZ9.               
+         02  L-JUNG-T              PIC ZZZZZ,ZZZ,ZZZ,ZZ9.               
+         02  L-ICHA-T              PIC ZZZZZ,ZZZ,ZZZ,ZZ9.               
+         02  L-JANGGI-T            PIC ZZZZZ,ZZZ,ZZZ,ZZ9.               
+         02  L-TOTAL-T             PIC ZZZZZ,ZZZ,ZZZ,ZZ9.               
+         02  FILLER                PIC X       VALUE   SPACE.           
+      *----------------------*                                          
+      *    REMARKS   GROUP   *                                          
+      *----------------------*                                          
+       01  REC-HANGEUL-LENGTH.                                          
+         02  MOCD                  PIC X(2)    VALUE   'MO'.            
+         02  ERCD                  PIC X(2)    VALUE   SPACE.           
+         02  HL3                   PIC 9(1)    COMP    VALUE     3.     
+         02  HL4                   PIC 9(1)    COMP    VALUE     4.     
+         02  HL5                   PIC 9(1)    COMP    VALUE     5.     
+         02  HL7                   PIC 9(1)    COMP    VALUE     7.     
+         02  HL8                   PIC 9(1)    COMP    VALUE     8.     
+         02  HL9                   PIC 9(2)    COMP    VALUE     9.     
+         02  HL12                  PIC 9(2)    COMP    VALUE    12.     
+         02  HL15                  PIC 9(2)    COMP    VALUE    15.     
+         02  HL16                  PIC 9(2)    COMP    VALUE    16.     
+         02  HL22                  PIC 9(2)    COMP    VALUE    22.     
+         02  HL26                  PIC 9(2)    COMP    VALUE    26.     
+         02  HL132                 PIC 9(3)    COMP    VALUE   132.     
+         02  HL176                 PIC 9(3)    COMP    VALUE   176.     
+       01  REC-LINE.                                                    
+         02  S-LINE                PIC X(132)  VALUE   SPACE.           
+         02  S1-LINE               PIC X(132)  VALUE   ALL  '*'.        
+         02  S2-LINE               PIC X(132)  VALUE   ALL  '='.        
+         02  S3-LINE               PIC X(132)  VALUE   ALL  '-'.        
+         02  S4-LINE.                                                   
+           03  FILLER              PIC X(44)   VALUE   SPACE.           
+           03  FILLER              PIC X(35)   VALUE   ALL  '*'.        
+           03  FILLER              PIC X(53)   VALUE   SPACE.           
+         02  S5-LINE.                                                   
+           03  FILLER              PIC X(12)   VALUE   SPACE.           
+           03  FILLER              PIC X(120)  VALUE   ALL  '-'.        
+       01  HANGEUL-SOURCE.                                              
+         02  HY-4     PIC X(4)    VALUE   '년'.                       
+         02  HM-4     PIC X(4)    VALUE   '월'.                       
+         02  HH-8     PIC X(8).                                         
+         02  HH-12    PIC X(12).                                        
+         02  HH-26    PIC X(26)   VALUE  ' 배　당　금　명　세　표 '.  
+         02  HH-16    PIC X(16)   VALUE  '단　위 : 원 '.            
+         02  TT-176.                                                    
+             03  FILLER     PIC X(56)   VALUE                           
+           '   보　종　코　드       확정  배당금      특별  '.  
+             03  FILLER     PIC X(57)   VALUE                           
+           '  배당금      사차  배당금      정산 배당금    '. 
+             03  FILLER     PIC X(57)   VALUE                           
+           '  이차  배당금    장기유지　배당금       배당금  '. 
+             03  FILLER     PIC X(6)   VALUE      ' 계 '.       
+       01  HAN-HEAD.                                                    
+           02  FILLER              PIC X(25)   VALUE   SPACE.           
+           02  FILLER              PIC X(12)   VALUE   '   (BSM =   '.  
+           02  FILLER              PIC X(10)   VALUE   ')         '.    
+           02  FILLER              PIC X(12)   VALUE   '(          )'.  
+           02  FILLER              PIC X(73)   VALUE   SPACE.           
+      *===============================================================* 
+       PROCEDURE       DIVISION.                                        
+       000-BODY.                                                        
+           OPEN    INPUT  CH-FILE     OUTPUT      FILE-OUT.             
+           MOVE    ZERO      TO       WORK-SPACE   TABLE-1.             
+           MOVE    SPACE     TO       REC-HEAD     REC-TITLE            
+                                      REC-PRINT    LIST2.               
+           MOVE    HAN-HEAD  TO       P-HEAD(1).                        
+           PERFORM           100-CONTROL    UNTIL  SW = 4.              
+           CLOSE   CH-FILE   FILE-OUT.                                  
+           DISPLAY   ' ******************************** '.              
+           DISPLAY   ' ***  READ  COUNT  =   '  CNT-IN.                 
+           DISPLAY   ' ******************************** '.              
+           STOP  RUN.                                                   
+      *-----------*                                                     
+       100-CONTROL.                                                     
+      *-----------*                                                     
+           READ   CH-FILE  END  MOVE      4   TO   SW.                  
+           IF  SW = 4           MOVE      3   TO   I                    
+                                PERFORM       130-WRITE-CHEORI          
+           ELSE                 ADD       1   TO   CNT-IN               
+                                PERFORM       120-COMPUTE-CHEORI.       
+           MOVE    ZERO         TO        ZERO-B.                       
+      *------------------*                                              
+       120-COMPUTE-CHEORI.                                              
+      *------------------*                                              
+           IF  CNT-IN  =  1                                             
+                      MOVE  CH-BSMG      TO   S-BSM                     
+                      MOVE  CH-SSYD      TO   S-SSY                     
+                      MOVE  CH-BOJONG    TO   S-BOJONG                  
+                      PERFORM            990-HEAD-WRITE.                
+           IF  CH-BSMG  NOT = S-BSM  MOVE   3        TO  J              
+                                     PERFORM         130-WRITE-CHEORI   
+                                     MOVE  CH-BSMG   TO  S-BSM          
+                                     MOVE  CH-SSYD   TO  S-SSY          
+                                     MOVE  CH-BOJONG TO  S-BOJONG       
+                                     PERFORM         990-HEAD-WRITE.    
+           IF  CH-SSYD  NOT = S-SSY  MOVE   2        TO  J              
+                                     PERFORM         130-WRITE-CHEORI   
+                                     MOVE  CH-SSYD   TO  S-SSY          
+                                     MOVE  CH-BOJONG TO  S-BOJONG       
+                                     PERFORM         990-HEAD-WRITE.    
+           IF CH-BOJONG NOT = S-BOJONG                                  
+                                     MOVE   1        TO  J              
+                                     PERFORM         130-WRITE-CHEORI   
+                                     MOVE  CH-BOJONG TO  S-BOJONG.      
+           MOVE    ZERO          TO      J.                             
+           PERFORM    121-DATA-COMPUTE   3       TIMES.                 
+      *-----------------*                                               
+       121-DATA-COMPUTE.                                                
+      *-----------------*                                               
+           ADD    1      TO     J.                                      
+           ADD  CH-HWAG(1)   CH-HWAG(2)   TO  T1-BAI(J 1)  T1-BAI(J 7)  
+                                              T3-BAI(J 1)  T3-BAI(J 7). 
+           ADD  CH-SACHA(1)  CH-SACHA(2)  TO  T1-BAI(J 3)  T1-BAI(J 7)  
+                                              T3-BAI(J 3)  T3-BAI(J 7). 
+           ADD  CH-ICHA(1)   CH-ICHA(2)   TO  T1-BAI(J 5)  T1-BAI(J 7)  
+                                              T3-BAI(J 5)  T3-BAI(J 7). 
+           ADD  CH-JANGGI(1) CH-JANGGI(2) TO  T1-BAI(J 6)  T1-BAI(J 7)  
+                                              T3-BAI(J 6)  T3-BAI(J 7). 
+           ADD  CH-HWAG(3)                TO  T2-BAI(J 1)  T2-BAI(J 7)  
+                                              T3-BAI(J 1)  T3-BAI(J 7). 
+           ADD  CH-SACHA(3)               TO  T2-BAI(J 3)  T2-BAI(J 7)  
+                                              T3-BAI(J 3)  T3-BAI(J 7). 
+           ADD  CH-ICHA(3)                TO  T2-BAI(J 5)  T2-BAI(J 7)  
+                                              T3-BAI(J 5)  T3-BAI(J 7). 
+           ADD  CH-JANGGI(3)              TO  T2-BAI(J 6)  T2-BAI(J 7)  
+                                              T3-BAI(J 6)  T3-BAI(J 7). 
+      *---------------*                                                 
+       990-HEAD-WRITE.                                                  
+      *---------------*                                                 
+           MOVE      ZERO             TO          CNT-PRINT.            
+           WRITE     REC-OUT     FROM   S-LINE    AFTER  PGSK.          
+           WRITE     REC-OUT     FROM   S-LINE    AFTER  3.             
+           WRITE     REC-OUT     FROM   S4-LINE   AFTER  1.             
+           MOVE      S-BSM       TO     H-BSM-123(1).                   
+           IF   S-SSY =  1        MOVE  '생　존'      TO  HH-8. 
+           IF   S-SSY =  2        MOVE  '사　망'      TO  HH-8. 
+           IF   S-SSY =  3        MOVE  '양　로'      TO  HH-8. 
+           IF   S-SSY =  4        MOVE  '단　체'      TO  HH-8. 
+                                                                        
+           IF   S-BSM =  1        MOVE  '보    유'  TO  HH-12.  
+           IF   S-BSM =  2        MOVE  '해약해지'  TO  HH-12.  
+           IF   S-BSM =  3        MOVE  '만기미지급'  TO  HH-12.
+           IF   S-BSM =  4        MOVE  '소　　　멸'  TO  HH-12.
+           IF   S-BSM =  5        MOVE  '실효　잡익'  TO  HH-12.
+           IF   S-BSM =  6        MOVE  '만기　잡익'  TO  HH-12.
+           IF   S-BSM =  7        MOVE  '　실　효　'  TO  HH-12.
+           IF   S-BSM =  9        MOVE  '퇴직　소멸'  TO  HH-12.
+           IF   S-BSM =  10       MOVE  '만기　소멸'  TO  HH-12.
+                                                                        
+           MOVE      CH-GYEOLSAN-CYM(3:2)   TO     H-YY (1).            
+           MOVE      CH-GYEOLSAN-MM         TO     H-MM (1).            
+           CALL     'HGBATCH'    USING   MOCD            ERCD           
+                                    HY-4    HL4    H-4 (1)   HL4        
+                                    HM-4    HL4    H-3 (1)   HL3        
+                                    HH-8    HL8    H-5 (1)   HL5        
+                                    HH-12   HL12   H-9 (1)   HL9        
+                                    HH-26   HL26   H-22(1)   HL22       
+                                    HH-16   HL16   H-12(1)   HL12.      
+           WRITE     REC-OUT     FROM   P-HEAD(1)  AFTER  1.            
+           WRITE     REC-OUT     FROM   P-HEAD(2)  AFTER  DUP.          
+           WRITE     REC-OUT     FROM   P-HEAD(3)  AFTER  1.            
+           WRITE     REC-OUT     FROM   S4-LINE    AFTER  1.            
+           WRITE     REC-OUT     FROM   S2-LINE    AFTER  1.            
+           CALL     'HGBATCH'    USING   MOCD            ERCD           
+                                    TT-176  HL176  TITLE-S(1)  HL132.   
+           WRITE     REC-OUT     FROM   TITLE-S(1)   AFTER  1.          
+           WRITE     REC-OUT     FROM   TITLE-S(2)   AFTER  DUP.        
+           WRITE     REC-OUT     FROM   TITLE-S(3)   AFTER  1.          
+           WRITE     REC-OUT     FROM   S2-LINE    AFTER  1.            
+      *----------------*                                                
+       130-WRITE-CHEORI.                                                
+      *----------------*                                                
+           PERFORM  LIST-RTN  VARYING  I  FROM  1 BY  1  UNTIL  I > J.  
+      *--------*                                                        
+       LIST-RTN.                                                        
+      *--------*                                                        
+           IF   CNT-PRINT = 15   PERFORM   990-HEAD-WRITE.              
+           IF   I = 1    MOVE   'SUJONG'          TO  R-GUBUN           
+                         MOVE    S-BOJONG         TO  R-BOJONG-T        
+                         CALL   'K11M8008'     USING  R-KEY.            
+           IF   I = 2    MOVE    '소　　　　계 '  TO   HAN-BOJ. 
+           IF   I = 3    MOVE    '총　　　　계 '  TO   HAN-BOJ. 
+           CALL    'HGBATCH'   USING    MOCD           ERCD             
+                             HAN-BOJ    HL15   L-12(1)  HL12.           
+           MOVE   T1-BAI   (I  1)      TO     L-HWAG (1).               
+           MOVE   T1-BAI   (I  2)      TO     L-TEUG (1).               
+           MOVE   T1-BAI   (I  3)      TO     L-SACHA(1).               
+           MOVE   T1-BAI   (I  4)      TO     L-JUNG (1).               
+           MOVE   T1-BAI   (I  5)      TO     L-ICHA (1).               
+           MOVE   T1-BAI   (I  6)      TO     L-JANGGI(1).              
+           MOVE   T1-BAI   (I  7)      TO     L-TOTAL (1).              
+                                                                        
+           MOVE   T2-BAI   (I  1)      TO     L-HWAG  (3).              
+           MOVE   T2-BAI   (I  2)      TO     L-TEUG  (3).              
+           MOVE   T2-BAI   (I  3)      TO     L-SACHA (3).              
+           MOVE   T2-BAI   (I  4)      TO     L-JUNG  (3).              
+           MOVE   T2-BAI   (I  5)      TO     L-ICHA  (3).              
+           MOVE   T2-BAI   (I  6)      TO     L-JANGGI(3).              
+           MOVE   T2-BAI   (I  7)      TO     L-TOTAL (3).              
+                                                                        
+           IF  I = 1   MOVE  S-BOJONG  TO     L-BOJONG                  
+           ELSE        MOVE  ZERO      TO     L-BOJONG.                 
+           MOVE   T3-BAI   (I  1)      TO     L-HWAG-T.                 
+           MOVE   T3-BAI   (I  2)      TO     L-TEUG-T.                 
+           MOVE   T3-BAI   (I  3)      TO     L-SACHA-T.                
+           MOVE   T3-BAI   (I  4)      TO     L-JUNG-T.                 
+           MOVE   T3-BAI   (I  5)      TO     L-ICHA-T.                 
+           MOVE   T3-BAI   (I  6)      TO     L-JANGGI-T.               
+           MOVE   T3-BAI   (I  7)      TO     L-TOTAL-T.                
+                                                                        
+           IF   T3-BAI (I 7) > ZERO                                     
+                        WRITE  REC-OUT  FROM   LIST1(1) AFTER  1        
+                        WRITE  REC-OUT  FROM   LIST1(2) AFTER  DUP      
+                        WRITE  REC-OUT  FROM   LIST1(3) AFTER  1        
+                        WRITE  REC-OUT  FROM   LIST2    AFTER  1        
+                        ADD     1       TO     CNT-PRINT                
+              IF I = 1  WRITE  REC-OUT  FROM   S3-LINE  AFTER  1  ELSE  
+              IF I = 2  WRITE  REC-OUT  FROM   S2-LINE  AFTER  1  ELSE  
+              IF I = 3  WRITE  REC-OUT  FROM   S2-LINE  AFTER  1        
+                        WRITE  REC-OUT  FROM   S1-LINE  AFTER  1.       
+           MOVE    ZERO    TO      TAB (I).                             

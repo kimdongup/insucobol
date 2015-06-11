@@ -1,0 +1,42 @@
+//KERB9038 JOB (KER),'KER00',CLASS=K,MSGCLASS=X,MSGLEVEL=(1,1)          
+//S1 EXEC YSRCCAT,MBR=K00B9038                                          
+//C.SYSUT1 DD *                                                         
+           02  KI-JEUNGBEON              PIC 9(7).                      
+           02  KI-BOJONG                 PIC 9(4).                      
+           02  KI-BSMG                   PIC 9(2).                      
+991123     02  KI-GYE-YMD               PIC 9(8).                       
+  .        02  KI-GYE-YMD-RE           REDEFINES   KI-GYE-YMD.          
+  .            03  KI-GYE-YY             PIC 9(4).                      
+  .            03  KI-GYE-MM             PIC 9(2).                      
+  .            03  KI-GYE-DD             PIC 9(2).                      
+           02  KI-BAL-YMD               PIC 9(8).                       
+           02  KI-BAL-YMD-RE           REDEFINES   KI-BAL-YMD.          
+               03  KI-BAL-YY             PIC 9(4).                      
+               03  KI-BAL-MM             PIC 9(2).                      
+               03  KI-BAL-DD             PIC 9(2).                      
+990726     02  KI-IYUL                   PIC 9V9(5).                    
+           02  KI-NABGI                  PIC 9(2).                      
+           02  KI-MANGI                  PIC 9(2).                      
+           02  KI-NABBANG                PIC 9(1).                      
+           02  KI-LNAB-YM                PIC 9(6).                      
+           02  KI-LNAB-YM-RE           REDEFINES   KI-LNAB-YM.          
+               04  KI-LNAB-YY            PIC 9(4).                      
+               04  KI-LNAB-MM            PIC 9(2).                      
+           02  KI-BOGEUM                 PIC S9(7)       COMP-3.        
+           02  KI-BOLYO                  PIC S9(9)       COMP-3.        
+990726     02  KI-PAST-YMD.                                             
+  .            03  KI-PAST-YM            PIC 9(4).                      
+  .            03  KI-PAST-YM-RE        REDEFINES   KI-PAST-YM.         
+  .                04  KI-PAST-YY        PIC 9(2).                      
+  .                04  KI-PAST-MM        PIC 9(2).                      
+  .            03  KI-PAST-DD            PIC 9(2).                      
+           02  KI-JIGB-YMD               PIC 9(8).                      
+           02  KI-JIGB-YMD-RE          REDEFINES   KI-JIGB-YMD.         
+               04  KI-JIGB-YM            PIC 9(6).                      
+               04  KI-JIGB-YM-RE       REDEFINES   KI-JIGB-YM.          
+                     05  KI-JIGB-YY      PIC 9(4).                      
+                     05  KI-JIGB-MM      PIC 9(2).                      
+                  04  KI-JIGB-DD         PIC 9(2).                      
+           02  KI-JUNBI-GM               PIC S9(9)     COMP-3.          
+           02  KI-IJA                    PIC S9(9)     COMP-3.          
+           02  KI-CODE                   PIC 9(1).                      

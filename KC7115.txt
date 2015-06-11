@@ -1,0 +1,612 @@
+//KERC7115 JOB (KER),'KER01',CLASS=G,MSGCLASS=X,MSGLEVEL=(1,1)          
+//STEP1 EXEC YCOBBAT,MBR=KC7115                                         
+//COB.SYSIN DD *                                                        
+      *=================================*                               
+       IDENTIFICATION          DIVISION.                                
+       PROGRAM-ID.             KC7115.                                  
+       ENVIRONMENT             DIVISION.                                
+       CONFIGURATION           SECTION.                                 
+       INPUT-OUTPUT            SECTION.                                 
+      *-------------------------------*                                 
+       FILE-CONTROL.                                                    
+           SELECT   FILE-IN    ASSIGN  TO  FILEIN.                      
+           SELECT   FILE-OUT   ASSIGN  TO  FILEOUT.                     
+      *=================================*                               
+       DATA                    DIVISION.                                
+      *=================================*                               
+       FILE                    SECTION.                                 
+      *-------------------------------*                                 
+       FD  FILE-IN     RECORDING   MODE        IS  F                    
+                       LABEL       RECORD          STANDARD             
+                       BLOCK       CONTAINS    50  RECORDS              
+                       RECORD      CONTAINS   283  CHARACTERS.          
+       01  REC-IN.                                                      
+                         COPY  KB9018.                                  
+       FD  FILE-OUT    RECORDING   MODE        IS  F                    
+                       LABEL       RECORD          STANDARD             
+                       BLOCK       CONTAINS   100  RECORDS              
+                       RECORD      CONTAINS   160  CHARACTERS.          
+ .     01  REC-OUT     PIC X(160).                                      
+      *================================*                                
+       WORKING-STORAGE         SECTION.                                 
+      *================================*                                
+       01  REC-K5.       COPY  KB9019.                                  
+      *--------------------------------*                                
+       01  IN-KEY.                                                      
+           02  IN-BSMG                PIC 9(2).                         
+           02  IN-SSYD                PIC 9(1).                         
+980728     02  IN-0-9                 PIC 9(2).                         
+           02  IN-BOJONG              PIC 9(4).                         
+           02  IN-BOJONG-T            PIC 9(4).                         
+           02  IN-IYUL                PIC 9(5).                         
+           02  IN-JUN                 PIC 9(1).                         
+       01  SV-KEY.                                                      
+           02  SV-BSMG                PIC 9(2).                         
+           02  SV-SSYD                PIC 9(1).                         
+980728     02  SV-0-9                 PIC 9(2).                         
+           02  SV-BOJONG              PIC 9(4).                         
+           02  SV-BOJONG-T            PIC 9(4).                         
+           02  SV-IYUL                PIC 9(5).                         
+           02  SV-JUN                 PIC 9(1).                         
+       01  REC-BOJONG.                                                  
+                       COPY   KB9908.                                   
+                       COPY   KB9909.                                   
+       01  REC-WORK.                                                    
+           02  WK-SEONSU-BOLYO     PIC S9(09)    COMP-3.                
+           02  GUN                 PIC  9(07).                          
+           02  NN                  PIC  9(07).                          
+           02  S-CYM               PIC  9(06).                          
+           02  CNT-IN              PIC  9(10).                          
+           02  CNT-OUT             PIC  9(10).                          
+       01  R-KEY.                                                       
+           02  R-GUBUN             PIC X(6).                            
+           02  R-BOJONG            PIC 9(4).                            
+           02  R-BOJONG-T          PIC 9(4).                            
+           02  R-JIGYEOG           PIC 9(3).                            
+           02  R-JUN               PIC 9(1).                            
+           02  R-OUT.                                                   
+               03  R-OUT1          PIC 9(1).                            
+               03  R-OUT2          PIC 9(2).                            
+               03  R-OUT3          PIC 9(4).                            
+               03  R-OUT4          PIC 9(2).                            
+               03  R-ERR           PIC 9(1).                            
+           02  R-HAN           PIC X(15).                               
+       01  SW-REC.                                                      
+           02  SW-FILE-EOF      PIC X(3)    VALUE  'NO '.               
+             88  FILE-EOF                   VALUE  'YES'.               
+           02  SW-FIRST-DATA    PIC X(3)    VALUE  'YES'.               
+             88  FIRST-DATA                 VALUE  'YES'.               
+       EJECT                                                            
+      *=================================*                               
+       PROCEDURE               DIVISION.                                
+      *=================================*                               
+      *---------*                                                       
+       000-BODY.                                                        
+      *---------*                                                       
+           OPEN            INPUT   FILE-IN    OUTPUT      FILE-OUT.     
+           MOVE  ZERO  TO  REC-WORK    REC-BOJONG                       
+                           IN-KEY      SV-KEY.                          
+           PERFORM         990-RECORD-CLEAR.                            
+           PERFORM         110-READ-IN-SELECT.                          
+           PERFORM         100-DATA-CONTROL   UNTIL  FILE-EOF.          
+           PERFORM         130-CHEORIDATA-WRITE.                        
+           DISPLAY         ' ********************** '.                  
+           DISPLAY         ' INPUT   ===> ' CNT-IN.                     
+           DISPLAY         ' OUTPUT  ===> ' CNT-OUT.                    
+           DISPLAY         ' ********************** '.                  
+           CLOSE           FILE-IN    FILE-OUT.                         
+           STOP            RUN.                                         
+      *-----------------*                                               
+       100-DATA-CONTROL.                                                
+      *-----------------*                                               
+           IF  NOT  SV-KEY  =  IN-KEY                                   
+                       PERFORM           130-CHEORIDATA-WRITE           
+                       PERFORM           990-RECORD-CLEAR               
+                       MOVE    IN-KEY    TO   SV-KEY.                   
+           PERFORM             120-DATA-ACCUMULATION.                   
+           PERFORM             110-READ-IN-SELECT.                      
+       EJECT                                                            
+      *------------------*                                              
+       110-READ-IN-SELECT.                                              
+      *------------------*                                              
+           READ  FILE-IN    END   MOVE 'YES'  TO  SW-FILE-EOF.          
+           IF  NOT  FILE-EOF                                            
+                     ADD    1              TO   CNT-IN                  
+                     MOVE   K4-BOJONG      TO   WK-BOJONG               
+                     MOVE   K4-BOJONG-T    TO   WK-BOJONG-T             
+               IF  ILSU-BOJONG   PERFORM  IYUL-RTN                      
+               ELSE                                                     
+991006           IF  NOT (K4-IYUL =  650 OR 750 OR 850 OR 950)          
+  .                          DISPLAY  'IYUL-ERR = '    K4-IYUL          
+                             MOVE       750        TO  K4-IYUL.         
+           IF  NOT  FILE-EOF                                            
+                             MOVE  K4-BSMG           TO  IN-BSMG        
+                             MOVE  K4-SSYD           TO  IN-SSYD        
+                             MOVE  K4-0-9            TO  IN-0-9         
+                             MOVE  K4-BOJONG         TO  IN-BOJONG      
+                             MOVE  K4-BOJONG-T       TO  IN-BOJONG-T    
+                             MOVE  K4-IYUL           TO  IN-IYUL        
+                             MOVE  K4-JUN-CODE       TO  IN-JUN.        
+           IF   FIRST-DATA   MOVE  IN-KEY            TO  SV-KEY         
+                             MOVE  K4-JOSA-CYMD(1:6) TO  S-CYM          
+                             MOVE  'NO '             TO  SW-FIRST-DATA. 
+      *----------------------*                                          
+       120-DATA-ACCUMULATION.                                           
+      *----------------------*                                          
+           MOVE    1    TO          GUN.                                
+           IF  (T-NO-SEOL AND  K4-NABBANG < 9)                          
+                      DIVIDE     K4-BOLYO  BY   200000  GIVING      GUN 
+                                                        REMAINDER   NN  
+                   IF   NN  >  ZERO             ADD    1   TO       GUN 
+                   ELSE                         NEXT   SENTENCE.        
+           IF  (T-NO-BOK AND  K4-NABBANG < 9)                           
+                   IF K4-GYE-CYMD(1:4)  >  1993                         
+                         DIVIDE  K4-BOLYO  BY  1000000  GIVING      GUN 
+                                                        REMAINDER   NN  
+                      IF   NN  >  ZERO         ADD    1   TO        GUN 
+                      ELSE                     NEXT   SENTENCE          
+                   ELSE  DIVIDE  K4-BOLYO  BY   500000  GIVING      GUN 
+                                                        REMAINDER   NN  
+                      IF   NN  >  ZERO         ADD    1   TO        GUN 
+                      ELSE                     NEXT   SENTENCE.         
+           IF  (T-NO-JEOK  AND  K4-NABBANG < 9)                         
+                         DIVIDE  K4-BOLYO  BY  1000000  GIVING      GUN 
+                                                        REMAINDER   NN  
+                      IF   NN  >  ZERO         ADD    1   TO        GUN 
+                      ELSE                     NEXT   SENTENCE.         
+980316     IF  (T-JAETECH  AND  K4-NABBANG < 9)                         
+                         DIVIDE  K4-BOLYO  BY  1000000  GIVING      GUN 
+                                                        REMAINDER   NN  
+                      IF   NN  >  ZERO         ADD    1   TO        GUN 
+                      ELSE                     NEXT   SENTENCE.         
+980723     IF  (T-NEW-JAETECH  AND  K4-NABBANG < 9)                     
+                         DIVIDE  K4-BOLYO  BY  1000000  GIVING      GUN 
+                                                        REMAINDER   NN  
+                      IF   NN  >  ZERO         ADD    1   TO        GUN 
+                      ELSE                     NEXT   SENTENCE.         
+                                                                        
+           IF   K4-JT = 1                                               
+                ADD    GUN            TO   K5-GEONSU                    
+                ADD    K4-BOGEUM      TO   K5-BOGEUM.                   
+           ADD  K4-PURE-YY                     TO  K5-VT-YY.            
+           ADD  K4-HAIYAG-YY                   TO  K5-WT-YY.            
+           IF   K4-MI-SEON-GEUM < ZERO                                  
+                      ADD    K4-MI-SEON-GEUM   TO  K5-SUNJIGB           
+           ELSE       ADD    K4-MI-SEON-GEUM   TO  K5-MIJIGB            
+980416                ADD    K4-MIJIGB-IJA     TO  K5-MIJIGB            
+                      MOVE   ZERO              TO  K4-MI-SEON-GEUM.     
+                                                                        
+           ADD  K4-PURE-YY   K4-PURE-MM   K4-MI-SEON-GEUM TO K5-VT-YYMM.
+           ADD  K4-HAIYAG-YY K4-HAIYAG-MM K4-MI-SEON-GEUM TO K5-WT-YYMM.
+           ADD  K4-IJA              TO    K5-VT-YYMM         K5-WT-YYMM.
+           ADD  K4-PB               TO    K5-MIG.                       
+           IF   K4-SEON-HWOISU > ZERO                                   
+                  COMPUTE  WK-SEONSU-BOLYO = K4-BOLYO * K4-SEON-HWOISU  
+           ELSE   MOVE     ZERO   TO  WK-SEONSU-BOLYO.                  
+           IF   K4-GY-GIGAN < 12      ADD WK-SEONSU-BOLYO TO K5-MIG.    
+990803     IF   K4-BSMG  =  4                                           
+  .           IF  K4-0-9  =  10    MOVE  9  TO  K4-HG-0  K4-SH-0        
+  .                                             K4-IH-0  K4-JG-0.       
+           IF   K4-HG-0  > ZERO                                         
+                MOVE  ZERO  TO  K4-HG-BAE(1) K4-HG-BAE(2) K4-HG-BAE(3). 
+           IF   K4-SH-0  > ZERO                                         
+                MOVE  ZERO  TO  K4-SH-BAE(1) K4-SH-BAE(2) K4-SH-BAE(3). 
+           IF   K4-IH-0  > ZERO                                         
+                MOVE  ZERO  TO  K4-IH-BAE(1) K4-IH-BAE(2) K4-IH-BAE(3). 
+           IF   K4-JG-0  > ZERO                                         
+                MOVE  ZERO  TO  K4-JG-BAE(1) K4-JG-BAE(2) K4-JG-BAE(3). 
+           ADD  K4-IJA               TO      K5-IJA.                    
+           ADD  K4-SEONSU-IJA        TO      K5-SEON-IJA.               
+           ADD  K4-HG-BAE(1)         TO      K5-HG-BAE(1).              
+           ADD  K4-HG-BAE(2)         TO      K5-HG-BAE(2).              
+           ADD  K4-HG-BAE(3)         TO      K5-HG-BAE(3).              
+           ADD  K4-SH-BAE(1)         TO      K5-SH-BAE(1).              
+           ADD  K4-SH-BAE(2)         TO      K5-SH-BAE(2).              
+           ADD  K4-SH-BAE(3)         TO      K5-SH-BAE(3).              
+           ADD  K4-IH-BAE(1)         TO      K5-IH-BAE(1).              
+           ADD  K4-IH-BAE(2)         TO      K5-IH-BAE(2).              
+           ADD  K4-IH-BAE(3)         TO      K5-IH-BAE(3).              
+           ADD  K4-JG-BAE(1)         TO      K5-JG-BAE(1).              
+           ADD  K4-JG-BAE(2)         TO      K5-JG-BAE(2).              
+           ADD  K4-JG-BAE(3)         TO      K5-JG-BAE(3).              
+      *---------------------*                                           
+       130-CHEORIDATA-WRITE.                                            
+      *---------------------*                                           
+           MOVE    S-CYM    TO   K5-JOSA-CYM.                           
+           IF   SV-BSMG  = 4                                            
+980723       IF   SV-0-9  = 10     MOVE  02  TO  SV-BSMG   ELSE         
+             IF   SV-0-9  >  6     NEXT      SENTENCE      ELSE         
+             IF   SV-0-9  >  5     MOVE  09  TO  SV-BSMG   ELSE         
+             IF   SV-0-9  >  2     MOVE  02  TO  SV-BSMG   ELSE         
+             IF   SV-0-9  >  1     MOVE  04  TO  SV-BSMG   ELSE         
+             IF   SV-0-9  =  1     MOVE  10  TO  SV-BSMG.               
+           MOVE    SV-BSMG          TO  K5-BSMG.                        
+           MOVE    SV-SSYD          TO  K5-SSYD.                        
+           MOVE   'BOJONG'          TO  R-GUBUN.                        
+           MOVE    SV-BOJONG        TO  R-BOJONG.                       
+           MOVE    SV-BOJONG-T      TO  R-BOJONG-T.                     
+           MOVE    SV-JUN           TO  R-JUN.                          
+           CALL   'K11M8008'     USING  R-KEY.                          
+           MOVE    R-OUT3           TO  K5-BOJONG.                      
+           MOVE    SV-IYUL          TO  K5-IYUL.                        
+           WRITE   REC-OUT   FROM   REC-K5.                             
+           ADD      1        TO     CNT-OUT.                            
+      *---------*                                                       
+       IYUL-RTN.                                                        
+      *---------*                                                       
+      *=£§£¹£¹£®£±£²¿ù¡¡±âÁØ=====================================*    
+           IF T-NO-SEOL                                                 
+             IF K4-NABBANG  < 9       MOVE 0860 TO K4-IYUL ELSE         
+             IF K4-GNGWA-YY = ZERO    MOVE 0660 TO K4-IYUL ELSE         
+             IF K4-GNGWA-YY = 1       MOVE 0760 TO K4-IYUL ELSE         
+                                      MOVE 0860 TO K4-IYUL.             
+           IF T-NO-BOK                                                  
+             IF (K4-GYE-CYMD > 19920810) AND (K4-GYE-CYMD < 19930420)   
+               IF K4-GNGWA-YY < 1     MOVE 0750 TO K4-IYUL ELSE         
+               IF K4-GNGWA-YY < 2     MOVE 0710 TO K4-IYUL ELSE         
+               IF K4-GNGWA-YY < 3     MOVE 0810 TO K4-IYUL ELSE         
+               IF K4-GNGWA-YY < 4     MOVE 0910 TO K4-IYUL ELSE         
+               IF K4-GNGWA-YY < 5     MOVE 0960 TO K4-IYUL ELSE         
+                                      MOVE 1010 TO K4-IYUL.             
+           IF T-NO-BOK                                                  
+             IF (K4-GYE-CYMD > 19930419) AND (K4-GYE-CYMD < 19971001)   
+               IF K4-NABBANG = 9                                        
+                 IF K4-GNGWA-YY < 1     MOVE 0750 TO K4-IYUL ELSE       
+                 IF K4-GNGWA-YY < 2     MOVE 0710 TO K4-IYUL ELSE       
+                 IF K4-GNGWA-YY < 3     MOVE 0860 TO K4-IYUL ELSE       
+                                        MOVE 0910 TO K4-IYUL            
+               ELSE                                                     
+                 IF K4-GNGWA-YY < 1     MOVE 0750 TO K4-IYUL ELSE       
+                 IF K4-GNGWA-YY < 2     MOVE 0710 TO K4-IYUL ELSE       
+                 IF K4-GNGWA-YY < 3     MOVE 0760 TO K4-IYUL ELSE       
+                 IF K4-GNGWA-YY < 4     MOVE 0810 TO K4-IYUL ELSE       
+                 IF K4-GNGWA-YY < 5     MOVE 0860 TO K4-IYUL ELSE       
+                                        MOVE 0910 TO K4-IYUL.           
+           IF T-NO-BOK                                                  
+             IF (K4-GYE-CYMD > 19970930)                                
+               IF K4-NABBANG = 9                                        
+                 IF K4-GNGWA-YY < 1     MOVE 0650 TO K4-IYUL ELSE       
+                 IF K4-GNGWA-YY < 2     MOVE 0639 TO K4-IYUL ELSE       
+                 IF K4-GNGWA-YY < 3     MOVE 0710 TO K4-IYUL ELSE       
+                 IF K4-GNGWA-YY < 5     MOVE 0781 TO K4-IYUL ELSE       
+                                        MOVE 0852 TO K4-IYUL            
+               ELSE                                                     
+                 IF K4-GNGWA-YY < 1     MOVE 0650 TO K4-IYUL ELSE       
+                 IF K4-GNGWA-YY < 2     MOVE 0568 TO K4-IYUL ELSE       
+                 IF K4-GNGWA-YY < 3     MOVE 0639 TO K4-IYUL ELSE       
+                 IF K4-GNGWA-YY < 4     MOVE 0710 TO K4-IYUL ELSE       
+                 IF K4-GNGWA-YY < 5     MOVE 0781 TO K4-IYUL ELSE       
+                                        MOVE 0852 TO K4-IYUL.           
+           IF T-NO-JEOK                                                 
+             IF K4-GNGWA-YY <  3        MOVE 0400 TO K4-IYUL  ELSE      
+             IF K4-GNGWA-YY <  5        MOVE 0710 TO K4-IYUL  ELSE      
+             IF K4-GNGWA-YY <  8        MOVE 0781 TO K4-IYUL  ELSE      
+             IF K4-GNGWA-YY < 10        MOVE 0852 TO K4-IYUL  ELSE      
+                                        MOVE 0888 TO K4-IYUL.           
+           IF T-GABOK                                                   
+             IF (K4-GYE-CYMD > 19900422) AND (K4-GYE-CYMD < 19930420)   
+               IF K4-BSMG = 1 OR 3                                      
+                                          MOVE 0900 TO K4-IYUL          
+               ELSE                                                     
+                 IF K4-GNGWA-YM > 0212    MOVE 0900 TO K4-IYUL ELSE     
+                 IF K4-GNGWA-YM > 0112    MOVE 0800 TO K4-IYUL ELSE     
+                 IF K4-GNGWA-YM > 0012    MOVE 0700 TO K4-IYUL ELSE     
+                                          MOVE 0750 TO K4-IYUL.         
+           IF T-GABOK                                                   
+             IF (K4-GYE-CYMD > 19930419) AND (K4-GYE-CYMD < 19971001)   
+               IF K4-BSMG = 1 OR 3                                      
+                                          MOVE 0850 TO K4-IYUL          
+               ELSE                                                     
+                 IF K4-GNGWA-YM > 0212    MOVE 0850 TO K4-IYUL ELSE     
+                 IF K4-GNGWA-YM > 0112    MOVE 0800 TO K4-IYUL ELSE     
+                 IF K4-GNGWA-YM > 0012    MOVE 0700 TO K4-IYUL ELSE     
+                                          MOVE 0750 TO K4-IYUL.         
+           IF T-GABOK                                                   
+             IF (K4-GYE-CYMD > 19970930)                                
+               IF K4-MANGI = 3                                          
+                 IF K4-BSMG = 1 OR 3                                    
+                                            MOVE 0750 TO K4-IYUL        
+                 ELSE                                                   
+                   IF K4-GNGWA-YY < 1       MOVE 0650 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 2       MOVE 0600 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 3       MOVE 0700 TO K4-IYUL ELSE   
+                                            MOVE 0750 TO K4-IYUL        
+               ELSE                                                     
+                 IF K4-BSMG = 1 OR 3                                    
+                                            MOVE 0800 TO K4-IYUL        
+                 ELSE                                                   
+                   IF K4-GNGWA-YY < 1       MOVE 0650 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 2       MOVE 0600 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 3       MOVE 0700 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 5       MOVE 0750 TO K4-IYUL ELSE   
+                                            MOVE 0800 TO K4-IYUL.       
+           IF T-NON-TAX OR T-JAYU                                       
+             IF (K4-GYE-CYMD > 19961020) AND (K4-GYE-CYMD < 19971001)   
+               IF K4-MANGI = 3                                          
+                 IF K4-0-9 = 2              MOVE 0852 TO K4-IYUL        
+                 ELSE                                                   
+                   IF K4-GNGWA-YY < 1       MOVE 0650 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 2       MOVE 0639 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 3       MOVE 0746 TO K4-IYUL ELSE   
+                                            MOVE 0852 TO K4-IYUL        
+               ELSE IF K4-MANGI = 4                                     
+                 IF K4-0-9 = 2              MOVE 0852 TO K4-IYUL        
+                 ELSE                                                   
+                   IF K4-GNGWA-YY < 1       MOVE 0650 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 2       MOVE 0639 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 3       MOVE 0710 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 4       MOVE 0781 TO K4-IYUL ELSE   
+                                            MOVE 0852 TO K4-IYUL        
+               ELSE                                                     
+                 IF K4-0-9 = 2              MOVE 0888 TO K4-IYUL        
+                 ELSE                                                   
+                   IF K4-GNGWA-YY < 1       MOVE 0650 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 2       MOVE 0604 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 3       MOVE 0675 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 4       MOVE 0746 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 5       MOVE 0817 TO K4-IYUL ELSE   
+                                            MOVE 0888 TO K4-IYUL.       
+           IF T-NON-TAX OR T-JAYU                                       
+             IF (K4-GYE-CYMD > 19970930) AND (K4-GYE-CYMD < 19980424)   
+               IF K4-MANGI = 3                                          
+                 IF K4-0-9 = 2              MOVE 0817 TO K4-IYUL        
+                 ELSE                                                   
+                   IF K4-GNGWA-YY < 1       MOVE 0650 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 2       MOVE 0604 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 3       MOVE 0710 TO K4-IYUL ELSE   
+                                            MOVE 0817 TO K4-IYUL        
+               ELSE IF K4-MANGI = 4                                     
+                 IF K4-0-9 = 2              MOVE 0817 TO K4-IYUL        
+                 ELSE                                                   
+                   IF K4-GNGWA-YY < 1       MOVE 0650 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 2       MOVE 0604 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 3       MOVE 0675 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 4       MOVE 0746 TO K4-IYUL ELSE   
+                                            MOVE 0817 TO K4-IYUL        
+               ELSE                                                     
+                 IF K4-0-9 = 2              MOVE 0852 TO K4-IYUL        
+                 ELSE                                                   
+                   IF K4-GNGWA-YY < 1       MOVE 0650 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 2       MOVE 0568 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 3       MOVE 0639 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 4       MOVE 0710 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 5       MOVE 0781 TO K4-IYUL ELSE   
+                                            MOVE 0852 TO K4-IYUL.       
+           IF T-NON-TAX OR T-JAYU                                       
+             IF (K4-GYE-CYMD > 19980423)                                
+               IF K4-0-9 = 2              MOVE 0850 TO K4-IYUL          
+               ELSE                                                     
+                 IF K4-GNGWA-YY < 1       MOVE 0650 TO K4-IYUL ELSE     
+                 IF K4-GNGWA-YY < 2       MOVE 0680 TO K4-IYUL ELSE     
+                 IF K4-GNGWA-YY < 3       MOVE 0765 TO K4-IYUL ELSE     
+                                          MOVE 0850 TO K4-IYUL.         
+           IF T-NON-UDAEJEOCHUK                                         
+             IF K4-MANGI = 3                                            
+               IF K4-0-9 = 2              MOVE 0817 TO K4-IYUL          
+               ELSE                                                     
+                 IF K4-GNGWA-YY < 1       MOVE 0650 TO K4-IYUL ELSE     
+                 IF K4-GNGWA-YY < 2       MOVE 0604 TO K4-IYUL ELSE     
+                 IF K4-GNGWA-YY < 3       MOVE 0710 TO K4-IYUL ELSE     
+                                          MOVE 0817 TO K4-IYUL          
+             ELSE IF K4-MANGI = 4                                       
+               IF K4-0-9 = 2              MOVE 0817 TO K4-IYUL          
+               ELSE                                                     
+                 IF K4-GNGWA-YY < 1       MOVE 0650 TO K4-IYUL ELSE     
+                 IF K4-GNGWA-YY < 2       MOVE 0604 TO K4-IYUL ELSE     
+                 IF K4-GNGWA-YY < 3       MOVE 0675 TO K4-IYUL ELSE     
+                 IF K4-GNGWA-YY < 4       MOVE 0746 TO K4-IYUL ELSE     
+                                          MOVE 0817 TO K4-IYUL          
+             ELSE                                                       
+               IF K4-0-9 = 2              MOVE 0852 TO K4-IYUL          
+               ELSE                                                     
+                 IF K4-GNGWA-YY < 1       MOVE 0650 TO K4-IYUL ELSE     
+                 IF K4-GNGWA-YY < 2       MOVE 0568 TO K4-IYUL ELSE     
+                 IF K4-GNGWA-YY < 3       MOVE 0639 TO K4-IYUL ELSE     
+                 IF K4-GNGWA-YY < 4       MOVE 0710 TO K4-IYUL ELSE     
+                 IF K4-GNGWA-YY < 5       MOVE 0781 TO K4-IYUL ELSE     
+                                          MOVE 0852 TO K4-IYUL.         
+           IF T-GEOCHI                                                  
+             IF K4-GNGWA-YM < 0003        MOVE 0710 TO K4-IYUL ELSE     
+                                          MOVE 0850 TO K4-IYUL.         
+           IF (T-JAETECH)  AND  (K4-GYE-CYMD < 19990401)                
+             IF K4-NABBANG = 9                                          
+               IF K4-MANGI = 2                                          
+                 IF K4-0-9 = 2            MOVE 0850 TO K4-IYUL          
+                 ELSE                                                   
+                   IF K4-GNGWA-YY < 1     MOVE 0650 TO K4-IYUL ELSE     
+                   IF K4-GNGWA-YY < 2     MOVE 0765 TO K4-IYUL ELSE     
+                                          MOVE 0850 TO K4-IYUL          
+               ELSE                                                     
+                 IF K4-0-9 = 2            MOVE 0850 TO K4-IYUL          
+                 ELSE                                                   
+                   IF K4-GNGWA-YY < 1     MOVE 0650 TO K4-IYUL ELSE     
+                   IF K4-GNGWA-YY < 2     MOVE 0765 TO K4-IYUL ELSE     
+                   IF K4-GNGWA-YY < 3     MOVE 0808 TO K4-IYUL ELSE     
+                                          MOVE 0850 TO K4-IYUL          
+             ELSE                                                       
+               IF K4-MANGI = 2                                          
+                 IF K4-0-9 = 2            MOVE 0850 TO K4-IYUL          
+                 ELSE                                                   
+                   IF K4-GNGWA-YY < 1     MOVE 0650 TO K4-IYUL ELSE     
+                   IF K4-GNGWA-YY < 2     MOVE 0680 TO K4-IYUL ELSE     
+                                          MOVE 0850 TO K4-IYUL          
+               ELSE                                                     
+                 IF K4-0-9 = 2            MOVE 0850 TO K4-IYUL          
+                 ELSE                                                   
+                   IF K4-GNGWA-YY < 1     MOVE 0650 TO K4-IYUL ELSE     
+                   IF K4-GNGWA-YY < 2     MOVE 0680 TO K4-IYUL ELSE     
+                   IF K4-GNGWA-YY < 3     MOVE 0765 TO K4-IYUL ELSE     
+                                          MOVE 0850 TO K4-IYUL.         
+           IF (T-JAETECH)  AND  (K4-GYE-CYMD > 19990331)                
+             IF K4-NABBANG = 9                                          
+               IF K4-MANGI = 2                                          
+                 IF K4-0-9 = 2            MOVE 0850 TO K4-IYUL          
+                 ELSE                                                   
+                   IF K4-GNGWA-YY < 1     MOVE 0500 TO K4-IYUL ELSE     
+                   IF K4-GNGWA-YY < 2     MOVE 0765 TO K4-IYUL ELSE     
+                                          MOVE 0850 TO K4-IYUL          
+               ELSE                                                     
+                 IF K4-0-9 = 2            MOVE 0850 TO K4-IYUL          
+                 ELSE                                                   
+                   IF K4-GNGWA-YY < 1     MOVE 0500 TO K4-IYUL ELSE     
+                   IF K4-GNGWA-YY < 2     MOVE 0765 TO K4-IYUL ELSE     
+                   IF K4-GNGWA-YY < 3     MOVE 0808 TO K4-IYUL ELSE     
+                                          MOVE 0850 TO K4-IYUL          
+             ELSE                                                       
+               IF K4-MANGI = 2                                          
+                 IF K4-0-9 = 2            MOVE 0850 TO K4-IYUL          
+                 ELSE                                                   
+                   IF K4-GNGWA-YY < 1     MOVE 0500 TO K4-IYUL ELSE     
+                   IF K4-GNGWA-YY < 2     MOVE 0680 TO K4-IYUL ELSE     
+                                          MOVE 0850 TO K4-IYUL          
+               ELSE                                                     
+                 IF K4-0-9 = 2            MOVE 0850 TO K4-IYUL          
+                 ELSE                                                   
+                   IF K4-GNGWA-YY < 1     MOVE 0500 TO K4-IYUL ELSE     
+                   IF K4-GNGWA-YY < 2     MOVE 0680 TO K4-IYUL ELSE     
+                   IF K4-GNGWA-YY < 3     MOVE 0765 TO K4-IYUL ELSE     
+                                          MOVE 0850 TO K4-IYUL.         
+           IF (T-JAETECH-II)  AND  (K4-GYE-CYMD < 19990401)             
+             IF K4-0-9 = 2                MOVE 0850 TO K4-IYUL          
+             ELSE                                                       
+               IF K4-GNGWA-YY < 1         MOVE 0650 TO K4-IYUL ELSE     
+               IF K4-GNGWA-YY < 2         MOVE 0765 TO K4-IYUL ELSE     
+               IF K4-GNGWA-YY < 3         MOVE 0808 TO K4-IYUL ELSE     
+                                          MOVE 0850 TO K4-IYUL.         
+           IF (T-JAETECH-II)  AND  (K4-GYE-CYMD > 19990331)             
+             IF K4-0-9 = 2                MOVE 0850 TO K4-IYUL          
+             ELSE                                                       
+               IF K4-GNGWA-YY < 1         MOVE 0500 TO K4-IYUL ELSE     
+               IF K4-GNGWA-YY < 2         MOVE 0765 TO K4-IYUL ELSE     
+               IF K4-GNGWA-YY < 3         MOVE 0808 TO K4-IYUL ELSE     
+                                          MOVE 0850 TO K4-IYUL.         
+           IF (T-NEW-JAETECH)  AND  (K4-GYE-CYMD < 19990401)            
+             IF K4-0-9 = 2                MOVE 0850 TO K4-IYUL          
+             ELSE                                                       
+               IF K4-GNGWA-YY < 1         MOVE 0650 TO K4-IYUL ELSE     
+               IF K4-GNGWA-YY < 2         MOVE 0680 TO K4-IYUL ELSE     
+               IF K4-GNGWA-YY < 3         MOVE 0765 TO K4-IYUL ELSE     
+                                          MOVE 0850 TO K4-IYUL.         
+           IF (T-NEW-JAETECH)  AND  (K4-GYE-CYMD > 19990331)            
+             IF K4-0-9 = 2                MOVE 0850 TO K4-IYUL          
+             ELSE                                                       
+               IF K4-GNGWA-YY < 1         MOVE 0500 TO K4-IYUL ELSE     
+               IF K4-GNGWA-YY < 2         MOVE 0680 TO K4-IYUL ELSE     
+               IF K4-GNGWA-YY < 3         MOVE 0765 TO K4-IYUL ELSE     
+                                          MOVE 0850 TO K4-IYUL.         
+           IF K4-GITAGUBUN-CODE = 5                                     
+             IF T-NO-JEOK                                               
+               IF K4-GNGWA-YY <  3        MOVE 0500 TO K4-IYUL ELSE     
+               IF K4-GNGWA-YY <  5        MOVE 0680 TO K4-IYUL ELSE     
+               IF K4-GNGWA-YY <  8        MOVE 0765 TO K4-IYUL ELSE     
+               IF K4-GNGWA-YY < 10        MOVE 0808 TO K4-IYUL ELSE     
+                                          MOVE 0850 TO K4-IYUL          
+             ELSE                                                       
+               IF K4-GNGWA-YY <  1        MOVE 0650 TO K4-IYUL ELSE     
+               IF K4-GNGWA-YY <  2        MOVE 0680 TO K4-IYUL ELSE     
+               IF K4-GNGWA-YY <  3        MOVE 0765 TO K4-IYUL ELSE     
+                                          MOVE 0850 TO K4-IYUL.         
+           IF (T-HANARO)  AND  (K4-GYE-CYMD < 19990401)                 
+             IF K4-GNGWA-YY <  1        MOVE 0650 TO K4-IYUL ELSE       
+             IF K4-GNGWA-YY <  2        MOVE 0700 TO K4-IYUL ELSE       
+             IF K4-GNGWA-YY <  3        MOVE 0750 TO K4-IYUL ELSE       
+             IF K4-GNGWA-YY <  4        MOVE 0800 TO K4-IYUL ELSE       
+             IF K4-GNGWA-YY <  5        MOVE 0850 TO K4-IYUL ELSE       
+                                        MOVE 0900 TO K4-IYUL.           
+           IF (T-HANARO)  AND  (K4-GYE-CYMD > 19990331)                 
+             IF K4-GNGWA-YY <  1        MOVE 0500 TO K4-IYUL ELSE       
+             IF K4-GNGWA-YY <  2        MOVE 0700 TO K4-IYUL ELSE       
+             IF K4-GNGWA-YY <  3        MOVE 0750 TO K4-IYUL ELSE       
+             IF K4-GNGWA-YY <  4        MOVE 0800 TO K4-IYUL ELSE       
+             IF K4-GNGWA-YY <  5        MOVE 0850 TO K4-IYUL ELSE       
+                                        MOVE 0900 TO K4-IYUL.           
+991020     IF (T-MILLENIUM-CHILD)                                       
+  .          IF K4-0-9 = 2              MOVE 0900 TO K4-IYUL            
+  .          ELSE                                                       
+  .            IF K4-GNGWA-YY <  1      MOVE 0500 TO K4-IYUL ELSE       
+  .                                     MOVE 0900 TO K4-IYUL.           
+           IF T-JIG-JEOCHUK                                             
+             IF (K4-GYE-CYMD > 19920214) AND (K4-GYE-CYMD < 19971001)   
+               IF K4-BSMG = 1 OR 3                                      
+                                          MOVE 0910 TO K4-IYUL          
+               ELSE                                                     
+                 IF K4-GNGWA-YM > 0212    MOVE 0910 TO K4-IYUL ELSE     
+                 IF K4-GNGWA-YM > 0112    MOVE 0860 TO K4-IYUL ELSE     
+                 IF K4-GNGWA-YM > 0012    MOVE 0810 TO K4-IYUL ELSE     
+                                          MOVE 0710 TO K4-IYUL.         
+           IF T-JIG-JEOCHUK                                             
+             IF (K4-GYE-CYMD > 19970930) AND (K4-GYE-CYMD < 19990401)   
+             IF K4-NABBANG = 9                                          
+                 IF K4-BSMG = 1 OR 3                                    
+                                            MOVE 0852 TO K4-IYUL        
+                 ELSE                                                   
+                   IF K4-GNGWA-YY < 1       MOVE 0650 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 2       MOVE 0639 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 3       MOVE 0710 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 5       MOVE 0781 TO K4-IYUL ELSE   
+                                            MOVE 0852 TO K4-IYUL        
+             ELSE                                                       
+                 IF K4-BSMG = 1 OR 3                                    
+                                            MOVE 0852 TO K4-IYUL        
+                 ELSE                                                   
+                   IF K4-GNGWA-YY < 1       MOVE 0650 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 2       MOVE 0568 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 3       MOVE 0639 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 4       MOVE 0710 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 5       MOVE 0781 TO K4-IYUL ELSE   
+                                            MOVE 0852 TO K4-IYUL.       
+           IF T-JIG-JEOCHUK                                             
+             IF (K4-GYE-CYMD > 19990331)                                
+             IF K4-NABBANG = 9                                          
+                 IF K4-BSMG = 1 OR 3                                    
+                                            MOVE 0852 TO K4-IYUL        
+                 ELSE                                                   
+                   IF K4-GNGWA-YY < 1       MOVE 0500 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 2       MOVE 0639 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 3       MOVE 0710 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 5       MOVE 0781 TO K4-IYUL ELSE   
+                                            MOVE 0852 TO K4-IYUL        
+             ELSE                                                       
+                 IF K4-BSMG = 1 OR 3                                    
+                                            MOVE 0852 TO K4-IYUL        
+                 ELSE                                                   
+                   IF K4-GNGWA-YY < 1       MOVE 0500 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 2       MOVE 0568 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 3       MOVE 0639 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 4       MOVE 0710 TO K4-IYUL ELSE   
+                   IF K4-GNGWA-YY < 5       MOVE 0781 TO K4-IYUL ELSE   
+                                            MOVE 0852 TO K4-IYUL.       
+           IF T-JIG-UDAESEOLGYE                                         
+             IF (K4-GYE-CYMD > 19970713) AND (K4-GYE-CYMD < 19971001)   
+               IF K4-GNGWA-YY < 1           MOVE 0500 TO K4-IYUL ELSE   
+               IF K4-GNGWA-YY < 2           MOVE 0650 TO K4-IYUL ELSE   
+               IF K4-GNGWA-YY < 3           MOVE 0800 TO K4-IYUL ELSE   
+                                            MOVE 0850 TO K4-IYUL.       
+           IF T-JIG-UDAESEOLGYE                                         
+             IF (K4-GYE-CYMD > 19970930) AND (K4-GYE-CYMD < 19990401)   
+               IF K4-GNGWA-YY < 1           MOVE 0650 TO K4-IYUL ELSE   
+               IF K4-GNGWA-YY < 2           MOVE 0600 TO K4-IYUL ELSE   
+               IF K4-GNGWA-YY < 3           MOVE 0700 TO K4-IYUL ELSE   
+               IF K4-GNGWA-YY < 4           MOVE 0750 TO K4-IYUL ELSE   
+               IF K4-GNGWA-YY < 5           MOVE 0750 TO K4-IYUL ELSE   
+                                            MOVE 0800 TO K4-IYUL.       
+           IF T-JIG-UDAESEOLGYE                                         
+             IF (K4-GYE-CYMD > 19990331)                                
+               IF K4-GNGWA-YY < 1           MOVE 0500 TO K4-IYUL ELSE   
+               IF K4-GNGWA-YY < 2           MOVE 0600 TO K4-IYUL ELSE   
+               IF K4-GNGWA-YY < 3           MOVE 0700 TO K4-IYUL ELSE   
+               IF K4-GNGWA-YY < 4           MOVE 0750 TO K4-IYUL ELSE   
+               IF K4-GNGWA-YY < 5           MOVE 0750 TO K4-IYUL ELSE   
+                                            MOVE 0800 TO K4-IYUL.       
+      *-----------------*                                               
+       990-RECORD-CLEAR.                                                
+      *-----------------*                                               
+           MOVE  ZERO  TO   K5-GEONSU     K5-BOGEUM                     
+                            K5-IYUL       K5-VT-YY                      
+                            K5-WT-YY      K5-VT-YYMM   K5-WT-YYMM       
+                            K5-MIG        K5-MIJIGB    K5-SUNJIGB       
+                            K5-IJA        K5-SEON-IJA  K5-HG-BAE(1)     
+                            K5-HG-BAE(2)  K5-HG-BAE(3) K5-SH-BAE(1)     
+                            K5-SH-BAE(2)  K5-SH-BAE(3) K5-IH-BAE(1)     
+                            K5-IH-BAE(2)  K5-IH-BAE(3) K5-JG-BAE(1)     
+                            K5-JG-BAE(2)  K5-JG-BAE(3) WK-SEONSU-BOLYO. 

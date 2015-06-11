@@ -1,0 +1,36 @@
+//KERB9303 JOB (KER),'KER00',CLASS=G,MSGCLASS=X,MSGLEVEL=(1,1)          
+//S1 EXEC YSRCCAT,MBR=K11B9303                                          
+//C.SYSUT1 DD *                                                         
+         02  SAUPBI-REC.                                                
+            COPY  K11B9103.                                             
+         02  REC-STEP2.                                                 
+            03  KS-VT-KEY.                                              
+                05  KS-VT-BOJONG          PIC 9(4).                     
+                05  KS-VT-GUBUN           PIC 9(1).                     
+                05  KS-VT-PINAI           PIC 9(2).                     
+                05  KS-VT-NABGI           PIC 9(2).                     
+                05  KS-VT-MANGI           PIC 9(2).                     
+                05  KS-VT-NABBANG         PIC 9(1).                     
+                05  KS-VT-GNG             PIC 9(2).                     
+            03  KS-VT-SEX                 PIC 9(1).                     
+            03  KS-IYUL                   PIC 9(4).                     
+            03  KS-VT-TABLE.                                            
+                05  KS-VT-TAB.                                          
+                    07  KS-VT             PIC S9(7)    COMP-3.          
+                    07  KS-VT1            PIC S9(7)    COMP-3.          
+                05  KS-PB                 PIC S9(7)    COMP-3.          
+                05  KS-VT-ALPHA           PIC S9(7)    COMP-3.          
+            03  KS-GNGWA1-YM              PIC 9(4).                     
+            03  KS-GNGWA1-YM-RE           REDEFINES    KS-GNGWA1-YM.    
+                05  KS-GNG1-Y             PIC 9(2).                     
+                05  KS-GNG1-M             PIC 9(2).                     
+            03  KS-GNGWA2-YM              PIC 9(4).                     
+            03  KS-GNGWA2-YM-RE           REDEFINES    KS-GNGWA2-YM.    
+                05  KS-GNG2-Y             PIC 9(2).                     
+                05  KS-GNG2-M             PIC 9(2).                     
+            03  KS-BUN-HAE.                                             
+                05  KS-PR-RYO             PIC S9(9)    COMP-3.          
+                05  KS-TR-RYO             PIC S9(9)    COMP-3.          
+                05  KS-PS-RYO             PIC S9(9)    COMP-3.          
+                05  KS-HS-RYO             PIC S9(9)    COMP-3.          
+                05  KS-WT-ALPHA           PIC S9(9)    COMP-3.          

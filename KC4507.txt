@@ -1,0 +1,765 @@
+//KERC4507 JOB (KER),'KER04',CLASS=G,MSGCLASS=X,MSGLEVEL=(1,1)
+//STEP1 EXEC YCOBBAT,MBR=K11C4507
+//COB.SYSIN DD *
+PROCESS TEST(NONE,SYM)
+      *===============================================================*
+       IDENTIFICATION          DIVISION.
+       PROGRAM-ID.             K11C4507.
+       ENVIRONMENT             DIVISION.
+       CONFIGURATION           SECTION.
+       INPUT-OUTPUT            SECTION.
+       FILE-CONTROL.
+           SELECT   FILE-IN    ASSIGN  TO  FILEIN.
+           SELECT   FILE-OUT   ASSIGN  TO  FILEOUT.
+      *===============================================================*
+       DATA                    DIVISION.
+       FILE                    SECTION.
+       FD  FILE-IN             RECORDING  MODE      IS   F
+                               LABEL      RECORD         STANDARD
+                               BLOCK      CONTAINS  100  RECORDS
+                               RECORD     CONTAINS  202  CHARACTERS.
+       01  REC-IN.
+               COPY     K11B9303.
+       FD  FILE-OUT            RECORDING  MODE      IS   F
+                               LABEL      RECORD         STANDARD
+                               BLOCK      CONTAINS  100  RECORDS
+                               RECORD     CONTAINS  202  CHARACTERS.
+       01  REC-OUT             PIC  X(202).
+      *===============================================================*
+       WORKING-STORAGE         SECTION.
+       01  REC-WORK.
+      *        COPY     KBBOJ88     SUPPRESS.
+               COPY     KBBOJ88.
+         02  WK-BOJONG-MU          PIC 9(4).
+      *  무배당　１０년이하　이율　９．５％
+      *          １０년초과　이율　８．５％
+      *  일반상품　　　　　　이율　７．５％
+           88   MUBAE-BOJ          VALUE 5501 THRU 5508  5511 THRU 5519
+                                         5120 THRU 5129  5171 THRU 5232
+                                         5631 THRU 5645  5661 THRU 5699
+                                         5147 THRU 5149
+                                         5240  5250 5260 5270
+990316                                   7071 THRU 7073
+                                         8201 THRU 8202  8210
+990316                                   8381 THRU 8382  8391.
+      *===============================================================*
+         02  CNT-IN                PIC 9(7).
+         02  CNT-OUT               PIC 9(7).
+         02  AA                    PIC 9(7).
+         02  BB                    PIC 9(7).
+         02  SA                    PIC 9(9).
+         02  GWA                   PIC 9(7).
+         02  NAB                   PIC 9(7).
+         02  NG                    PIC 9(7).
+         02  N-W                   PIC 9(3)V9(9).
+         02  J-YUL                 PIC 9(7)V9(5).
+         02  WK-GONGJEAIK          PIC S9(9)V9(2).
+         02  AL-YUL                PIC 9(9)V9(5).
+         02  W-ALPHA               PIC 9(10)V9(3).
+         02  PER-RYO               PIC 9(10).
+         02  F-HS                  PIC S9(10)V9(5).
+         02  T-HS                  PIC S9(10)V9(5).
+         02  W-WT                  PIC S9(9)V9(5).
+         02  W-WT1                 PIC S9(9)V9(5).
+         02  PS-RYO                PIC S9(9)V9(3).
+         02  PS-JRYO               PIC S9(9)V9(3).
+         02  PR-RYO                PIC S9(9)V9(3).
+         02  V                     PIC 9(5)V9(7).
+         02  IYUL                PIC 9(3)V9(5).
+       01  W-V-TABLE.
+           03  W-T-PB              PIC S9(7)V9(3).
+           03  W-V1                PIC S9(7).
+           03  W-V                 PIC S9(7).
+       01  RISK-KEY.
+           03  R-BOJONG            PIC 9(4).
+           03  R-X                 PIC 9(2).
+           03  R-MG                PIC 9(2).
+           03  R-GY                PIC 9(2).
+           03  R-SEX               PIC 9(1).
+           03  R-IYUL              PIC 9V9(3).
+           03  R-VTT               PIC S9(7)        COMP-3.
+           03  R-BOLYO             PIC S9(7)        COMP-3.
+         02  R-PR                  PIC S9(7)V9(2)   COMP-3.
+         02  R-OQX                 PIC S9V9(5)      COMP-3.
+       01  BETA2-KEY.
+           03  B-BOJONG            PIC  9(4).
+           03  B-NABBANG           PIC  9(1).
+           03  B-BETA              PIC  9(4)V9.
+           03  B-FIL               PIC  9V9(4).
+           03  B-E                 PIC  9(1).
+      * ================================================================
+      *          ３년　　５년　７년　１０년　１５년　２０년
+      *   납방 ****** ****** ****** ****** ******
+      * ================================================================
+      * 적립계약　순보험료　　
+      * ================================================================
+       01  PS1-TABLE.
+새가     02 FILL    PIC X(24)   VALUE   '02479-01379-00911-00566-'.
+정       02 FILL    PIC X(24)   VALUE   '07392-04111-02718-01688-'.
+           02 FILL    PIC X(24)   VALUE   '14653-08150-05387-03346-'.
+           02 FILL    PIC X(24)   VALUE   '28794-16015-10586-06575-'.
+           02 FILL    PIC X(24)   VALUE   '80496-69656-60275-48519-'.
+       01  TABLE-PS1       REDEFINES     PS1-TABLE.
+           02  PS1-TAB       OCCURS  5   TIMES.
+              03  PS1-TB     OCCURS  4   TIMES.
+                 04  PS1        PIC 9(5).
+                 04  FILLER     PIC X(1).
+      * ================================================================
+       01  PS2-TABLE.
+직저     02 FILL    PIC X(24)   VALUE   '02479-01379-00911-00566-'.
+           02 FILL    PIC X(24)   VALUE   '07392-04111-02718-01688-'.
+           02 FILL    PIC X(24)   VALUE   '14653-08150-05387-03346-'.
+           02 FILL    PIC X(24)   VALUE   '28794-16015-10586-06575-'.
+           02 FILL    PIC X(24)   VALUE   '80586-69824-60511-48838-'.
+       01  TABLE-PS2       REDEFINES     PS2-TABLE.
+           02  PS2-TAB       OCCURS  5   TIMES.
+              03  PS2-TB     OCCURS  4   TIMES.
+                 04  PS2        PIC 9(5).
+                 04  FILLER     PIC X(1).
+       01  PS4-TABLE.
+직저     02 FILL   PIC X(24)  VALUE   '02516-01414-00945-00597-'.
+           02 FILL   PIC X(24)  VALUE   '07509-04219-02819-01780-'.
+           02 FILL   PIC X(24)  VALUE   '14902-08374-05594-03533-'.
+           02 FILL   PIC X(24)  VALUE   '29350-16492-11017-06958-'.
+           02 FILL   PIC X(24)  VALUE   '82785-72988-64351-53273-'.
+       01  TABLE-PS4       REDEFINES     PS4-TABLE.
+           02  PS4-TAB       OCCURS  5   TIMES.
+              03  PS4-TB     OCCURS  4   TIMES.
+                 04  PS4        PIC 9(5).
+                 04  FILLER     PIC X(1).
+      * ================================================================
+       01  PS3-TABLE.
+　　     02 FILL     PIC X(70)    VALUE  '001341-001341-001509-001153-
+      -                   '001540-000980-001971-001162-002054-001210-'.
+　　     02 FILL     PIC X(70)    VALUE  '003998-003998-004501-003438-
+      -                   '004592-002707-005877-003464-006124-003610-'.
+　　     02 FILL     PIC X(70)    VALUE  '007925-007925-008922-006815-
+      -                   '009102-005365-011649-006866-012139-007155-'.
+　　     02 FILL     PIC X(70)    VALUE  '015574-015574-017533-013393-
+      -                   '017887-010543-022892-013493-023855-014061-'.
+　　     02 FILL     PIC X(70)    VALUE  '067737-067737-076258-076258-
+      -                   '077796-077796-099565-099565-103753-103753-'.
+       01  TABLE-PS3       REDEFINES     PS3-TABLE.
+           02  PS3-TAB       OCCURS  5   TIMES.
+              03  PS3-TB     OCCURS  10  TIMES.
+                 04  PS3        PIC 9(6).
+                 04  FILLER     PIC X(1).
+       01  PS5-TABLE.
+　　     02 FILL     PIC X(70)    VALUE  '001360-001360-001547-001172-
+      -                   '001607-000929-002125-001229-002250-001301-'.
+　　     02 FILL     PIC X(70)    VALUE  '004060-004060-004616-003498-
+      -                   '004795-002772-006343-003667-006715-003882-'.
+　　     02 FILL     PIC X(70)    VALUE  '008057-008057-009160-006941-
+      -                   '009515-005500-012587-007276-013326-007704-'.
+　　     02 FILL     PIC X(70)    VALUE  '015868-015868-018041-013670-
+      -                   '018739-010833-024790-014331-026246-015172-'.
+　　     02 FILL     PIC X(70)    VALUE  '070229-070229-079847-079847-
+      -                   '082935-082935-109717-109717-116160-116160-'.
+       01  TABLE-PS5       REDEFINES     PS5-TABLE.
+           02  PS5-TAB       OCCURS  5   TIMES.
+              03  PS5-TB     OCCURS  10  TIMES.
+                 04  PS5        PIC 9(6).
+                 04  FILLER     PIC X(1).
+      * ================================================================
+      *
+      * 적립계약　영업보험료
+      * ================================================================
+       01  PT1-TABLE.
+새가     02 FILL   PIC X(24)  VALUE   '-02564-01437-00973-00620'.
+정       02 FILL   PIC X(24)  VALUE   '-07645-04285-02903-01848'.
+           02 FILL   PIC X(24)  VALUE   '-15154-08496-05754-03663'.
+           02 FILL   PIC X(24)  VALUE   '-29777-16694-11308-07197'.
+           02 FILL   PIC X(24)  VALUE   '-84289-73322-64122-52738'.
+       01  TABLE-PT1     REDEFINES     PT1-TABLE.
+           02  PT1-TAB       OCCURS  5   TIMES.
+              03  PT1-TT     OCCURS  4   TIMES.
+                  04  FILLER         PIC X(1).
+                  04  PT1            PIC 9(5).
+      * ================================================================
+       01  PT2-TABLE.
+직저     02 FILL   PIC X(24)  VALUE   '-02566-01434-00955-00602'.
+           02 FILL   PIC X(24)  VALUE   '-07651-04277-02849-01796'.
+           02 FILL   PIC X(24)  VALUE   '-15167-08479-05647-03560'.
+           02 FILL   PIC X(24)  VALUE   '-29806-16664-11098-06997'.
+           02 FILL   PIC X(24)  VALUE   '-82879-71953-62498-50648'.
+       01  TABLE-PT2       REDEFINES     PT2-TABLE.
+           02  PT2-TAB       OCCURS  5   TIMES.
+              03  PT2-TT     OCCURS  4   TIMES.
+                  04  FILLER         PIC X(1).
+                  04  PT2            PIC 9(5).
+       01  PT4-TABLE.
+           02 FILL   PIC X(24)  VALUE   '-02603-01469-00988-00632'.
+           02 FILL   PIC X(24)  VALUE   '-07769-04385-02949-01887'.
+           02 FILL   PIC X(24)  VALUE   '-15418-08703-05853-03745'.
+           02 FILL   PIC X(24)  VALUE   '-30366-17142-11530-07378'.
+           02 FILL   PIC X(24)  VALUE   '-85204-75339-66642-55488'.
+       01  TABLE-PT4       REDEFINES     PT4-TABLE.
+           02  PT4-TAB       OCCURS  5   TIMES.
+              03  PT4-TT     OCCURS  4   TIMES.
+                  04  FILLER           PIC X(1).
+                  04  PT4              PIC 9(5).
+      * ================================================================
+       01  PT3-TABLE.
+하나     02 FILL     PIC X(70)    VALUE  '-001486-001486-001741-001330
+로  -                    '-001818-001071-002328-001372-002430-001432'.
+           02 FILL   PIC X(70)    VALUE    '-004432-004432-005192-003966
+      -                    '-005420-003195-006942-004092-007245-004271'.
+           02 FILL   PIC X(70)    VALUE    '-008786-008786-010292-007861
+      -                    '-010744-006333-013760-008110-014362-008465'.
+           02 FILL   PIC X(70)    VALUE    '-017265-017265-020223-015447
+      -                    '-021112-012444-027038-015937-028222-016635'.
+           02 FILL   PIC X(70)    VALUE    '-075092-075092-087955-087955
+      -                    '-091824-091824-117597-117597-122745-122745'.
+       01  TABLE-PT3       REDEFINES     PT3-TABLE.
+           02  PT3-TAB       OCCURS  5   TIMES.
+              03  PT3-TT     OCCURS 10   TIMES.
+                  04  FILLER          PIC X(1).
+                  04  PT3             PIC 9(6).
+990605 01  PT5-TABLE.
+하나     02 FILL     PIC X(70)    VALUE  '-001505-001505-001777-001346
+      -                    '-001886-001090-002490-001439-002636-001524'.
+           02 FILLER   PIC X(70)    VALUE  '-004493-004493-005303-004018
+      -                    '-005628-003253-007430-004295-007868-004548'.
+           02 FILL     PIC X(70)    VALUE  '-008916-008916-010525-007975
+      -                    '-011169-006456-014744-008523-015613-009026'.
+           02 FILL     PIC X(70)    VALUE  '-017560-017560-020727-015705
+      -                    '-021996-012715-029037-016786-030748-017775'.
+           02 FILL     PIC X(70)    VALUE  '-077715-077715-091733-091733
+      -                    '-097350-097350-128513-128513-136086-136086'.
+       01  TABLE-PT5       REDEFINES     PT5-TABLE.
+           02  PT5-TAB       OCCURS  5   TIMES.
+              03  PT5-TT     OCCURS  10  TIMES.
+                  04  FILLER       PIC X(1).
+                  04  PT5          PIC 9(6).
+      * ================================================================
+981121 01  GMRI-S-ALPHA.
+새가     02 FILLER       PIC X(48)     VALUE
+                '-01500-01500-02500-03000-00000-00000-00000-00000'.
+직저     02 FILLER       PIC X(48)     VALUE
+                '-01300-01300-01400-16000-00000-00000-00000-00000'.
+하나     02 FILLER       PIC X(48)     VALUE
+                '-00000-03600-07300-07600-09800-10400-00000-00000'.
+           02 FILLER       PIC X(48)     VALUE
+                '-00000-00000-00000-00000-00000-00000-00000-00000'.
+           02 FILLER       PIC X(48)     VALUE
+                '-00000-00000-00000-00000-00000-00000-00000-00000'.
+           02 FILLER       PIC X(48)     VALUE
+                '-00000-00000-00000-00000-00000-00000-00000-00000'.
+           02 FILLER       PIC X(48)     VALUE
+                '-00000-00000-00000-00000-00000-00000-00000-00000'.
+       01  GMRI-ALPHA-RE  REDEFINES    GMRI-S-ALPHA.
+          02  GMRI-APL       OCCURS  7   TIMES.
+              03  ALPH       OCCURS  8   TIMES.
+                 04  FILLER      PIC X(1).
+                 04  ALP         PIC 9(5).
+       01  REC-SWITCH.                                                  
+         02  FILE-EOF-SWITCH    PIC X(3)   VALUE 'NO '.                 
+            88  FILE-EOF        VALUE 'YES'.                            
+         02  FIRST-DATA-SWITCH  PIC X(3)   VALUE 'YES'.                 
+            88  FIRST-DATA      VALUE 'YES'.                            
+      * ================================================================
+       PROCEDURE               DIVISION.
+      * ================================================================
+           OPEN       INPUT FILE-IN
+                      OUTPUT  FILE-OUT.
+           INITIALIZE  REC-WORK.
+           PERFORM    011-READ-FILEIN.
+           PERFORM    010-CONTROL-PG  UNTIL  FILE-EOF.
+           DISPLAY   '  *===========================*  '.
+           DISPLAY   '     CNT-IN   =  '   CNT-IN.
+           DISPLAY   '     CNT-OUT  =  '   CNT-OUT.
+           DISPLAY   '  *===========================*  '.
+           CLOSE      FILE-IN     FILE-OUT.
+           STOP      RUN.
+      *-----------------*
+       010-CONTROL-PG.
+      *-----------------*
+           PERFORM    012-RECORD-CHORI  THRU 013-DATA-WRITE.
+           PERFORM    011-READ-FILEIN.
+      *-----------------*
+       011-READ-FILEIN.
+      *-----------------*
+           READ    FILE-IN  END  MOVE   'YES' TO   FILE-EOF-SWITCH.
+           IF  NOT FILE-EOF
+                   ADD    1       TO  CNT-IN.
+      *-----------------*
+       012-RECORD-CHORI.
+      *-----------------*
+           IF  KS-IDONG-A = 'F' OR 'I' OR 'M' OR 'X'
+                  MOVE     ZERO         TO   KS-WT-ALPHA
+                  COMPUTE KS-PS-RYO  =  KS-HABBOLYO  -  KS-PR-RYO
+                                     -  KS-TR-RYO - KS-BETA - KS-GAMMA
+                  MOVE   KS-PS-RYO      TO   KS-HS-RYO
+                  GO                    TO   013-DATA-WRITE.
+      *    IF  KS-IDONG-A = 'T'
+      *               GO                TO   013-DATA-WRITE.
+
+           MOVE   KS-BOJONG-T  TO  WK-BOJONG-T.
+           MOVE   KS-BOJONG    TO  WK-BOJONG   WK-BOJONG-MU.
+
+           IF   KS-IDONG-A = 'C' OR 'J' OR 'K'                          
+                      COMPUTE KS-BOLYO    =  KS-BOLYO    * -1           
+                      COMPUTE KS-WT-ALPHA =  KS-WT-ALPHA * -1           
+                      COMPUTE KS-PR-RYO   =  KS-PR-RYO   * -1           
+                      COMPUTE KS-BETA     =  KS-BETA     * -1           
+                      COMPUTE KS-GAMMA    =  KS-GAMMA    * -1           
+                      COMPUTE KS-GUNSU    =  KS-GUNSU    * -1.          
+           IF  KS-IDONG-A = 'S'                                         
+                      COMPUTE KS-WT-ALPHA =  KS-WT-ALPHA * -1           
+                      COMPUTE KS-PR-RYO   =  KS-PR-RYO   * -1           
+                      COMPUTE KS-ALPHA    =  KS-ALPHA    * -1           
+                      COMPUTE KS-BETA     =  KS-BETA     * -1           
+                      COMPUTE KS-GAMMA    =  KS-GAMMA    * -1           
+              IF  KS-JOSA-MM = 3                                        
+                      COMPUTE KS-GUNSU    =  KS-GUNSU    * -1.          
+
+
+           IF  KS-NABBANG > 6      MOVE  12           TO  NAB
+           ELSE                    MOVE  KS-NABBANG   TO  NAB.
+
+           IF KS-IDONG-A = 'G'     MOVE  1            TO  NAB
+             IF T-GMRI-LIN1
+                  MOVE    ZERO     TO KS-WT-ALPHA  KS-TR-RYO
+                  COMPUTE KS-PS-RYO = KS-HABBOLYO - KS-PR-RYO
+                                    - KS-BETA  -  KS-GAMMA
+                  MOVE  KS-PS-RYO  TO   KS-HS-RYO
+                  GO     TO   013-DATA-WRITE.
+
+           MOVE  KS-VT-ALPHA      TO     W-ALPHA.
+           MOVE  KS-GNG2-Y        TO     GWA.
+           IF  KS-NABGI >  7      MOVE   7           TO  NG
+           ELSE                   MOVE   KS-NABGI    TO  NG.
+           IF   NG  >  GWA        MOVE   W-ALPHA     TO  SA
+           ELSE                   MOVE   ZERO        TO  SA.
+           IF KS-NABBANG = 9      MOVE   1           TO  NG
+                                  MOVE   ZERO        TO  SA.
+      * ---------------------------------------------------------------
+      *  금리연동형　상품의　보험료　분해
+           IF  T-GMRI-LIN1  PERFORM  121-GMRI-SANGPUM
+           ELSE             PERFORM  122-SANCHUL-CHORI.
+      *--------------*
+       013-DATA-WRITE.
+      *--------------*
+           IF   KS-IDONG-A = 'C' OR 'J' OR 'K'                          
+                      COMPUTE KS-BOLYO    =  KS-BOLYO    * -1           
+                      COMPUTE KS-PS-RYO   =  KS-PS-RYO   * -1           
+                      COMPUTE KS-HS-RYO   =  KS-HS-RYO   * -1           
+                      COMPUTE KS-PR-RYO   =  KS-PR-RYO   * -1           
+                      COMPUTE KS-TR-RYO   =  KS-TR-RYO   * -1           
+                      COMPUTE KS-WT-ALPHA =  KS-WT-ALPHA * -1           
+                      COMPUTE KS-BETA     =  KS-BETA     * -1           
+                      COMPUTE KS-GAMMA    =  KS-GAMMA    * -1           
+                      COMPUTE KS-GUNSU    =  KS-GUNSU    * -1.          
+           IF  KS-IDONG-A = 'S'                                         
+                      COMPUTE KS-WT-ALPHA =  KS-WT-ALPHA * -1           
+                      COMPUTE KS-PS-RYO   =  KS-PS-RYO   * -1           
+                      COMPUTE KS-HS-RYO   =  KS-HS-RYO   * -1           
+                      COMPUTE KS-PR-RYO   =  KS-PR-RYO   * -1           
+                      COMPUTE KS-TR-RYO   =  KS-TR-RYO   * -1           
+                      COMPUTE KS-ALPHA    =  KS-ALPHA    * -1           
+                      COMPUTE KS-BETA     =  KS-BETA     * -1           
+                      COMPUTE KS-GAMMA    =  KS-GAMMA    * -1           
+              IF  KS-JOSA-MM = 3                                        
+                      COMPUTE KS-GUNSU    =  KS-GUNSU    * -1.          
+           IF  KS-IDONG-A = 'H'
+               IF     KS-WT-ALPHA = KS-BOLYO * KS-HOISU
+                      MOVE    ZERO    TO   KS-WT-ALPHA
+               ELSE  COMPUTE KS-PR-RYO  =  KS-HABBOLYO  -  KS-WT-ALPHA
+                                        -  KS-BETA      -  KS-GAMMA
+                                        -  KS-HS-RYO    -  KS-TR-RYO.
+           IF  KS-IDONG-A = 'S'  OR  'T'
+                  COMPUTE KS-HS-RYO  =  KS-HABBOLYO  -  KS-WT-ALPHA
+                                     -  KS-BETA      -  KS-GAMMA
+                                     -  KS-PR-RYO    -  KS-TR-RYO
+             IF KS-HS-RYO > ZERO
+                IF KS-PS-RYO < ZERO
+                        COMPUTE KS-PS-RYO =  KS-PS-RYO * (-1)
+                ELSE    NEXT   SENTENCE
+             ELSE
+                IF KS-PS-RYO > ZERO
+                        COMPUTE KS-PS-RYO =  KS-PS-RYO * (-1).
+           WRITE     REC-OUT      FROM  REC-IN.
+           ADD       1            TO    CNT-OUT.
+      *----------------*
+       121-GMRI-SANGPUM.
+      *----------------*
+           MOVE  ZERO  TO  IYUL AL-YUL  WK-GONGJEAIK  KS-WT-ALPHA.
+
+           IF  T-NOHOO           PERFORM  111-NOHOO-CHEORI
+           ELSE   IF  T-NON-TAX  OR T-NON-UDAEJEOCHUK
+                                 PERFORM  112-NON-CHEORI
+           ELSE   IF  T-JIG-UDAESEOLGYE
+                                 PERFORM  113-JIG-U-CHEORI
+           ELSE   IF  T-JAETECH OR T-JAETECH-II
+                                 PERFORM  114-JAETECH-CHEORI
+           ELSE   IF  T-NEW-JAETECH
+                                 PERFORM  115-NEW-JAETECH-CHEORI
+           ELSE   IF  TK-CHUGANABIB
+                                 PERFORM  116-CHUGA-NABIB-CHEORI
+           ELSE   IF  T-MILLENIUM-CHILD
+                      PERFORM   117-NEWMILL-CHILD-CHEORI
+           ELSE   DISPLAY  ' GMRI-BOJ CHECK = ' KS-JEUNGBEON
+                           ' BOJ = '  KS-BOJONG-T.
+
+           COMPUTE   NG      =  NG * 12.
+           COMPUTE   PS-RYO ROUNDED =  KS-BOLYO * IYUL - WK-GONGJEAIK.
+           COMPUTE   W-ALPHA =  KS-BOLYO *  AL-YUL.
+           COMPUTE   F-HS  =  PS-RYO * (KS-FROMHOISU - 1) - W-ALPHA
+                           * (NG - (KS-FROMHOISU - 1) * NAB) / NG.
+
+           IF  F-HS  < ZERO
+                            MOVE     ZERO       TO   F-HS
+           ELSE   IF  F-HS > PS-RYO * (KS-FROMHOISU - 1)
+                            COMPUTE  F-HS = PS-RYO * (KS-FROMHOISU - 1).
+
+           COMPUTE   T-HS  =  PS-RYO * KS-TOHOISU - W-ALPHA
+                           * (NG - KS-TOHOISU * NAB) / NG.
+           IF  T-HS  <  ZERO
+                            MOVE     ZERO       TO   T-HS
+           ELSE   IF  T-HS > PS-RYO *  KS-TOHOISU
+                            COMPUTE  T-HS = PS-RYO * KS-TOHOISU.
+           COMPUTE  KS-PS-RYO   =  PS-RYO * KS-HOISU.
+           COMPUTE  KS-HS-RYO   =  T-HS  -  F-HS.
+           IF KS-NABBANG = 9     MOVE  KS-PS-RYO  TO   KS-HS-RYO.
+           COMPUTE  KS-WT-ALPHA =  KS-BOLYO  * KS-HOISU  - KS-PR-RYO
+                                -  KS-HS-RYO - KS-BETA  - KS-GAMMA.
+      *----------------*
+       111-NOHOO-CHEORI.
+      *----------------*
+           IF  T-NO-SEOL   MOVE  3600  TO  WK-GONGJEAIK   ELSE
+           IF  T-NO-BOK    MOVE  4000  TO  WK-GONGJEAIK   ELSE
+           IF  T-NO-JEOK   MOVE  5000  TO  WK-GONGJEAIK.
+           COMPUTE   WK-GONGJEAIK = WK-GONGJEAIK * KS-GUNSU.
+           IF KS-FROMHOISU > 60      MOVE   0.98   TO  IYUL
+           ELSE                      MOVE   0.94   TO  IYUL.
+
+           IF  KS-NABBANG  = 9       MOVE   0.956  TO  IYUL
+                                     MOVE   50000  TO  WK-GONGJEAIK.
+           MOVE    5     TO  NG.
+           MOVE  2.00   TO  AL-YUL.
+      *----------------*
+       112-NON-CHEORI.
+      *----------------*
+           IF  KS-MANGI = 3          MOVE  1.30   TO  AL-YUL  ELSE
+           IF  KS-MANGI = 4          MOVE  1.67   TO  AL-YUL  ELSE
+           IF  KS-MANGI = 5          MOVE  2.00   TO  AL-YUL
+              IF  KS-NABGI = 3       MOVE  1.30   TO  AL-YUL.
+           MOVE       0.96   TO  IYUL.
+           COMPUTE  WK-GONGJEAIK = (KS-BETA + KS-GAMMA + KS-PR-RYO)
+                                                        / KS-HOISU.
+      *----------------*
+       113-JIG-U-CHEORI.
+      *----------------*
+           MOVE   3500     TO   WK-GONGJEAIK.
+           COMPUTE   WK-GONGJEAIK = WK-GONGJEAIK * KS-GUNSU.
+           MOVE   1.6      TO   AL-YUL.
+           IF  KS-FROMHOISU > 60   MOVE  0.99    TO  IYUL
+           ELSE                    MOVE  0.959   TO  IYUL.
+
+           IF KS-NABBANG = 9       MOVE  0.955   TO  IYUL
+                                   MOVE   3500   TO  WK-GONGJEAIK.
+      *----------------*
+       114-JAETECH-CHEORI.
+      *----------------*
+
+           IF  KS-NABGI = 2           MOVE  0.5  TO AL-YUL   ELSE
+           IF  KS-NABGI = 3           MOVE  1.3  TO AL-YUL   ELSE
+           IF  KS-NABGI = 5           MOVE  2.0  TO AL-YUL   ELSE
+           IF  KS-NABGI = 7           MOVE  3.0  TO AL-YUL   ELSE
+           IF  KS-NABGI = 10          MOVE  3.5  TO AL-YUL.
+
+           IF  T-JAETECH
+             IF  KS-NABBANG < 9
+                 IF  KS-GYEYAG-YM < 199904
+                     IF  KS-NABGI = 2    MOVE  0.978  TO  IYUL  ELSE
+                     IF  KS-NABGI = 3    MOVE  0.96   TO  IYUL  ELSE
+                     IF  KS-NABGI = 5    MOVE  0.96   TO  IYUL  ELSE
+                     IF  KS-NABGI = 7    MOVE  0.941  TO  IYUL  ELSE
+                     IF  KS-NABGI = 10   MOVE  0.931  TO  IYUL
+                     ELSE           DISPLAY ' JAETECH NABGI CHECK => '
+                                             KS-JEUNGBEON ' ' KS-NABGI
+                ELSE
+                     IF  KS-NABGI = 2    MOVE  0.9779 TO  IYUL  ELSE
+                     IF  KS-NABGI = 3    MOVE  0.9605 TO  IYUL  ELSE
+                     IF  KS-NABGI = 5    MOVE  0.9613 TO  IYUL  ELSE
+                     IF  KS-NABGI = 7    MOVE  0.9419 TO  IYUL  ELSE
+                     IF  KS-NABGI = 10   MOVE  0.9322 TO  IYUL
+                     ELSE            DISPLAY ' JAETECH NABGI CHECK => '
+                                     KS-JEUNGBEON ' ' KS-NABGI
+             ELSE
+                 MOVE   ZERO   TO   WK-GONGJEAIK
+                 IF  KS-MANGI = 2        MOVE  0.962  TO  IYUL
+                                         MOVE  0.025  TO  AL-YUL  ELSE
+                 IF  KS-MANGI = 3        MOVE  0.952  TO  IYUL
+                                         MOVE  0.035  TO  AL-YUL  ELSE
+                 IF  KS-MANGI = 5        MOVE  0.942  TO  IYUL
+                                         MOVE  0.045  TO  AL-YUL  ELSE
+                 IF  KS-MANGI = 7        MOVE  0.927  TO  IYUL
+                                         MOVE  0.060  TO  AL-YUL  ELSE
+                 IF  KS-MANGI = 10       MOVE  0.917  TO  IYUL
+                                         MOVE  0.070  TO  AL-YUL
+                 ELSE          DISPLAY ' JAETECH GEOCH MANGI CHECK => '
+                                         KS-JEUNGBEON ' ' KS-MANGI.
+           COMPUTE  WK-GONGJEAIK = (KS-BETA + KS-GAMMA +  KS-PR-RYO)
+                                                        / KS-HOISU.
+           IF  T-JAETECH-II
+                  MOVE   0.045  TO   AL-YUL
+                  MOVE   ZERO   TO   WK-GONGJEAIK
+                  MOVE  0.94    TO   IYUL
+             IF NOT KS-NABBANG = 9  DISPLAY ' JAE-TECH II NB CHECK '
+                            ' NO = ' KS-JEUNGBEON  ' ' KS-NABBANG.
+      *----------------------*
+       115-NEW-JAETECH-CHEORI.
+      *----------------------*
+           IF  KS-MANGI = 3    MOVE  1.6  TO  AL-YUL     ELSE
+           IF  KS-MANGI = 5    MOVE  2.5  TO  AL-YUL     ELSE
+           IF  KS-MANGI = 7    MOVE  4.0  TO  AL-YUL.
+
+           IF  KS-GYEYAG-YM < 199904
+              IF  KS-MANGI = 3   MOVE  0.9507  TO IYUL     ELSE
+              IF  KS-MANGI = 5   MOVE  0.9505  TO IYUL     ELSE
+              IF  KS-MANGI = 7   MOVE  0.9395  TO IYUL     ELSE
+                         DISPLAY ' NEE-JAETECH MANGO CHECK => '
+                          KS-JEUNGBEON ' ' KS-MANGI
+           ELSE
+              IF  KS-MANGI = 3   MOVE  0.9513  TO IYUL     ELSE
+              IF  KS-MANGI = 5   MOVE  0.9515  TO IYUL     ELSE
+              IF  KS-MANGI = 7   MOVE  0.9413  TO IYUL     ELSE
+                         DISPLAY ' NEE-JAETECH MANGO CHECK => '
+                          KS-JEUNGBEON ' ' KS-MANGI.
+
+           COMPUTE  WK-GONGJEAIK = (KS-BETA + KS-GAMMA + KS-PR-RYO)
+                                                       / KS-HOISU.
+      *----------------------*
+       116-CHUGA-NABIB-CHEORI.
+      *----------------------*
+           MOVE  ZERO  TO  AL-YUL.
+           MOVE  0.95  TO  IYUL.
+      *--------------------------*
+       117-NEWMILL-CHILD-CHEORI.
+      *--------------------------*
+           MOVE  5000  TO  WK-GONGJEAIK.
+           COMPUTE   WK-GONGJEAIK = WK-GONGJEAIK * KS-GUNSU.
+           IF  KS-MANGI = 5    MOVE   0.9235 TO  IYUL
+                               MOVE   2.40   TO  AL-YUL
+           ELSE
+              IF KS-NABGI = 5             MOVE   0.8731 TO  IYUL
+                                          MOVE   5.00   TO  AL-YUL
+              ELSE                        MOVE   6.00   TO  AL-YUL
+              IF KS-NABGI = 7             MOVE   0.8819 TO  IYUL
+                 ELSE
+                   IF KS-GNGWA2-YM < 701  MOVE   0.8819 TO  IYUL
+                   ELSE                   MOVE   0.97   TO  IYUL.
+
+      * ================================================================
+      *-----------------*
+       122-SANCHUL-CHORI.
+      *-----------------*
+           IF   KS-IYUL = ZERO
+              IF  MUBAE-BOJ
+                  IF    KS-MANGI < 11   MOVE   950  TO  KS-IYUL
+                  ELSE                  MOVE   850  TO  KS-IYUL
+              ELSE                      MOVE   750  TO  KS-IYUL.
+           IF  MU-JONGSIN AND ( KS-BOJONG-T > 8999 )
+               IF ( KS-BOJONG = 5210 OR 5211 OR 5212 )
+                                        MOVE   950  TO  KS-IYUL
+               ELSE                     MOVE   850  TO  KS-IYUL.
+           DIVIDE  KS-IYUL BY 10000   GIVING  IYUL.
+
+           COMPUTE   V    = 1 / (1 + IYUL).
+           PERFORM   999-DDD  THRU 999-EXIT.
+      *--------*
+       999-DDD.
+      *--------*
+           MOVE     KS-VT           TO   W-V.
+           MOVE     KS-VT1          TO   W-V1.
+           MOVE     KS-PB           TO   W-T-PB.
+           IF  KS-IDONG-A  = 'G'         MOVE  ZERO   TO  W-T-PB
+           ELSE  IF  KS-NABBANG = 9
+                    IF  KS-IDONG-B = 1   MOVE  KS-VT  TO  W-T-PB
+                                         MOVE  ZERO   TO  W-V.
+
+           IF  NOT NB-BOJ   COMPUTE  W-T-PB  =  W-T-PB * NAB / 12.
+
+           COMPUTE   PS-RYO  ROUNDED = (V * W-V1 - W-V) * NAB / 12.
+           COMPUTE   PR-RYO  ROUNDED =  W-T-PB  -  PS-RYO.
+           IF  KS-IDONG-A  = 'G'    MOVE   1     TO  J-YUL  ELSE
+           IF  NB-BOJ               MOVE   1     TO  J-YUL  ELSE
+              IF  KS-NABBANG < 8
+                    DIVIDE   12     BY     NAB     GIVING     AA
+                    COMPUTE  J-YUL  = (1 + IYUL) * AA / (AA + NAB
+                                    *  IYUL * AA * (AA + 1) / 24)
+                 ELSE     MOVE     1     TO   J-YUL.
+           IF  (KS-BOLYO * KS-HOISU - KS-BETA - KS-GAMMA) / (KS-BOGEUM
+                         * 100) <  W-T-PB * KS-HOISU * J-YUL
+                                MOVE     1        TO    J-YUL.
+           COMPUTE  PS-RYO   =  PS-RYO *  KS-BOGEUM / 100 * J-YUL.
+           COMPUTE  PR-RYO   =  PR-RYO *  KS-BOGEUM / 100 * J-YUL.
+           COMPUTE  KS-PS-RYO  ROUNDED  =  PS-RYO * KS-HOISU.
+           COMPUTE  KS-PR-RYO  ROUNDED  =  PR-RYO * KS-HOISU.
+
+           IF  T-21C-BOJANG  AND  KS-GNG2-Y > 1
+                      PERFORM      121-5-RISK-CALL.
+
+           IF  KS-IDONG-A  = 'G'
+                   MOVE     ZERO     TO    KS-WT-ALPHA
+                   COMPUTE  KS-HS-RYO  = KS-HABBOLYO - KS-WT-ALPHA
+                                       - KS-TR-RYO -  KS-PR-RYO
+                                       - KS-BETA   -  KS-GAMMA
+                   MOVE     KS-HS-RYO   TO    KS-PS-RYO
+                   GO                   TO    999-EXIT.
+
+           MOVE    ZERO   TO  PS-JRYO   PER-RYO.
+           IF  T-GABOK  OR  T-JIG-JEOCHUK  OR T-HANARO
+                                    PERFORM  121-2-ILSU-VT.
+           COMPUTE  PS-RYO     ROUNDED  = PS-RYO + PS-JRYO.
+           COMPUTE  KS-PS-RYO  ROUNDED  = PS-RYO * KS-HOISU.
+
+           IF  SA = ZERO
+                  MOVE     KS-PS-RYO   TO  KS-HS-RYO
+                  COMPUTE  KS-WT-ALPHA ROUNDED = KS-BOLYO  *  KS-HOISU
+                                 - (KS-HS-RYO +  KS-PR-RYO +  KS-BETA
+                                 +  KS-GAMMA  +  KS-TR-RYO)
+                  GO   TO   999-EXIT.
+      *---------------------------------------------------------------*
+           COMPUTE  W-WT   ROUNDED =  W-V  - (NG - GWA) * SA / NG.
+           COMPUTE  W-WT1  ROUNDED =  W-V1 -  SA * (NG - GWA - 1) / NG.
+           COMPUTE  F-HS  = W-WT + (W-WT1 - W-WT) * KS-GNG1-M  / 12.
+           IF F-HS < ZERO     MOVE     ZERO    TO     F-HS
+           ELSE               COMPUTE  F-HS  = F-HS * KS-BOGEUM / 100.
+
+           COMPUTE  T-HS  = W-WT + (W-WT1 - W-WT) * KS-GNG2-M  / 12.
+           COMPUTE  T-HS ROUNDED  = T-HS * KS-BOGEUM / 100.
+
+           COMPUTE  PS-RYO ROUNDED =  ((V * W-WT1 - W-WT) * NAB * J-YUL
+                                       * KS-BOGEUM / 1200) * KS-HOISU.
+           IF  KS-BOLYO * KS-HOISU < PS-RYO
+                          COMPUTE  PS-RYO  =  PS-RYO / J-YUL.
+      * ================================================================
+           IF T-HS  <   ZERO         MOVE  ZERO  TO  PS-RYO      ELSE
+           IF  W-WT < ZERO           PERFORM  120-COMPUTE-RTN.
+      * ================================================================
+      *
+           IF  T-GABOK OR  T-JIG-JEOCHUK  OR  T-HANARO
+                                    PERFORM        121-3-ILSU-WT
+           ELSE  IF PS-RYO < ZERO   MOVE   ZERO    TO  PS-RYO.
+           COMPUTE  KS-HS-RYO  ROUNDED = PS-RYO  + PS-JRYO.
+           IF  NOT  KS-PS-RYO  < ZERO
+             IF   KS-HS-RYO < ZERO   MOVE   ZERO  TO  KS-HS-RYO.
+           IF  KS-VT-ALPHA = ZERO
+                  MOVE     ZERO        TO  KS-WT-ALPHA
+                  COMPUTE  KS-HS-RYO  =  KS-BOLYO   *  KS-HOISU
+                                      -  KS-PR-RYO -  KS-BETA
+                                      -  KS-GAMMA  -  KS-TR-RYO
+           ELSE
+                COMPUTE KS-WT-ALPHA = KS-BOLYO * KS-HOISU - (KS-HS-RYO
+                        + KS-PR-RYO + KS-TR-RYO + KS-BETA  + KS-GAMMA).
+      *--------------*
+       999-EXIT.  EXIT.
+      *--------------*
+       120-COMPUTE-RTN.
+      *--------------*
+      **   IF  F-HS  = > ZERO
+      **            MOVE     KS-GNG1-M     TO     AA
+      **   ELSE     COMPUTE  AA  = (-12 * W-WT) / (W-WT1 - W-WT).
+      *    COMPUTE   V = 1 / (1 + IYUL * (KS-GNG2-M - AA ) / 12).
+      *    COMPUTE   PS-RYO  =  V * (T-HS - F-HS)  / KS-HOISU.
+           COMPUTE  N-W  = (-12 * W-WT) / (W-WT1 - W-WT).
+           COMPUTE  F-HS = F-HS / (1 + IYUL * (KS-GNG1-M - N-W ) / 12).
+           COMPUTE  T-HS = T-HS / (1 + IYUL * (KS-GNG2-M - N-W ) / 12).
+           COMPUTE   PS-RYO ROUNDED  =  T-HS - F-HS.
+
+      *--------------*
+       121-2-ILSU-VT.
+      *--------------*
+           COMPUTE  AA = (KS-NABBANG + 1 ) / 2.
+
+           IF  T-GABOK  OR  T-JIG-JEOCHUK
+               IF   KS-MANGI = 3           MOVE    1    TO   BB   ELSE
+               IF   KS-MANGI = 5           MOVE    2    TO   BB   ELSE
+               IF   KS-MANGI = 7           MOVE    3    TO   BB   ELSE
+                                           MOVE    4    TO   BB.
+           IF  T-HANARO
+               IF   KS-MANGI = 5           MOVE    1    TO   BB   ELSE
+               IF   KS-MANGI = 7           MOVE    3    TO   BB   ELSE
+               IF   KS-MANGI = 10          MOVE    5    TO   BB   ELSE
+               IF   KS-MANGI = 15          MOVE    7    TO   BB   ELSE
+               IF   KS-MANGI = 20          MOVE    9    TO   BB   ELSE
+                  DISPLAY  ' HANARO  MANGI   CHECK  => ' KS-JEUNGBEON
+                           '   '   KS-MANGI.
+           IF  T-HANARO
+               IF   NOT  KS-NABGI  = 5     ADD   1   TO   BB.
+
+           IF  T-GABOK       MOVE  PS1(AA  BB)   TO  PS-JRYO
+                             MOVE  PT1(AA  BB)   TO  PER-RYO     ELSE
+           IF  T-JIG-JEOCHUK
+               IF  KS-GYEYAG-YM < 199904
+                             MOVE  PS2(AA  BB)   TO  PS-JRYO
+                             MOVE  PT2(AA  BB)   TO  PER-RYO
+               ELSE
+                             MOVE  PS4(AA  BB)   TO  PS-JRYO
+                             MOVE  PT4(AA  BB)   TO  PER-RYO
+           ELSE
+               IF  KS-GYEYAG-YM < 199904
+                             MOVE  PS3(AA  BB)   TO  PS-JRYO
+                             MOVE  PT3(AA  BB)   TO  PER-RYO
+               ELSE
+                             MOVE  PS5(AA  BB)   TO  PS-JRYO
+                             MOVE  PT5(AA  BB)   TO  PER-RYO.
+           COMPUTE   PS-JRYO  = PS-JRYO * KS-BOGEUM / 100.
+           COMPUTE   PER-RYO  = PER-RYO * KS-BOGEUM / 100.
+      *--------------*
+       121-3-ILSU-WT.
+      *--------------*
+           IF   T-GABOK          MOVE     1     TO    AA      ELSE
+           IF   T-JIG-JEOCHUK    MOVE     2     TO    AA      ELSE
+           IF   T-HANARO         MOVE     3     TO    AA      ELSE
+                                 MOVE     7     TO    AA
+                   DISPLAY  ' SANG PUM   CHECK  => '  KS-JEUNGBEON
+                            '  '   KS-BOJONG-T.
+           IF   KS-MANGI = 3     MOVE     1     TO    BB      ELSE
+           IF   KS-MANGI = 5     MOVE     2     TO    BB      ELSE
+           IF   KS-MANGI = 7     MOVE     3     TO    BB      ELSE
+           IF   KS-MANGI = 10    MOVE     4     TO    BB      ELSE
+           IF   KS-MANGI = 15    MOVE     5     TO    BB      ELSE
+           IF   KS-MANGI = 20    MOVE     6     TO    BB      ELSE
+                                 MOVE     8     TO    BB
+                   DISPLAY  ' ILSU-WT MANGI CHECK  => '  KS-JEUNGBEON
+                            '   MANGI = ' KS-MANGI.
+
+           COMPUTE  W-ALPHA =   ALP(AA BB) * KS-BOGEUM / 100.
+           COMPUTE   F-HS  = PS-JRYO * (KS-FROMHOISU - 1) - W-ALPHA
+                           * (NG * 12 - (KS-FROMHOISU - 1) * NAB)
+                           / (NG * 12).
+           IF  F-HS  < ZERO     MOVE  ZERO   TO F-HS
+           ELSE
+              IF  F-HS  > PS-JRYO * (KS-FROMHOISU - 1)
+                   COMPUTE  F-HS =  PS-JRYO * (KS-FROMHOISU - 1).
+
+           COMPUTE   T-HS  = PS-JRYO * KS-TOHOISU - W-ALPHA
+                           * (NG * 12 - KS-TOHOISU * NAB)
+                           / (NG * 12).
+           IF  T-HS  < ZERO     MOVE  ZERO   TO T-HS
+           ELSE
+              IF  T-HS  > PS-JRYO * KS-TOHOISU
+                   COMPUTE  T-HS =  PS-JRYO * KS-TOHOISU.
+
+           COMPUTE   PS-JRYO  ROUNDED =  T-HS - F-HS.
+      *----------------*
+       121-5-RISK-CALL.
+      *----------------*
+           MOVE   KS-BOJONG-T    TO   R-BOJONG.
+           MOVE   KS-PINAI       TO   R-X.
+           MOVE   KS-MANGI       TO   R-MG.
+           MOVE   KS-PISEX       TO   R-SEX.
+           MOVE   KS-VT1         TO   R-VTT.
+           MOVE   IYUL         TO   R-IYUL.
+           MOVE   KS-GNG2-Y      TO   R-GY.
+           ADD    1              TO   R-GY.
+           COMPUTE   R-BOLYO  ROUNDED  = (KS-BOLYO * 100 / KS-BOGEUM)
+                                       * R-GY * 12 / NAB.
+           CALL   'K11M8021'   USING RISK-KEY.
+           COMPUTE KS-TR-RYO ROUNDED  =  R-PR * KS-HOISU * KS-BOGEUM
+                                      * NAB / 1200.
+           COMPUTE KS-PR-RYO = KS-PR-RYO - KS-TR-RYO.
+      * ------------- END OF FILE -----------------------------------

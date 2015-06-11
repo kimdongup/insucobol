@@ -1,0 +1,295 @@
+//KERC8103 JOB (KER),'KER00',CLASS=H,MSGCLASS=X,MSGLEVEL=(1,1)          
+//STEP1 EXEC YCOBBAT,MBR=K11C8103                                       
+//COB.SYSIN DD *                                                        
+PROCESS TEST(NONE,SYM)                                                  
+      *================================================================*
+       IDENTIFICATION          DIVISION.                                
+      *=================================*                               
+       PROGRAM-ID.             K11C8103.                                
+       ENVIRONMENT             DIVISION.                                
+       CONFIGURATION           SECTION.                                 
+       INPUT-OUTPUT            SECTION.                                 
+       FILE-CONTROL.                                                    
+           SELECT  V1-FILE   ASSIGN  TO  VTBLMT1                        
+                            ORGANIZATION       IS  INDEXED              
+                            ACCESS      MODE   IS  RANDOM               
+                            RECORD      KEY    IS  V1-KEY               
+                            STATUS             IS  V1-S-WORD.           
+           SELECT  FILE-IN  ASSIGN  TO  FILEIN.                         
+           SELECT  FILE-OUT ASSIGN  TO  FILEOUT.                        
+      *=================================*                               
+       DATA                    DIVISION.                                
+      *=================================*                               
+       FILE                    SECTION.                                 
+      *--------------------------------*                                
+       FD  V1-FILE      LABEL       RECORDS   ARE  STANDARD.            
+       01  V1-REC.                                                      
+           02  V1-KEY                  PIC X(14).                       
+           02  VT-GROUP1           OCCURS   2.                          
+               03  V1-VT               PIC S9(7)   COMP-3.              
+               03  V1-VT1              PIC S9(7)   COMP-3.              
+               03  V1-PB               PIC S9(7)   COMP-3.              
+               03  V1-ALPHA            PIC S9(5)   COMP-3.              
+           02  V1-IYUL                 PIC 9(3).                        
+       FD  FILE-IN     RECORDING   MODE    IS  F                        
+                       LABEL       RECORD      STANDARD                 
+                       BLOCK       CONTAINS   100  RECORDS              
+                       RECORD      CONTAINS   126  CHARACTERS.          
+       01  REC-IN.                                                      
+           02  IN-JOSA-YMD               PIC 9(8).                      
+           02  IN-JOSA-YMD-RE         REDEFINES   IN-JOSA-YMD.          
+               03  IN-JOSA-YM            PIC 9(6).                      
+               03  IN-JOSA-YM-RE      REDEFINES   IN-JOSA-YM.           
+                   04  IN-JOSA-YY        PIC 9(4).                      
+                   04  IN-JOSA-MM        PIC 9(2).                      
+               03  IN-JOSA-DD            PIC 9(2).                      
+           02  IN-JEUNGBEON              PIC 9(7).                      
+           02  IN-BOJONG                 PIC 9(4).                      
+           02  IN-BOJONG-T               PIC 9(4).                      
+           02  IN-JT                     PIC 9(1).                      
+           02  IN-BSMG                   PIC 9(2).                      
+           02  IN-0-9                    PIC 9(2).                      
+           02  IN-NABGI                  PIC 9(2).                      
+           02  IN-MANGI                  PIC 9(2).                      
+           02  IN-NABBANG                PIC 9(1).                      
+           02  IN-PINAI                  PIC 9(2).                      
+           02  IN-PISEX                  PIC 9(1).                      
+           02  IN-GYENAI                 PIC 9(2).                      
+           02  IN-GYESEX                 PIC 9(1).                      
+           02  IN-BOGEUM                 PIC S9(7)    COMP-3.           
+           02  IN-BOLYO                  PIC S9(9)    COMP-3.           
+           02  IN-GYE-YMD                PIC 9(8).                      
+           02  IN-GYE-YMD-RE          REDEFINES   IN-GYE-YMD.           
+               03  IN-GYE-YM             PIC 9(6).                      
+               03  IN-GYE-YM-RE       REDEFINES   IN-GYE-YM.            
+                   04  IN-GYE-YY         PIC 9(4).                      
+                   04  IN-GYE-MM         PIC 9(2).                      
+               03  IN-GYE-DD             PIC 9(2).                      
+           02  IN-JIGB-YMD               PIC 9(8).                      
+           02  IN-JIGB-YMD-RE         REDEFINES   IN-JIGB-YMD.          
+               03  IN-JIGB-YM            PIC 9(6).                      
+               03  IN-JIGB-YM-RE      REDEFINES   IN-JIGB-YM.           
+                   04  IN-JIGB-YY        PIC 9(4).                      
+                   04  IN-JIGB-MM        PIC 9(2).                      
+               03  IN-JIGB-DD            PIC 9(2).                      
+           02  IN-SAGO-YMD               PIC 9(8).                      
+           02  IN-SAGO-YMD-RE         REDEFINES   IN-SAGO-YMD.          
+               03  IN-SAGO-YM            PIC 9(6).                      
+               03  IN-SAGO-YM-RE      REDEFINES   IN-SAGO-YM.           
+                   04  IN-SAGO-YY        PIC 9(4).                      
+                   04  IN-SAGO-MM        PIC 9(2).                      
+               03  IN-SAGO-DD            PIC 9(2).                      
+           02  IN-LNAB-YM                PIC 9(6).                      
+           02  IN-LNAB-YM-RE          REDEFINES   IN-LNAB-YM.           
+               03  IN-LNAB-YY           PIC 9(4).                       
+               03  IN-LNAB-MM           PIC 9(2).                       
+           02  IN-LNAB-HWOISU           PIC 9(3).                       
+           02  IN-GNGWA-YM              PIC 9(4).                       
+           02  IN-GNGWA-YM-RE        REDEFINES   IN-GNGWA-YM.           
+               03  IN-GNGWA-YY          PIC 9(2).                       
+               03  IN-GNGWA-MM          PIC 9(2).                       
+           02  IN-MIGNGWA-MM            PIC 9(2).                       
+           02  IN-CODE                  PIC 9(1).                       
+           02  IN-JIGBS                 PIC S9(9)    COMP-3.            
+           02  IN-VT-KEY.                                               
+               03  IN-VT-BOJONG         PIC 9(4).                       
+               03  IN-VT-GUBUN          PIC 9(1).                       
+               03  IN-VT-PINAI          PIC 9(2).                       
+               03  IN-VT-NABGI          PIC 9(2).                       
+               03  IN-VT-MANGI          PIC 9(2).                       
+               03  IN-VT-NABBANG        PIC 9(1).                       
+               03  IN-VT-GYEONGGWA      PIC 9(2).                       
+           02  IN-VT-SEX                PIC 9(1).                       
+           02  IN-VT-TABLE.                                             
+               03  IN-VT                PIC S9(7)    COMP-3.            
+               03  IN-VT1               PIC S9(7)    COMP-3.            
+               03  IN-VT-PB             PIC S9(7)    COMP-3.            
+               03  IN-ALPHA             PIC S9(5)    COMP-3.            
+           02  IN-IYUL                  PIC S9(5)    COMP-3.            
+
+       FD  FILE-OUT    RECORDING   MODE    IS  F                        
+                       LABEL       RECORDS ARE STANDARD                 
+                       BLOCK       CONTAINS   100  RECORDS              
+                       RECORD      CONTAINS   126  CHARACTERS.          
+       01  REC-OUT    PIC X(126).                                       
+      *--------------------------------*                                
+       WORKING-STORAGE         SECTION.                                 
+      *--------------------------------*                                
+       77  V1-S-WORD            PIC X(2)    VALUE   SPACE.              
+       77  V2-S-WORD            PIC X(2)    VALUE   SPACE.              
+                                                                        
+       01  REC-WORK.                                                    
+          COPY   KBBOJ88.                                               
+         02  VT-ERR-CODE              PIC 9.                            
+         02  CNT-IN                   PIC 9(7).                         
+         02  CNT-SKIP                 PIC 9(7).                         
+         02  WRITE-CHECK              PIC 9(7).                         
+         02  CNT-VT2-READ             PIC 9(7).                         
+         02  CNT-VT1-READ             PIC 9(7).                         
+         02  CNT-OUT                  PIC 9(7).                         
+         02  CHK-BOJONG                PIC 9(4).                        
+JIC-BO       88  CHK-BOJ    VALUE  8094 THRU 8101   8135 THRU 8142      
+                                   8335 THRU 8342                       
+MIRAE                              8081      8083                       
+DAE-B                              8115 THRU 8118   8185 THRU 8188      
+N-D-B                              8124 THRU 8127   8175 THRU 8178      
+GYO                                1001 THRU 1999                       
+JANGSU                             2092 THRU 2103   2127 THRU 2132      
+GAJOK                              2143 THRU 2145   2149 THRU 2151      
+N-GAJ                              2163 THRU 2165   2169 THRU 2171      
+                                   2417 THRU 2422   2303 THRU 2305      
+                                   2309 THRU 2311   2435 THRU 2440      
+HANSA                              2183 THRU 2185   2189 THRU 2191      
+URISA                              2333 THRU 2335   2454 THRU 2456      
+                                   2364 THRU 2366   2484 THRU 2486      
+                                   2604 THRU 2606   2614 THRU 2616      
+JICUD                              2323 THRU 2325   2444 THRU 2446      
+ABBAS                              2345 THRU 2348   2465 THRU 2468      
+                                   2355 THRU 2358   2475 THRU 2478      
+N-URI                              2533 THRU 2535   2624 THRU 2625      
+21AM1 *                            5002             5005 THRU 5006      
+21AM2 *                            5032             5035 THRU 5036      
+AMCHI *                            5073 THRU 5074   5077 THRU 5078      
+JONGH *                            5083 THRU 5084   5087 THRU 5088      
+                                   5093 THRU 5094   5097 THRU 5098      
+                                   5132      5136   5134      5138      
+SP                                 5503 THRU 5504   5506 THRU 5508      
+GNGANG                             5102      5104                       
+MU-AM                              5513      5149                       
+GILBS                              5525 THRU 5528   5155 THRU 5158      
+ALPH+                              5123 THRU 5125   5174 THRU 5176      
+POWER                              5183 THRU 5184   5231 THRU 5232      
+                                   5642 THRU 5643.                      
+         02  CHK-BOJONG-T             PIC 9(4).                         
+             88  JU-ZERO     VALUE  9041 9042 9172  9180  9518          
+GILB                                9210 THRU 9212  9047  9521.         
+             88  JONG-ZERO   VALUE  9043 9181 9662  9288 THRU 9293      
+                                    9213 THRU 9215.                     
+             88  DEL-TK      VALUE  9010 9064 9126  9282 THRU 9287      
+                                    9044 9066 9062   9132 9147 9519     
+                                    9534 9534 9536   9571 9583.         
+             88  DRIV-BOJANG VALUE  9650 9651.                          
+                                                                        
+JANGSU       88  BAEUJA-TK   VALUE  9200 THRU 9205.                     
+         02  I                        PIC 9(2).                         
+       01  REC-SWITCH.                                                  
+         02  FILE-EOF-SWITCH    PIC X(3)   VALUE 'NO '.                 
+            88  FILE-EOF                   VALUE 'YES'.                 
+         02  FIRST-DATA-SWITCH  PIC X(3)   VALUE 'YES'.                 
+            88  FIRST-DATA                 VALUE 'YES'.                 
+      *=================================*                               
+       PROCEDURE               DIVISION.                                
+      *=================================*                               
+       000-BODY.                                                        
+           OPEN   INPUT   V1-FILE                                       
+                          FILE-IN                                       
+                  OUTPUT  FILE-OUT.                                     
+
+           IF  V1-S-WORD  = '00'    NEXT      SENTENCE                  
+           ELSE    DISPLAY ' ** STOP *  V1-TABLE  OPEN  ERROR ***'      
+                           ' ** STATUS = '  V1-S-WORD                   
+                   STOP    RUN.                                         
+
+           MOVE   ZERO    TO  REC-WORK.                                 
+           PERFORM        110-READ-DATA.                                
+           PERFORM        100-PG-CONTROL     UNTIL   FILE-EOF.          
+           CLOSE          FILE-IN  V1-FILE  FILE-OUT.                   
+           DISPLAY     ' *==================================*'.         
+           DISPLAY     ' *  IN       TOTAL  =  ' CNT-IN.                
+           DISPLAY     ' *  VT1 READ TOTAL  =  ' CNT-VT1-READ.          
+           DISPLAY     ' *  SKIP-CNT        =  ' CNT-SKIP.              
+           DISPLAY     ' *  OUT      TOTAL  =  ' CNT-OUT.               
+           DISPLAY     ' *==================================*'.         
+           STOP RUN.                                                    
+      *--------------*                                                  
+       100-PG-CONTROL.                                                  
+      *--------------*                                                  
+           PERFORM   120-VT-DATA-CHEORI   THRU   120-EXIT.              
+           PERFORM   130-WRITE-RTN.                                     
+           PERFORM   110-READ-DATA.                                     
+      *--------------*                                                  
+       110-READ-DATA.                                                   
+      *--------------*                                                  
+           READ   FILE-IN    END   MOVE  'YES'   TO  FILE-EOF-SWITCH.   
+           IF  NOT FILE-EOF                                             
+               IF IN-JEUNGBEON = 617400 OR 690413 DISPLAY ' ******'     
+                                   IN-JEUNGBEON .                       
+           IF  NOT FILE-EOF                                             
+                  MOVE   IN-BOJONG    TO  WK-BOJONG    CHK-BOJONG       
+                  MOVE   IN-BOJONG-T  TO  WK-BOJONG-T  CHK-BOJONG-T     
+                  ADD    1            TO  CNT-IN                        
+              IF CHK-BOJ   NEXT      SENTENCE                           
+              ELSE         GO   TO  110-READ-DATA.                      
+      *----------------------*                                          
+       120-VT-DATA-CHEORI.                                              
+      *----------------------*                                          
+           MOVE  ZERO  TO IN-VT  IN-VT1  IN-VT-PB  IN-ALPHA  IN-IYUL    
+           MOVE  ZERO  TO WRITE-CHECK.                                  
+           PERFORM   IYUL-RTN.                                          
+           IF   IN-BOJONG > 2000                                        
+             IF   IN-CODE = 3        GO   TO  120-EXIT.                 
+           IF   JU-ZERO                                                 
+              IF   IN-CODE = 2 OR 3   GO  TO  120-EXIT                  
+              ELSE                    MOVE  1  TO WRITE-CHECK           
+                                      GO  TO  120-EXIT.                 
+           IF   JONG-ZERO                                               
+              IF   IN-CODE = 1 OR 3   GO  TO  120-EXIT                  
+              ELSE                    MOVE  1  TO WRITE-CHECK           
+                                      GO  TO  120-EXIT.                 
+
+           IF   DRIV-BOJANG                                             
+              IF   IN-CODE = 2 OR 3   MOVE   1  TO IN-VT-GUBUN          
+              ELSE                    MOVE  1  TO WRITE-CHECK           
+                                      GO  TO  120-EXIT.                 
+
+           IF   DEL-TK                MOVE  1  TO WRITE-CHECK           
+                                      GO  TO  120-EXIT.                 
+
+           IF BAEUJA-TK               MOVE  1     TO  IN-VT-GUBUN       
+                                    MOVE  ZERO  TO  IN-VT-NABGI         
+                                    MOVE  9     TO  IN-VT-NABBANG.      
+           IF IN-BOJONG-T = 9081 OR 9101  MOVE  1    TO  IN-VT-GUBUN.   
+           IF IN-BOJONG-T = 9103    MOVE  IN-CODE    TO  IN-VT-GUBUN.   
+           IF IN-BOJONG-T > 9199 AND IN-BOJONG-T < 9206                 
+              IF   IN-CODE = 2     MOVE   1  TO   IN-VT-GUBUN           
+              ELSE                 GO   TO  120-EXIT.                   
+           MOVE   IN-VT-KEY       TO  V1-KEY.                           
+           READ   V1-FILE                                               
+                    INVALID    PERFORM   VT-ERR-CHEORI.                 
+           ADD     1              TO     CNT-VT1-READ.                  
+           MOVE   V1-VT (IN-VT-SEX)     TO    IN-VT.                    
+           MOVE   V1-VT1(IN-VT-SEX)     TO    IN-VT1.                   
+           MOVE   V1-PB (IN-VT-SEX)     TO    IN-VT-PB.                 
+           MOVE   V1-ALPHA(IN-VT-SEX)   TO    IN-ALPHA.                 
+       120-EXIT.                                                        
+      *----------------------*                                          
+       IYUL-RTN.                                                        
+      *----------------------*                                          
+           IF  IN-GYE-YMD < 19990401                                    
+              IF  MU-BOJ                                                
+                  IF IN-MANGI  < 10     MOVE .0950    TO  IN-IYUL       
+                  ELSE                  MOVE .0850    TO  IN-IYUL       
+              ELSE                      MOVE .0750    TO  IN-IYUL       
+           ELSE                                                         
+              IF  MU-BOJ                MOVE .0750    TO  IN-IYUL       
+              ELSE                      MOVE .0650    TO  IN-IYUL.      
+      *--------------*                                                  
+       130-WRITE-RTN.                                                   
+      *--------------*                                                  
+           IF  WRITE-CHECK = ZERO                                       
+                WRITE   REC-OUT   FROM   REC-IN                         
+                ADD     1          TO     CNT-OUT.                      
+      *    DISPLAY 'POLNO:' IN-JEUNGBEON                                
+      *                   '  VT-KEY:' IN-VT-KEY                         
+      *                   '  VT:' IN-VT                                 
+      *                   '  VT1:' IN-VT1                               
+      *----------------------*                                          
+       VT-ERR-CHEORI.                                                   
+      *----------------------*                                          
+           MOVE  1   TO   WRITE-CHECK.                                  
+           ADD   1   TO   CNT-SKIP.                                     
+      *    IF  IN-BOJONG-T < 9000                                       
+           DISPLAY  ' JUPI = '  IN-PINAI  ' BOJ = ' IN-BOJONG-T         
+                    ' V-KEY = ' IN-VT-KEY   ' POL = '  IN-JEUNGBEON.    
+           MOVE  ZERO  TO  V1-VT(1)  V1-VT1(1) V1-PB(1) V1-ALPHA(1)     
+                           V1-VT(2)  V1-VT1(2) V1-PB(2) V1-ALPHA(2).    

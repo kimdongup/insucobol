@@ -1,0 +1,110 @@
+//KERM8003 JOB (KER),'KER00',CLASS=K,MSGCLASS=X,MSGLEVEL=(1,1)          
+//STEP1 EXEC YCOBBAT,MBR=K11M8003                                       
+//COB.SYSIN DD *                                                        
+       ID                      DIVISION.                                
+       PROGRAM-ID.             K11M8003.                                
+       ENVIRONMENT             DIVISION.                                
+       INPUT-OUTPUT            SECTION.                                 
+       FILE-CONTROL.                                                    
+           SELECT  V-FILE      ASSIGN  TO VTBLMT                        
+                               ORGANIZATION     IS INDEXED              
+                               ACCESS    MODE   IS RANDOM               
+                               RECORD    KEY    IS V-KEY                
+                               STATUS           IS S-WORD.              
+       DATA                    DIVISION.                                
+       FILE                    SECTION.                                 
+       FD  V-FILE       LABEL  RECORDS   ARE    STANDARD.               
+       01  V-REC.                                                       
+         02  V-KEY.                                                     
+           03  V-BOJONG          PIC 9(4).                              
+           03  V-GUBUN           PIC 9(1).                              
+           03  V-PINAI           PIC 9(2).                              
+           03  V-NABGI           PIC 9(2).                              
+           03  V-MANGI           PIC 9(2).                              
+           03  V-NABBANG         PIC 9(1).                              
+           03  V-GYEONGGWA-YY    PIC 9(2).                              
+         02  V-GROUP           OCCURS  2.                               
+           03  V-VT              PIC S9(7)   COMP-3.                    
+           03  V-VT1             PIC S9(7)   COMP-3.                    
+           03  V-PB              PIC S9(7)   COMP-3.                    
+           03  V-ALPHA           PIC S9(5)   COMP-3.                    
+         02  V-IYUL              PIC  9(3).                             
+      *================================*                                
+       WORKING-STORAGE         SECTION.                                 
+      *================================*                                
+       77  S-WORD                PIC X(2)   VALUE SPACE.                
+       01  WBA.                                                         
+         02  SV-KEY.                                                    
+           03  SV-BOJONG         PIC 9(4).                              
+           03  SV-GUBUN          PIC 9(1).                              
+           03  SV-PINAI          PIC 9(2).                              
+           03  SV-NABGI          PIC 9(2).                              
+           03  SV-MANGI          PIC 9(2).                              
+           03  SV-NABBANG        PIC 9(1).                              
+           03  SV-GYEONGGWA-YY   PIC 9(2).                              
+          03  S-VT               PIC S9(7).                             
+          03  S-VT1              PIC S9(7).                             
+          03  S-PB               PIC S9(7).                             
+          03  ZERO-B          PIC  9.                                   
+         02  V-IYUL            PIC  9(3).                               
+      *================================*                                
+       LINKAGE                 SECTION.                                 
+      *================================*                                
+       01  LINKED-DATA.                                                 
+         02  V-I-O               PIC  9(1).                             
+         02  BOJONG              PIC  9(4).                             
+         02  PINAI               PIC  9(2).                             
+         02  PISEX               PIC  9(1).                             
+         02  NABGI               PIC  9(2).                             
+         02  MANGI               PIC  9(2).                             
+         02  NABBANG             PIC  9(1).                             
+         02  GY-YY               PIC  9(2).                             
+         02  JNG-1               PIC S9(7)   COMP-3.                    
+         02  JNG-2               PIC S9(7)   COMP-3.                    
+         02  JNG-3               PIC S9(7)   COMP-3.                    
+         02  E                   PIC  9(1).                             
+      *==============================================*                  
+       PROCEDURE     DIVISION    USING   LINKED-DATA.                   
+      *==============================================*                  
+           IF V-I-O = 0   OPEN     INPUT  V-FILE  GO  TO  LAST-RTN.     
+           IF V-I-O = 2   CLOSE           V-FILE  GO  TO  LAST-RTN.     
+           MOVE    ZERO            TO   WBA JNG-1 JNG-2 JNG-3  E.       
+           IF      BOJONG    IS    NUMERIC  AND                         
+                   PINAI     IS    NUMERIC  AND                         
+                   PISEX     IS    NUMERIC  AND                         
+                   NABGI     IS    NUMERIC  AND                         
+                   MANGI     IS    NUMERIC  AND                         
+                   NABBANG   IS    NUMERIC  AND                         
+                   GY-YY     IS    NUMERIC  NEXT  SENTENCE              
+           ELSE    MOVE      1     TO    E        GO  TO  LAST-RTN.     
+      *-----------------------------------------------------------*     
+           IF      PINAI = 35 OR 50 OR 65         GO  TO  LAST-RTN.     
+      *-----------------------------------------------------------*     
+           MOVE    1               TO   SV-GUBUN.                       
+           MOVE    BOJONG          TO   SV-BOJONG.                      
+           MOVE    PINAI           TO   SV-PINAI.                       
+           MOVE    NABGI           TO   SV-NABGI.                       
+           MOVE    MANGI           TO   SV-MANGI.                       
+           MOVE    GY-YY           TO   SV-GYEONGGWA-YY.                
+      *--------*                                                        
+       JNG-6001.                                                        
+      *--------*                                                        
+           PERFORM VT-RTN.                                              
+           MOVE    S-VT            TO  JNG-1.                           
+           MOVE    S-VT1           TO  JNG-2.                           
+           MOVE    S-PB            TO  JNG-3.                           
+           GO   TO   LAST-RTN.                                          
+      *------*                                                          
+       VT-RTN.                                                          
+      *------*                                                          
+           MOVE    SV-KEY          TO      V-KEY.                       
+           READ    V-FILE         INVALID  MOVE  3  TO  E.              
+           IF   E = 3   MOVE  ZERO TO   S-VT  S-VT1  S-PB               
+           ELSE         MOVE  V-VT (PISEX)  TO S-VT                     
+                        MOVE  V-VT1(PISEX)  TO S-VT1                    
+                        MOVE  V-PB (PISEX)  TO S-PB.                    
+           MOVE         ZERO                TO ZERO-B.                  
+      *--------*                                                        
+       LAST-RTN.                                                        
+      *--------*                                                        
+           GOBACK.                                                      

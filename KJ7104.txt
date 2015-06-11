@@ -1,0 +1,48 @@
+//KERJ7104 JOB (KER),'KER01',CLASS=S,MSGCLASS=X,MSGLEVEL=(1,1)          
+//*       TYPRUN=HOLD,TIME=1440,REGION=4M                               
+//STEP1    EXEC  PGM=SORT                                               
+//SYSOUT   DD    SYSOUT=*                                               
+//SYSPRINT DD    SYSOUT=X                                               
+//SORTIN   DD  DSN=KER.G0002.K1-2,UNIT=SYSDA,VOL=SER=U1HD09,            
+//         DISP=(OLD,PASS),SPACE=(TRK,(5000,500),RLSE),                 
+//         DCB=(RECFM=FB,LRECL=122,BLKSIZE=12200)                       
+//SORTOUT  DD    DSN=KER.G0002.KX1-2,UNIT=SYSDA,VOL=SER=U1WRK1,         
+//         DISP=(NEW,KEEP),SPACE=(TRK,(6000,200),RLSE),                 
+//         DCB=(LRECL=122,BLKSIZE=12200,RECFM=FB)                       
+//SORTWK01 DD    DSN=&&TEMP,DISP=(NEW,DELETE),UNIT=SYSDA,               
+//         SPACE=(CYL,(400,10))                                         
+//SYSIN    DD    *                                                      
+   SORT   FIELDS=(1,12,CH,A),WORK=1,FILES=1                             
+   RECORD TYPE=F,LENGTH=122                                             
+   INPFIL BLKSIZE=12200                                                 
+   OUTFIL BLKSIZE=12200                                                 
+/*                                                                      
+//STEP2    EXEC  PGM=KC7104                                             
+//VTBLMT   DD  DSN=PAY.VTBLMT,DISP=SHR                                  
+//STEPLIB  DD  DSN=PLI.Y2KBATCH.LOADLIB,DISP=SHR                        
+//SYSOUT   DD  SYSOUT=*                                                 
+//SYSPRINT DD  SYSOUT=X                                                 
+//FILEIN   DD  DSN=KER.G0002.K2-VT,UNIT=SYSDA,VOL=SER=U1HD09,           
+//         DISP=(OLD,PASS),SPACE=(TRK,(3000,500),RLSE),                 
+//         DCB=(RECFM=FB,LRECL=129,BLKSIZE=12900)                       
+//FILEOUT  DD  DSN=KER.G0002.K4,UNIT=SYSDA,VOL=SER=U1WRK1,              
+//         DISP=(NEW,KEEP),SPACE=(TRK,(5000,100),RLSE),                 
+//         DCB=(RECFM=FB,LRECL=129,BLKSIZE=12900)                       
+/*                                                                      
+//STEP3    EXEC  PGM=SORT                                               
+//SYSOUT   DD    SYSOUT=*                                               
+//SYSPRINT DD    SYSOUT=X                                               
+//SORTIN   DD    DSN=KER.G0002.K4,UNIT=SYSDA,VOL=SER=U1WRK1,            
+//         DISP=(OLD,KEEP)                                              
+//SORTOUT  DD    DSN=KER.G0002.KX4,UNIT=SYSDA,VOL=SER=U1WRK4,           
+//         DISP=(NEW,KEEP),SPACE=(TRK,(5000,200),RLSE),                 
+//         DCB=(LRECL=129,BLKSIZE=12900,RECFM=FB)                       
+//SORTWK01 DD    DSN=&&TEMP,DISP=(NEW,DELETE),UNIT=SYSDA,               
+//         SPACE=(CYL,(500,10))                                         
+//SYSIN    DD    *                                                      
+   SORT   FIELDS=(9,12,CH,A),WORK=1,FILES=1                             
+   RECORD TYPE=F,LENGTH=129                                             
+   INPFIL BLKSIZE=12900                                                 
+   OUTFIL BLKSIZE=12900                                                 
+/*                                                                      
+//                                                                      

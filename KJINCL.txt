@@ -1,0 +1,21 @@
+//KER9612  JOB (KER),'KER',CLASS=K,MSGCLASS=X,MSGLEVEL=(1,1)
+//STEP1    EXEC    PGM=SORT                                             
+//SYSOUT   DD      SYSOUT=*                                             
+//SYSPRINT DD      SYSOUT=X                                             
+//SORTIN   DD      DSN=CT9612IB,UNIT=CTAPE,VOL=SER=KC0377,              
+//         DISP=(OLD,KEEP),LABEL=(1,SL),                                
+//         DCB=(LRECL=110,BLKSIZE=11000,RECFM=FB)                       
+//SORTOUT  DD      DSN=KER.CY96.IBWON,UNIT=SYSDA,VOL=SER=U1DB96,        
+//         DISP=(OLD,KEEP),SPACE=(TRK,(2500,500),RLSE),                 
+//         DCB=(LRECL=110,BLKSIZE=11000,RECFM=FB)                       
+//SORTWK01 DD      DSN=&&TEMP,DISP=(NEW,DELETE),UNIT=SYSDA,             
+//         SPACE=(TRK,(2500,500))                                       
+//SYSIN    DD      *                                                    
+   SORT FIELDS=(38,7,CH,A,1,4,CH,A),WORK=1,FILES=1                      
+   INCLUDE   COND=(3,4,EQ,C'9612',AND,19,1,EQ,C'0',AND,18,1,EQ,C'B'),   
+             FORMAT=CH                                                  
+   RECORD TYPE=F,LENGTH=110                                             
+   INPFIL BLKSIZE=11000                                                 
+   OUTFIL BLKSIZE=11000                                                 
+/*                                                                      
+//

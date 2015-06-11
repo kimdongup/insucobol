@@ -1,0 +1,456 @@
+//KERB9027 JOB (KER),'KER00',CLASS=K,MSGCLASS=X,MSGLEVEL=(1,1)          
+//S1 EXEC YSRCCAT,MBR=K11B9027                                          
+//C.SYSUT1 DD *                                                         
+       01  DEATH-TABLE.                                                 
+      *----------( 85-GANEE    DEATH  RATIO  )------------------------* 
+   00      02  FILLER  PIC X(12)  VALUE  '001456000888'.                
+           02  FILLER  PIC X(12)  VALUE  '000205000190'.                
+           02  FILLER  PIC X(12)  VALUE  '000183000148'.                
+           02  FILLER  PIC X(12)  VALUE  '000161000114'.                
+           02  FILLER  PIC X(12)  VALUE  '000140000087'.                
+   05      02  FILLER  PIC X(12)  VALUE  '000121000069'.                
+           02  FILLER  PIC X(12)  VALUE  '000105000061'.                
+           02  FILLER  PIC X(12)  VALUE  '000092000060'.                
+           02  FILLER  PIC X(12)  VALUE  '000079000061'.                
+           02  FILLER  PIC X(12)  VALUE  '000066000057'.                
+   10      02  FILLER  PIC X(12)  VALUE  '000055000053'.                
+           02  FILLER  PIC X(12)  VALUE  '000049000048'.                
+           02  FILLER  PIC X(12)  VALUE  '000055000042'.                
+           02  FILLER  PIC X(12)  VALUE  '000068000038'.                
+           02  FILLER  PIC X(12)  VALUE  '000085000034'.                
+   15      02  FILLER  PIC X(12)  VALUE  '000105000033'.                
+           02  FILLER  PIC X(12)  VALUE  '000127000034'.                
+           02  FILLER  PIC X(12)  VALUE  '000150000036'.                
+           02  FILLER  PIC X(12)  VALUE  '000170000042'.                
+           02  FILLER  PIC X(12)  VALUE  '000189000049'.                
+   20      02  FILLER  PIC X(12)  VALUE  '000200000056'.                
+           02  FILLER  PIC X(12)  VALUE  '000207000062'.                
+           02  FILLER  PIC X(12)  VALUE  '000208000066'.                
+           02  FILLER  PIC X(12)  VALUE  '000204000068'.                
+           02  FILLER  PIC X(12)  VALUE  '000196000068'.                
+   25      02  FILLER  PIC X(12)  VALUE  '000183000066'.                
+           02  FILLER  PIC X(12)  VALUE  '000173000066'.                
+           02  FILLER  PIC X(12)  VALUE  '000165000069'.                
+           02  FILLER  PIC X(12)  VALUE  '000163000074'.                
+           02  FILLER  PIC X(12)  VALUE  '000166000082'.                
+   30      02  FILLER  PIC X(12)  VALUE  '000176000091'.                
+           02  FILLER  PIC X(12)  VALUE  '000187000100'.                
+           02  FILLER  PIC X(12)  VALUE  '000199000108'.                
+           02  FILLER  PIC X(12)  VALUE  '000214000113'.                
+           02  FILLER  PIC X(12)  VALUE  '000230000118'.                
+   35      02  FILLER  PIC X(12)  VALUE  '000249000122'.                
+           02  FILLER  PIC X(12)  VALUE  '000272000127'.                
+           02  FILLER  PIC X(12)  VALUE  '000301000135'.                
+           02  FILLER  PIC X(12)  VALUE  '000334000146'.                
+           02  FILLER  PIC X(12)  VALUE  '000374000159'.                
+   40      02  FILLER  PIC X(12)  VALUE  '000419000174'.                
+           02  FILLER  PIC X(12)  VALUE  '000471000192'.                
+           02  FILLER  PIC X(12)  VALUE  '000519000212'.                
+           02  FILLER  PIC X(12)  VALUE  '000570000233'.                
+           02  FILLER  PIC X(12)  VALUE  '000627000258'.                
+   45      02  FILLER  PIC X(12)  VALUE  '000690000288'.                
+           02  FILLER  PIC X(12)  VALUE  '000758000322'.                
+           02  FILLER  PIC X(12)  VALUE  '000834000362'.                
+           02  FILLER  PIC X(12)  VALUE  '000917000407'.                
+           02  FILLER  PIC X(12)  VALUE  '001008000459'.                
+   50      02  FILLER  PIC X(12)  VALUE  '001108000514'.                
+           02  FILLER  PIC X(12)  VALUE  '001219000572'.                
+           02  FILLER  PIC X(12)  VALUE  '001340000630'.                
+           02  FILLER  PIC X(12)  VALUE  '001473000689'.                
+           02  FILLER  PIC X(12)  VALUE  '001619000750'.                
+   55      02  FILLER  PIC X(12)  VALUE  '001779000816'.                
+           02  FILLER  PIC X(12)  VALUE  '001955000905'.                
+           02  FILLER  PIC X(12)  VALUE  '002149001002'.                
+           02  FILLER  PIC X(12)  VALUE  '002361001111'.                
+           02  FILLER  PIC X(12)  VALUE  '002594001231'.                
+   60      02  FILLER  PIC X(12)  VALUE  '002850001364'.                
+           02  FILLER  PIC X(12)  VALUE  '003131001511'.                
+           02  FILLER  PIC X(12)  VALUE  '003438001674'.                
+           02  FILLER  PIC X(12)  VALUE  '003776001854'.                
+           02  FILLER  PIC X(12)  VALUE  '004145002054'.                
+   65      02  FILLER  PIC X(12)  VALUE  '004550002275'.                
+           02  FILLER  PIC X(12)  VALUE  '004994002519'.                
+           02  FILLER  PIC X(12)  VALUE  '005480002789'.                
+           02  FILLER  PIC X(12)  VALUE  '006011003088'.                
+           02  FILLER  PIC X(12)  VALUE  '006592003418'.                
+   70      02  FILLER  PIC X(12)  VALUE  '007227003783'.                
+           02  FILLER  PIC X(12)  VALUE  '007920004186'.                
+           02  FILLER  PIC X(12)  VALUE  '008677004630'.                
+           02  FILLER  PIC X(12)  VALUE  '009502005121'.                
+           02  FILLER  PIC X(12)  VALUE  '010402005662'.                
+   75      02  FILLER  PIC X(12)  VALUE  '011381006258'.                
+           02  FILLER  PIC X(12)  VALUE  '012445006914'.                
+           02  FILLER  PIC X(12)  VALUE  '013601007637'.                
+           02  FILLER  PIC X(12)  VALUE  '014855008432'.                
+           02  FILLER  PIC X(12)  VALUE  '016214009305'.                
+   80      02  FILLER  PIC X(12)  VALUE  '017684010263'.                
+           02  FILLER  PIC X(12)  VALUE  '019270011314'.                
+           02  FILLER  PIC X(12)  VALUE  '020980012465'.                
+           02  FILLER  PIC X(12)  VALUE  '022820013723'.                
+           02  FILLER  PIC X(12)  VALUE  '024794015097'.                
+   85      02  FILLER  PIC X(12)  VALUE  '026907016595'.                
+           02  FILLER  PIC X(12)  VALUE  '029163018225'.                
+           02  FILLER  PIC X(12)  VALUE  '031564019995'.                
+           02  FILLER  PIC X(12)  VALUE  '034111021913'.                
+           02  FILLER  PIC X(12)  VALUE  '036804023986'.                
+   90      02  FILLER  PIC X(12)  VALUE  '039640026220'.                
+           02  FILLER  PIC X(12)  VALUE  '042621028621'.                
+           02  FILLER  PIC X(12)  VALUE  '045713031191'.                
+           02  FILLER  PIC X(12)  VALUE  '048930033933'.                
+           02  FILLER  PIC X(12)  VALUE  '052250036845'.                
+   95      02  FILLER  PIC X(12)  VALUE  '055653039925'.                
+           02  FILLER  PIC X(12)  VALUE  '059117043164'.                
+           02  FILLER  PIC X(12)  VALUE  '062616046552'.                
+           02  FILLER  PIC X(12)  VALUE  '066120050072'.                
+           02  FILLER  PIC X(12)  VALUE  '100000053705'.                
+  100      02  FILLER  PIC X(12)  VALUE  '000000057425'.                
+           02  FILLER  PIC X(12)  VALUE  '000000061202'.                
+           02  FILLER  PIC X(12)  VALUE  '000000064998'.                
+           02  FILLER  PIC X(12)  VALUE  '000000068775'.                
+           02  FILLER  PIC X(12)  VALUE  '000000100000'.                
+  105      02  FILLER  PIC X(12)  VALUE  '000000000000'.                
+           02  FILLER  PIC X(12)  VALUE  '000000000000'.                
+           02  FILLER  PIC X(12)  VALUE  '000000000000'.                
+           02  FILLER  PIC X(12)  VALUE  '000000000000'.                
+           02  FILLER  PIC X(12)  VALUE  '000000000000'.                
+  110      02  FILLER  PIC X(12)  VALUE  '000000000000'.                
+      *---------(  1 HWOI  GYUNGHEOM  DEATH  RATIO  )-----------------* 
+   00      02  FILLER  PIC X(12)  VALUE  '001264000659'.                
+           02  FILLER  PIC X(12)  VALUE  '000178000141'.                
+           02  FILLER  PIC X(12)  VALUE  '000149000116'.                
+           02  FILLER  PIC X(12)  VALUE  '000123000090'.                
+           02  FILLER  PIC X(12)  VALUE  '000103000068'.                
+   05      02  FILLER  PIC X(12)  VALUE  '000089000056'.                
+           02  FILLER  PIC X(12)  VALUE  '000080000052'.                
+           02  FILLER  PIC X(12)  VALUE  '000071000050'.                
+           02  FILLER  PIC X(12)  VALUE  '000063000049'.                
+           02  FILLER  PIC X(12)  VALUE  '000059000050'.                
+   10      02  FILLER  PIC X(12)  VALUE  '000057000053'.                
+           02  FILLER  PIC X(12)  VALUE  '000056000054'.                
+           02  FILLER  PIC X(12)  VALUE  '000057000051'.                
+           02  FILLER  PIC X(12)  VALUE  '000061000044'.                
+           02  FILLER  PIC X(12)  VALUE  '000068000038'.                
+   15      02  FILLER  PIC X(12)  VALUE  '000077000036'.                
+           02  FILLER  PIC X(12)  VALUE  '000088000038'.                
+           02  FILLER  PIC X(12)  VALUE  '000100000041'.                
+           02  FILLER  PIC X(12)  VALUE  '000113000046'.                
+           02  FILLER  PIC X(12)  VALUE  '000126000052'.                
+   20      02  FILLER  PIC X(12)  VALUE  '000138000059'.                
+           02  FILLER  PIC X(12)  VALUE  '000148000066'.                
+           02  FILLER  PIC X(12)  VALUE  '000156000071'.                
+           02  FILLER  PIC X(12)  VALUE  '000161000075'.                
+           02  FILLER  PIC X(12)  VALUE  '000165000077'.                
+   25      02  FILLER  PIC X(12)  VALUE  '000167000078'.                
+           02  FILLER  PIC X(12)  VALUE  '000170000079'.                
+           02  FILLER  PIC X(12)  VALUE  '000172000081'.                
+           02  FILLER  PIC X(12)  VALUE  '000176000083'.                
+           02  FILLER  PIC X(12)  VALUE  '000181000087'.                
+   30      02  FILLER  PIC X(12)  VALUE  '000188000091'.                
+           02  FILLER  PIC X(12)  VALUE  '000195000096'.                
+           02  FILLER  PIC X(12)  VALUE  '000205000101'.                
+           02  FILLER  PIC X(12)  VALUE  '000215000105'.                
+           02  FILLER  PIC X(12)  VALUE  '000229000110'.                
+   35      02  FILLER  PIC X(12)  VALUE  '000245000116'.                
+           02  FILLER  PIC X(12)  VALUE  '000266000124'.                
+           02  FILLER  PIC X(12)  VALUE  '000291000133'.                
+           02  FILLER  PIC X(12)  VALUE  '000322000145'.                
+           02  FILLER  PIC X(12)  VALUE  '000359000159'.                
+   40      02  FILLER  PIC X(12)  VALUE  '000400000174'.                
+           02  FILLER  PIC X(12)  VALUE  '000447000192'.                
+           02  FILLER  PIC X(12)  VALUE  '000500000210'.                
+           02  FILLER  PIC X(12)  VALUE  '000558000230'.                
+           02  FILLER  PIC X(12)  VALUE  '000623000252'.                
+   45      02  FILLER  PIC X(12)  VALUE  '000686000275'.                
+           02  FILLER  PIC X(12)  VALUE  '000752000301'.                
+           02  FILLER  PIC X(12)  VALUE  '000825000330'.                
+           02  FILLER  PIC X(12)  VALUE  '000905000361'.                
+           02  FILLER  PIC X(12)  VALUE  '000992000396'.                
+   50      02  FILLER  PIC X(12)  VALUE  '001088000436'.                
+           02  FILLER  PIC X(12)  VALUE  '001193000479'.                
+           02  FILLER  PIC X(12)  VALUE  '001308000527'.                
+           02  FILLER  PIC X(12)  VALUE  '001434000580'.                
+           02  FILLER  PIC X(12)  VALUE  '001572000638'.                
+   55      02  FILLER  PIC X(12)  VALUE  '001723000702'.                
+           02  FILLER  PIC X(12)  VALUE  '001889000772'.                
+           02  FILLER  PIC X(12)  VALUE  '002071000848'.                
+           02  FILLER  PIC X(12)  VALUE  '002269000931'.                
+           02  FILLER  PIC X(12)  VALUE  '002487001022'.                
+   60      02  FILLER  PIC X(12)  VALUE  '002725001121'.                
+           02  FILLER  PIC X(12)  VALUE  '002986001231'.                
+           02  FILLER  PIC X(12)  VALUE  '003271001351'.                
+           02  FILLER  PIC X(12)  VALUE  '003583001483'.                
+           02  FILLER  PIC X(12)  VALUE  '003924001627'.                
+   65      02  FILLER  PIC X(12)  VALUE  '004297001785'.                
+           02  FILLER  PIC X(12)  VALUE  '004704001959'.                
+           02  FILLER  PIC X(12)  VALUE  '005149002149'.                
+           02  FILLER  PIC X(12)  VALUE  '005634002358'.                
+           02  FILLER  PIC X(12)  VALUE  '006164002587'.                
+   70      02  FILLER  PIC X(12)  VALUE  '006742002837'.                
+           02  FILLER  PIC X(12)  VALUE  '007372003111'.                
+           02  FILLER  PIC X(12)  VALUE  '008058003411'.                
+           02  FILLER  PIC X(12)  VALUE  '008805003740'.                
+           02  FILLER  PIC X(12)  VALUE  '009618004100'.                
+   75      02  FILLER  PIC X(12)  VALUE  '010501004493'.                
+           02  FILLER  PIC X(12)  VALUE  '011460004924'.                
+           02  FILLER  PIC X(12)  VALUE  '012500005394'.                
+           02  FILLER  PIC X(12)  VALUE  '013627005908'.                
+           02  FILLER  PIC X(12)  VALUE  '014847006469'.                
+   80      02  FILLER  PIC X(12)  VALUE  '016166007081'.                
+           02  FILLER  PIC X(12)  VALUE  '017589007749'.                
+           02  FILLER  PIC X(12)  VALUE  '019123008477'.                
+           02  FILLER  PIC X(12)  VALUE  '020773009270'.                
+           02  FILLER  PIC X(12)  VALUE  '022544010132'.                
+   85      02  FILLER  PIC X(12)  VALUE  '024442011070'.                
+           02  FILLER  PIC X(12)  VALUE  '026470012089'.                
+           02  FILLER  PIC X(12)  VALUE  '028633013195'.                
+           02  FILLER  PIC X(12)  VALUE  '030933014393'.                
+           02  FILLER  PIC X(12)  VALUE  '033371015689'.                
+   90      02  FILLER  PIC X(12)  VALUE  '035947017091'.                
+           02  FILLER  PIC X(12)  VALUE  '038659018603'.                
+           02  FILLER  PIC X(12)  VALUE  '041502020232'.                
+           02  FILLER  PIC X(12)  VALUE  '044469021984'.                
+           02  FILLER  PIC X(12)  VALUE  '047552023863'.                
+   95      02  FILLER  PIC X(12)  VALUE  '050738025874'.                
+           02  FILLER  PIC X(12)  VALUE  '054011028022'.                
+           02  FILLER  PIC X(12)  VALUE  '057352030310'.                
+           02  FILLER  PIC X(12)  VALUE  '060739032738'.                
+           02  FILLER  PIC X(12)  VALUE  '064147035307'.                
+  100      02  FILLER  PIC X(12)  VALUE  '067546038016'.                
+           02  FILLER  PIC X(12)  VALUE  '100000040861'.                
+           02  FILLER  PIC X(12)  VALUE  '100000043834'.                
+           02  FILLER  PIC X(12)  VALUE  '100000046928'.                
+           02  FILLER  PIC X(12)  VALUE  '100000050130'.                
+  105      02  FILLER  PIC X(12)  VALUE  '100000053423'.                
+           02  FILLER  PIC X(12)  VALUE  '100000056791'.                
+           02  FILLER  PIC X(12)  VALUE  '100000060209'.                
+           02  FILLER  PIC X(12)  VALUE  '100000063652'.                
+           02  FILLER  PIC X(12)  VALUE  '100000100000'.                
+  110      02  FILLER  PIC X(12)  VALUE  '100000100000'.                
+      *----------( 2 HWOI  GYUNGHEOM  DEATH  RATIO )------------------* 
+   00      02  FILLER  PIC X(12)  VALUE  '000797000499'.                
+           02  FILLER  PIC X(12)  VALUE  '000114000061'.                
+           02  FILLER  PIC X(12)  VALUE  '000106000063'.                
+           02  FILLER  PIC X(12)  VALUE  '000096000062'.                
+           02  FILLER  PIC X(12)  VALUE  '000085000057'.                
+   05      02  FILLER  PIC X(12)  VALUE  '000073000049'.                
+           02  FILLER  PIC X(12)  VALUE  '000061000040'.                
+           02  FILLER  PIC X(12)  VALUE  '000050000032'.                
+           02  FILLER  PIC X(12)  VALUE  '000043000026'.                
+           02  FILLER  PIC X(12)  VALUE  '000038000024'.                
+   10      02  FILLER  PIC X(12)  VALUE  '000034000022'.                
+           02  FILLER  PIC X(12)  VALUE  '000031000021'.                
+           02  FILLER  PIC X(12)  VALUE  '000029000021'.                
+           02  FILLER  PIC X(12)  VALUE  '000030000022'.                
+           02  FILLER  PIC X(12)  VALUE  '000033000025'.                
+   15      02  FILLER  PIC X(12)  VALUE  '000039000027'.                
+           02  FILLER  PIC X(12)  VALUE  '000048000027'.                
+           02  FILLER  PIC X(12)  VALUE  '000058000027'.                
+           02  FILLER  PIC X(12)  VALUE  '000069000027'.                
+           02  FILLER  PIC X(12)  VALUE  '000083000028'.                
+   20      02  FILLER  PIC X(12)  VALUE  '000100000031'.                
+           02  FILLER  PIC X(12)  VALUE  '000120000038'.                
+           02  FILLER  PIC X(12)  VALUE  '000140000046'.                
+           02  FILLER  PIC X(12)  VALUE  '000158000053'.                
+           02  FILLER  PIC X(12)  VALUE  '000165000056'.                
+   25      02  FILLER  PIC X(12)  VALUE  '000167000055'.                
+           02  FILLER  PIC X(12)  VALUE  '000170000053'.                
+           02  FILLER  PIC X(12)  VALUE  '000165000052'.                
+           02  FILLER  PIC X(12)  VALUE  '000159000053'.                
+           02  FILLER  PIC X(12)  VALUE  '000155000057'.                
+   30      02  FILLER  PIC X(12)  VALUE  '000156000063'.                
+           02  FILLER  PIC X(12)  VALUE  '000160000070'.                
+           02  FILLER  PIC X(12)  VALUE  '000168000078'.                
+           02  FILLER  PIC X(12)  VALUE  '000180000087'.                
+           02  FILLER  PIC X(12)  VALUE  '000194000095'.                
+   35      02  FILLER  PIC X(12)  VALUE  '000210000103'.                
+           02  FILLER  PIC X(12)  VALUE  '000228000111'.                
+           02  FILLER  PIC X(12)  VALUE  '000251000118'.                
+           02  FILLER  PIC X(12)  VALUE  '000277000123'.                
+           02  FILLER  PIC X(12)  VALUE  '000307000127'.                
+   40      02  FILLER  PIC X(12)  VALUE  '000345000133'.                
+           02  FILLER  PIC X(12)  VALUE  '000390000143'.                
+           02  FILLER  PIC X(12)  VALUE  '000441000160'.                
+           02  FILLER  PIC X(12)  VALUE  '000496000185'.                
+           02  FILLER  PIC X(12)  VALUE  '000556000217'.                
+   45      02  FILLER  PIC X(12)  VALUE  '000626000252'.                
+           02  FILLER  PIC X(12)  VALUE  '000706000288'.                
+           02  FILLER  PIC X(12)  VALUE  '000795000322'.                
+           02  FILLER  PIC X(12)  VALUE  '000886000354'.                
+           02  FILLER  PIC X(12)  VALUE  '000977000386'.                
+   50      02  FILLER  PIC X(12)  VALUE  '001068000422'.                
+           02  FILLER  PIC X(12)  VALUE  '001168000461'.                
+           02  FILLER  PIC X(12)  VALUE  '001287000503'.                
+           02  FILLER  PIC X(12)  VALUE  '001427000546'.                
+           02  FILLER  PIC X(12)  VALUE  '001572000586'.                
+   55      02  FILLER  PIC X(12)  VALUE  '001723000644'.                
+           02  FILLER  PIC X(12)  VALUE  '001889000709'.                
+           02  FILLER  PIC X(12)  VALUE  '002071000781'.                
+           02  FILLER  PIC X(12)  VALUE  '002269000859'.                
+           02  FILLER  PIC X(12)  VALUE  '002473000945'.                
+   60      02  FILLER  PIC X(12)  VALUE  '002690001040'.                
+           02  FILLER  PIC X(12)  VALUE  '002927001145'.                
+           02  FILLER  PIC X(12)  VALUE  '003184001259'.                
+           02  FILLER  PIC X(12)  VALUE  '003462001386'.                
+           02  FILLER  PIC X(12)  VALUE  '003765001525'.                
+   65      02  FILLER  PIC X(12)  VALUE  '004094001677'.                
+           02  FILLER  PIC X(12)  VALUE  '004451001845'.                
+           02  FILLER  PIC X(12)  VALUE  '004838002029'.                
+           02  FILLER  PIC X(12)  VALUE  '005257002232'.                
+           02  FILLER  PIC X(12)  VALUE  '005713002454'.                
+   70      02  FILLER  PIC X(12)  VALUE  '006206002698'.                
+           02  FILLER  PIC X(12)  VALUE  '006740002967'.                
+           02  FILLER  PIC X(12)  VALUE  '007318003261'.                
+           02  FILLER  PIC X(12)  VALUE  '007944003584'.                
+           02  FILLER  PIC X(12)  VALUE  '008621003939'.                
+   75      02  FILLER  PIC X(12)  VALUE  '009353004328'.                
+           02  FILLER  PIC X(12)  VALUE  '010143004754'.                
+           02  FILLER  PIC X(12)  VALUE  '010995005221'.                
+           02  FILLER  PIC X(12)  VALUE  '011915005733'.                
+           02  FILLER  PIC X(12)  VALUE  '012906006293'.                
+   80      02  FILLER  PIC X(12)  VALUE  '013972006906'.                
+           02  FILLER  PIC X(12)  VALUE  '015119007576'.                
+           02  FILLER  PIC X(12)  VALUE  '016350008308'.                
+           02  FILLER  PIC X(12)  VALUE  '017671009107'.                
+           02  FILLER  PIC X(12)  VALUE  '019086009979'.                
+   85      02  FILLER  PIC X(12)  VALUE  '020599010929'.                
+           02  FILLER  PIC X(12)  VALUE  '022215011963'.                
+           02  FILLER  PIC X(12)  VALUE  '023938013088'.                
+           02  FILLER  PIC X(12)  VALUE  '025771014310'.                
+           02  FILLER  PIC X(12)  VALUE  '027718015635'.                
+   90      02  FILLER  PIC X(12)  VALUE  '029779017071'.                
+           02  FILLER  PIC X(12)  VALUE  '031958018603'.                
+           02  FILLER  PIC X(12)  VALUE  '034254020232'.                
+           02  FILLER  PIC X(12)  VALUE  '036667021984'.                
+           02  FILLER  PIC X(12)  VALUE  '039194023863'.                
+   95      02  FILLER  PIC X(12)  VALUE  '041832025874'.                
+           02  FILLER  PIC X(12)  VALUE  '044575028022'.                
+           02  FILLER  PIC X(12)  VALUE  '047416030310'.                
+           02  FILLER  PIC X(12)  VALUE  '050345032738'.                
+           02  FILLER  PIC X(12)  VALUE  '053349035307'.                
+  100      02  FILLER  PIC X(12)  VALUE  '056415038016'.                
+           02  FILLER  PIC X(12)  VALUE  '059526040861'.                
+           02  FILLER  PIC X(12)  VALUE  '062661043834'.                
+           02  FILLER  PIC X(12)  VALUE  '100000046928'.                
+           02  FILLER  PIC X(12)  VALUE  '100000050130'.                
+  105      02  FILLER  PIC X(12)  VALUE  '100000053423'.                
+           02  FILLER  PIC X(12)  VALUE  '100000056791'.                
+           02  FILLER  PIC X(12)  VALUE  '100000060209'.                
+           02  FILLER  PIC X(12)  VALUE  '100000063652'.                
+           02  FILLER  PIC X(12)  VALUE  '100000100000'.                
+  110      02  FILLER  PIC X(12)  VALUE  '100000100000'.                
+      *----------( 3 HWOI  GYUNGHEOM  DEATH  RATIO )------------------* 
+   00      02  FILLER  PIC X(12)  VALUE  '000431000150'.                
+           02  FILLER  PIC X(12)  VALUE  '000102000089'.                
+           02  FILLER  PIC X(12)  VALUE  '000098000078'.                
+           02  FILLER  PIC X(12)  VALUE  '000092000066'.                
+           02  FILLER  PIC X(12)  VALUE  '000085000055'.                
+   05      02  FILLER  PIC X(12)  VALUE  '000077000045'.                
+           02  FILLER  PIC X(12)  VALUE  '000068000036'.                
+           02  FILLER  PIC X(12)  VALUE  '000058000029'.                
+           02  FILLER  PIC X(12)  VALUE  '000048000025'.                
+           02  FILLER  PIC X(12)  VALUE  '000040000022'.                
+   10      02  FILLER  PIC X(12)  VALUE  '000037000021'.                
+           02  FILLER  PIC X(12)  VALUE  '000040000022'.                
+           02  FILLER  PIC X(12)  VALUE  '000050000023'.                
+           02  FILLER  PIC X(12)  VALUE  '000062000026'.                
+           02  FILLER  PIC X(12)  VALUE  '000073000030'.                
+   15      02  FILLER  PIC X(12)  VALUE  '000081000034'.                
+           02  FILLER  PIC X(12)  VALUE  '000086000036'.                
+           02  FILLER  PIC X(12)  VALUE  '000090000037'.                
+           02  FILLER  PIC X(12)  VALUE  '000096000036'.                
+           02  FILLER  PIC X(12)  VALUE  '000108000035'.                
+   20      02  FILLER  PIC X(12)  VALUE  '000126000036'.                
+           02  FILLER  PIC X(12)  VALUE  '000147000040'.                
+           02  FILLER  PIC X(12)  VALUE  '000166000045'.                
+           02  FILLER  PIC X(12)  VALUE  '000179000051'.                
+           02  FILLER  PIC X(12)  VALUE  '000185000055'.                
+   25      02  FILLER  PIC X(12)  VALUE  '000183000058'.                
+           02  FILLER  PIC X(12)  VALUE  '000177000061'.                
+           02  FILLER  PIC X(12)  VALUE  '000168000063'.                
+           02  FILLER  PIC X(12)  VALUE  '000159000066'.                
+           02  FILLER  PIC X(12)  VALUE  '000153000070'.                
+   30      02  FILLER  PIC X(12)  VALUE  '000150000073'.                
+           02  FILLER  PIC X(12)  VALUE  '000151000077'.                
+           02  FILLER  PIC X(12)  VALUE  '000155000081'.                
+           02  FILLER  PIC X(12)  VALUE  '000162000086'.                
+           02  FILLER  PIC X(12)  VALUE  '000172000092'.                
+   35      02  FILLER  PIC X(12)  VALUE  '000184000098'.                
+           02  FILLER  PIC X(12)  VALUE  '000199000105'.                
+           02  FILLER  PIC X(12)  VALUE  '000216000111'.                
+           02  FILLER  PIC X(12)  VALUE  '000234000118'.                
+           02  FILLER  PIC X(12)  VALUE  '000255000125'.                
+   40      02  FILLER  PIC X(12)  VALUE  '000279000133'.                
+           02  FILLER  PIC X(12)  VALUE  '000307000142'.                
+           02  FILLER  PIC X(12)  VALUE  '000338000153'.                
+           02  FILLER  PIC X(12)  VALUE  '000372000166'.                
+           02  FILLER  PIC X(12)  VALUE  '000411000182'.                
+   45      02  FILLER  PIC X(12)  VALUE  '000456000200'.                
+           02  FILLER  PIC X(12)  VALUE  '000508000220'.                
+           02  FILLER  PIC X(12)  VALUE  '000566000239'.                
+           02  FILLER  PIC X(12)  VALUE  '000629000257'.                
+           02  FILLER  PIC X(12)  VALUE  '000701000277'.                
+   50      02  FILLER  PIC X(12)  VALUE  '000780000302'.                
+           02  FILLER  PIC X(12)  VALUE  '000865000331'.                
+           02  FILLER  PIC X(12)  VALUE  '000955000363'.                
+           02  FILLER  PIC X(12)  VALUE  '001049000400'.                
+           02  FILLER  PIC X(12)  VALUE  '001159000439'.                
+   55      02  FILLER  PIC X(12)  VALUE  '001291000485'.                
+           02  FILLER  PIC X(12)  VALUE  '001450000541'.                
+           02  FILLER  PIC X(12)  VALUE  '001639000613'.                
+           02  FILLER  PIC X(12)  VALUE  '001853000699'.                
+           02  FILLER  PIC X(12)  VALUE  '002097000793'.                
+   60      02  FILLER  PIC X(12)  VALUE  '002373000890'.                
+           02  FILLER  PIC X(12)  VALUE  '002667000995'.                
+           02  FILLER  PIC X(12)  VALUE  '002982001101'.                
+           02  FILLER  PIC X(12)  VALUE  '003317001218'.                
+           02  FILLER  PIC X(12)  VALUE  '003665001347'.                
+   65      02  FILLER  PIC X(12)  VALUE  '004020001490'.                
+           02  FILLER  PIC X(12)  VALUE  '004399001648'.                
+           02  FILLER  PIC X(12)  VALUE  '004782001822'.                
+           02  FILLER  PIC X(12)  VALUE  '005198002015'.                
+           02  FILLER  PIC X(12)  VALUE  '005649002228'.                
+   70      02  FILLER  PIC X(12)  VALUE  '006137002463'.                
+           02  FILLER  PIC X(12)  VALUE  '006667002722'.                
+           02  FILLER  PIC X(12)  VALUE  '007240003009'.                
+           02  FILLER  PIC X(12)  VALUE  '007860003325'.                
+           02  FILLER  PIC X(12)  VALUE  '008531003673'.                
+   75      02  FILLER  PIC X(12)  VALUE  '009256004057'.                
+           02  FILLER  PIC X(12)  VALUE  '010040004481'.                
+           02  FILLER  PIC X(12)  VALUE  '010886004948'.                
+           02  FILLER  PIC X(12)  VALUE  '011798005461'.                
+           02  FILLER  PIC X(12)  VALUE  '012781006027'.                
+   80      02  FILLER  PIC X(12)  VALUE  '013840006649'.                
+           02  FILLER  PIC X(12)  VALUE  '014978007332'.                
+           02  FILLER  PIC X(12)  VALUE  '016201008083'.                
+           02  FILLER  PIC X(12)  VALUE  '017513008906'.                
+           02  FILLER  PIC X(12)  VALUE  '018919009810'.                
+   85      02  FILLER  PIC X(12)  VALUE  '020423010799'.                
+           02  FILLER  PIC X(12)  VALUE  '022030011881'.                
+           02  FILLER  PIC X(12)  VALUE  '023743013063'.                
+           02  FILLER  PIC X(12)  VALUE  '025566014354'.                
+           02  FILLER  PIC X(12)  VALUE  '027503015759'.                
+   90      02  FILLER  PIC X(12)  VALUE  '029555017288'.                
+           02  FILLER  PIC X(12)  VALUE  '031725018948'.                
+           02  FILLER  PIC X(12)  VALUE  '034012020747'.                
+           02  FILLER  PIC X(12)  VALUE  '036416022691'.                
+           02  FILLER  PIC X(12)  VALUE  '038935024787'.                
+   95      02  FILLER  PIC X(12)  VALUE  '041566027041'.                
+           02  FILLER  PIC X(12)  VALUE  '044303029457'.                
+           02  FILLER  PIC X(12)  VALUE  '047139032038'.                
+           02  FILLER  PIC X(12)  VALUE  '050064034784'.                
+           02  FILLER  PIC X(12)  VALUE  '053066037695'.                
+  100      02  FILLER  PIC X(12)  VALUE  '056131040766'.                
+           02  FILLER  PIC X(12)  VALUE  '059242043988'.                
+           02  FILLER  PIC X(12)  VALUE  '062381047350'.                
+           02  FILLER  PIC X(12)  VALUE  '100000050837'.                
+           02  FILLER  PIC X(12)  VALUE  '100000054428'.                
+  105      02  FILLER  PIC X(12)  VALUE  '100000058097'.                
+           02  FILLER  PIC X(12)  VALUE  '100000061814'.                
+           02  FILLER  PIC X(12)  VALUE  '100000065546'.                
+           02  FILLER  PIC X(12)  VALUE  '100000069252'.                
+           02  FILLER  PIC X(12)  VALUE  '100000100000'.                
+  110      02  FILLER  PIC X(12)  VALUE  '100000100000'.                
+       01  DEATH-TABLE-RE   REDEFINES    DEATH-TABLE.                   
+           02  DEATH-TAB      OCCURS    4.                              
+              03  DEATH-TA     OCCURS    111.                           
+                 04  DEATH-T    OCCURS     2    PIC   9V9(5).           

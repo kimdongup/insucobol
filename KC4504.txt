@@ -1,0 +1,178 @@
+//KERC4504 JOB (KER),'KER04',CLASS=H,MSGCLASS=X,MSGLEVEL=(1,1)
+//STEP1 EXEC YCOBBAT,MBR=K11C4504
+//COB.SYSIN DD *
+PROCESS TEST(NONE,SYM)
+      *=================================================================
+      *-    준비금，순보험료　읽음
+      *-----------------------------------------------------------------
+       IDENTIFICATION          DIVISION.
+      *=================================================================
+       PROGRAM-ID.             K11C4504.
+       ENVIRONMENT             DIVISION.                                
+       CONFIGURATION           SECTION.                                 
+       INPUT-OUTPUT            SECTION.                                 
+       FILE-CONTROL.                                                    
+           SELECT  V-FILE   ASSIGN  TO  VTBLMT                          
+                            ORGANIZATION       IS  INDEXED              
+                            ACCESS      MODE   IS  DYNAMIC              
+                            RECORD      KEY    IS  V-KEY                
+                            STATUS             IS  V-S-WORD.            
+           SELECT  FILE-IN  ASSIGN  TO  FILEIN.                         
+           SELECT  FILE-OUT ASSIGN  TO  FILEOUT.                        
+      *=================================*                               
+       DATA                    DIVISION.                                
+      *=================================*                               
+       FILE                    SECTION.                                 
+      *--------------------------------*                                
+       FD  V-FILE      LABEL      RECORDS   ARE  STANDARD.              
+       01  V-REC.                                                       
+           02  V-KEY                  PIC X(14).                        
+           02  VT-GROUP           OCCURS   2.                           
+               03  V-VT               PIC S9(7)   COMP-3.               
+               03  V-VT1              PIC S9(7)   COMP-3.               
+               03  V-PB               PIC S9(7)   COMP-3.               
+               03  V-ALPHA            PIC S9(5)   COMP-3.               
+           02  V-IYUL                 PIC 9(3).                         
+       FD  FILE-IN     RECORDING   MODE    IS  F                        
+                       LABEL       RECORD      STANDARD                 
+                       BLOCK       CONTAINS   100  RECORDS              
+                       RECORD      CONTAINS   202  CHARACTERS.
+       01  REC-IN.
+                       COPY  K11B9303.
+       FD  FILE-OUT    RECORDING   MODE    IS  F                        
+                       LABEL       RECORDS ARE STANDARD                 
+                       BLOCK       CONTAINS   100  RECORDS              
+                       RECORD      CONTAINS   202  CHARACTERS.
+       01  REC-OUT     PIC X(202).
+      *--------------------------------*                                
+       WORKING-STORAGE         SECTION.                                 
+      *--------------------------------*                                
+       01  V-S-WORD            PIC X(2)    VALUE   SPACE.
+                                                                        
+       01  REC-WORK.                                                    
+              COPY  KBBOJ88.                                            
+         02  VT-ERR-CODE              PIC 9.                            
+         02  WK-SW                    PIC 9(2).                         
+         02  CNT-IN                   PIC 9(7).                         
+         02  CNT-VT-READ              PIC 9(7).                         
+         02  CNT-OUT                  PIC 9(7).                         
+         02  I                        PIC 9(2).                         
+       01  WK-VT-TABLE.                                                 
+         02  WK-VT-KEY.
+           03  WK-VT-BOJONG           PIC 9(4).                         
+           03  WK-VT-GUBUN            PIC 9(1).                         
+           03  WK-VT-PINAI            PIC 9(2).                         
+           03  WK-VT-NABGI            PIC 9(2).                         
+           03  WK-VT-MANGI            PIC 9(2).                         
+           03  WK-VT-NABBANG          PIC 9(1).                         
+           03  WK-VT-GNGWA            PIC 9(2).                         
+                                                                        
+         02  WK-VT-012                PIC 9(1).                         
+         02  WK-IYUL                  PIC S9(5).                        
+         02  WK-VT-TABL               OCCURS 2.                         
+           03  WK-VT-TAB.                                               
+             04  WK-VT                PIC S9(7)   COMP-3.
+             04  WK-VT1               PIC S9(7)   COMP-3.
+             04  WK-ALPHA             PIC S9(5)   COMP-3.
+             04  WK-PB                PIC S9(7)   COMP-3.
+       01  REC-SWITCH.                                                  
+         02  FILE-EOF-SWITCH    PIC X(3)   VALUE 'NO '.                 
+            88  FILE-EOF        VALUE 'YES'.                            
+         02  FIRST-DATA-SWITCH  PIC X(3)   VALUE 'YES'.                 
+            88  FIRST-DATA      VALUE 'YES'.                            
+       EJECT                                                            
+      *=================================*                               
+       PROCEDURE               DIVISION.                                
+      *=================================*                               
+       000-BODY.                                                        
+           OPEN   INPUT  V-FILE.                                        
+           IF   V-S-WORD  = '00'    NEXT      SENTENCE                  
+           ELSE           DISPLAY ' ** STOP *  V-TABLE  OPEN  ERROR ***'
+                                  ' ** STATUS = ' V-S-WORD              
+                          STOP    RUN.                                  
+           OPEN   INPUT   FILE-IN     OUTPUT   FILE-OUT.                
+           MOVE   ZERO    TO    REC-WORK.
+           PERFORM   110-READ-DATA.                                     
+           PERFORM   100-PG-CONTROL     UNTIL   FILE-EOF.               
+           CLOSE     V-FILE  FILE-IN    FILE-OUT.
+           DISPLAY     ' *==================================*'.         
+           DISPLAY     ' *  IN      TOTAL  =  ' CNT-IN.                 
+           DISPLAY     ' *  VT READ TOTAL  =  ' CNT-VT-READ.            
+           DISPLAY     ' *  OUT     TOTAL  =  ' CNT-OUT.                
+           DISPLAY     ' *==================================*'.         
+           STOP RUN.                                                    
+      *--------------*                                                  
+       100-PG-CONTROL.                                                  
+      *--------------*                                                  
+           PERFORM   120-VTABLE-MOVE-WRITE.                             
+           PERFORM   110-READ-DATA.                                     
+      *--------------*                                                  
+       110-READ-DATA.                                                   
+      *--------------*                                                  
+           READ   FILE-IN    END    MOVE  'YES'  TO  FILE-EOF-SWITCH.   
+           IF  NOT FILE-EOF                                             
+                 ADD     1           TO  CNT-IN.                        
+           IF  KS-JEUNGBEON = 1740799                                   
+                 MOVE    27          TO  KS-VT-MANGI.                   
+      *----------------------*                                          
+       120-VTABLE-MOVE-WRITE.                                           
+      *----------------------*                                          
+           MOVE   KS-BOJONG-T     TO  WK-BOJONG  WK-BOJONG-T.
+           MOVE   ZERO   TO       KS-IYUL          KS-VT-ALPHA
+                                  KS-VT      KS-VT1      KS-PB.
+           IF  NOT (KS-IDONG-A = 'F' OR 'I')
+               IF  NOT   T-GMRI-LIN1
+                       PERFORM    122-GIJUN-VT-CHEORI.
+
+           WRITE   REC-OUT   FROM  REC-IN.
+           ADD     1          TO     CNT-OUT.                           
+      *-------------------*                                             
+       122-GIJUN-VT-CHEORI.                                             
+      *-------------------*                                             
+           IF  KS-VT-KEY = WK-VT-KEY      NEXT   SENTENCE
+           ELSE          MOVE  ZERO       TO  WK-VT-TABLE  WK-SW
+                         MOVE  KS-VT-KEY  TO  WK-VT-KEY
+                         PERFORM    122-110-VT-READ-MOVE.
+
+           IF   NOT    (KS-VT-SEX  =  1  OR  2)                         
+                       MOVE    1   TO  KS-VT-SEX.                       
+           MOVE    KS-VT-SEX       TO   I.
+           MOVE    WK-VT(I)        TO   KS-VT.
+           MOVE    WK-VT1(I)       TO   KS-VT1.
+           MOVE    WK-PB(I)        TO   KS-PB.
+           MOVE    WK-ALPHA(I)     TO   KS-VT-ALPHA.
+           MOVE    WK-IYUL         TO   KS-IYUL.
+      *---------------------*                                           
+       122-110-VT-READ-MOVE.                                            
+      *---------------------*                                           
+           MOVE   ZERO      TO    VT-ERR-CODE.                          
+           MOVE   1         TO    WK-VT-012.                            
+           IF  KS-VT-GNG > KS-VT-MANGI - 1
+                       MOVE     2     TO    WK-VT-012                   
+                       COMPUTE  WK-VT-GNGWA = KS-VT-MANGI - 1.          
+      *-------------(  V-TABLE     READ  )----------------------*       
+           MOVE   WK-VT-KEY    TO    V-KEY.
+           READ   V-FILE    INVALID  PERFORM   122-111-VT-ERR-CHEORI.
+           IF  VT-ERR-CODE = ZERO    ADD   1         TO   WK-SW.        
+           IF  WK-VT-012 = 2         MOVE  V-VT1(1)  TO   V-VT(1)       
+                                     MOVE  V-VT1(2)  TO   V-VT(2).      
+           IF  WK-SW = 1             COMPUTE  WK-IYUL =  V-IYUL * 10.   
+           ADD       1         TO    CNT-VT-READ.                       
+      *-------------(  V-TABLE     MOVE  )----------------------*       
+           MOVE   V-VT  (1)    TO    WK-VT  (1).
+           MOVE   V-VT1 (1)    TO    WK-VT1 (1).
+           MOVE   V-VT  (2)    TO    WK-VT  (2).
+           MOVE   V-VT1 (2)    TO    WK-VT1 (2).
+           MOVE   V-PB  (1)    TO    WK-PB  (1).
+           MOVE   V-PB  (2)    TO    WK-PB  (2).
+           MOVE   V-ALPHA(1)   TO    WK-ALPHA(1).
+           MOVE   V-ALPHA(2)   TO    WK-ALPHA(2).
+      *----------------------*                                          
+       122-111-VT-ERR-CHEORI.                                           
+      *----------------------*                                          
+           DISPLAY  'PI = '  KS-PINAI ' ' KS-IDONG  ' GYE = ' KS-GYENAI
+                    ' BOJ = ' KS-BOJONG    ' BOJ-T = '  KS-BOJONG-T
+                   ' V-KEY = ' WK-VT-KEY   ' POL = '  KS-JEUNGBEON.     
+           MOVE  ZERO  TO   V-VT (1)     V-VT (2)    V-ALPHA(1)         
+                            V-VT1(1)     V-VT1(2)    V-ALPHA(2)         
+                            V-PB (1)     V-PB (2).                      

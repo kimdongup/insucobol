@@ -1,0 +1,197 @@
+//KERC7106 JOB (KER),'KER00',CLASS=G,MSGCLASS=X,MSGLEVEL=(1,1)          
+//STEP1 EXEC YCOBBAT,MBR=K00C7106                                       
+//COB.SYSIN DD *                                                        
+PROCESS TEST(STMT,SYM)                                                  
+      *=================================*                               
+       IDENTIFICATION          DIVISION.                                
+       PROGRAM-ID.             K00C7106.                                
+       ENVIRONMENT             DIVISION.                                
+       CONFIGURATION           SECTION.                                 
+       INPUT-OUTPUT            SECTION.                                 
+       FILE-CONTROL.                                                    
+           SELECT  FILE-IN1    ASSIGN  TO  FILEIN1.                     
+           SELECT  FILE-IN2    ASSIGN  TO  FILEIN2.                     
+           SELECT  FILE-OUT    ASSIGN  TO  FILEOUT.                     
+       DATA                    DIVISION.                                
+       FILE                    SECTION.                                 
+       FD  FILE-IN1          RECORDING  MODE     IS   F                 
+                             LABEL   RECORD      IS   STANDARD          
+                             BLOCK   CONTAINS    50   RECORDS           
+                             RECORD  CONTAINS   283   CHARACTERS.       
+       01  REC-K4.   COPY   K00B9018.                                   
+                                                                        
+       FD  FILE-IN2          RECORDING  MODE     IS   F                 
+                             LABEL   RECORD      IS   STANDARD          
+                             BLOCK   CONTAINS   100   RECORDS           
+                             RECORD  CONTAINS   171   CHARACTERS.       
+       01  REC-IN2.                                                     
+           02  IN2-JOSA-YMD               PIC 9(8).                     
+           02  IN2-JEUNGBEON              PIC 9(7).                     
+           02  IN2-BOJONG                 PIC 9(4).                     
+           02  IN2-BOJONG-T               PIC 9(4).                     
+           02  IN2-JT                     PIC 9(1).                     
+           02  IN2-BSMG                   PIC 9(2).                     
+           02  IN2-0-9                    PIC 9(2).                     
+           02  IN2-NABGI                  PIC 9(2).                     
+           02  IN2-MANGI                  PIC 9(2).                     
+           02  IN2-NABBANG                PIC 9(1).                     
+           02  IN2-PINAI                  PIC 9(2).                     
+           02  IN2-PISEX                  PIC 9(1).                     
+           02  IN2-GYENAI                 PIC 9(2).                     
+           02  IN2-GYESEX                 PIC 9(1).                     
+           02  IN2-BOGEUM                 PIC S9(7)    COMP-3.          
+           02  IN2-BOLYO                  PIC S9(9)    COMP-3.          
+           02  IN2-GYE-YMD                PIC 9(8).                     
+           02  IN2-JIGB-YMD               PIC 9(8).                     
+           02  IN2-SAGO-YMD               PIC 9(8).                     
+           02  IN2-LNAB-YM                PIC 9(6).                     
+           02  IN2-LNAB-HWOISU           PIC 9(3).                      
+           02  IN2-GNGWA-YM              PIC 9(4).                      
+           02  IN2-GNGWA-YM-RE        REDEFINES   IN2-GNGWA-YM.         
+               03  IN2-GNGWA-YY          PIC 9(2).                      
+               03  IN2-GNGWA-MM          PIC 9(2).                      
+           02  IN2-MIGNGWA-MM            PIC 9(2).                      
+           02  IN2-CODE                  PIC 9(1).                      
+           02  IN2-JIGBS                 PIC S9(9)    COMP-3.           
+           02  IN2-VT-KEY.                                              
+               03  IN2-VT-BOJONG         PIC 9(4).                      
+               03  IN2-VT-GUBUN          PIC 9(1).                      
+               03  IN2-VT-PINAI          PIC 9(2).                      
+               03  IN2-VT-NABGI          PIC 9(2).                      
+               03  IN2-VT-MANGI          PIC 9(2).                      
+               03  IN2-VT-NABBANG        PIC 9(1).                      
+               03  IN2-VT-GYEONGGWA      PIC 9(2).                      
+           02  IN2-VT-SEX                PIC 9(1).                      
+           02  IN2-VT-TABLE.                                            
+               03  IN2-VT                PIC S9(7)    COMP-3.           
+               03  IN2-VT1               PIC S9(7)    COMP-3.           
+               03  IN2-VT-PB             PIC S9(7)    COMP-3.           
+               03  IN2-ALPHA             PIC S9(5)    COMP-3.           
+           02  IN2-IYUL                  PIC S9(5)    COMP-3.           
+         02 IN2-PURE-YY    PIC S9(9).                                   
+         02 IN2-PURE-MM    PIC S9(9).                                   
+         02 IN2-HAIYAG-YY  PIC S9(9).                                   
+         02 IN2-HAIYAG-MM  PIC S9(9).                                   
+         02 IN2-PB         PIC S9(9).                                   
+                                                                        
+       FD  FILE-OUT          RECORDING  MODE     IS   F                 
+                             LABEL   RECORD      IS   STANDARD          
+                             BLOCK   CONTAINS    50   RECORDS           
+                             RECORD  CONTAINS   283   CHARACTERS.       
+       01  REC-OUT               PIC X(283).                            
+      *-------------------------------*                                 
+       WORKING-STORAGE         SECTION.                                 
+      *-------------------------------*                                 
+       01  IN1-KEY.                                                     
+           02  WK1-JEUNGBEON        PIC 9(7).                           
+           02  WK1-BOJONG-T         PIC 9(4).                           
+       01  IN2-KEY.                                                     
+           02  WK2-JEUNGBEON        PIC 9(7).                           
+           02  WK2-BOJONG-T         PIC 9(4).                           
+       01  WORK-SPACE.                                                  
+         02  CNT-IN1                PIC 9(7).                           
+         02  CNT-IN2                PIC 9(7).                           
+         02  CNT-OUT1               PIC 9(7).                           
+         02  CNT-OUT2               PIC 9(7).                           
+         02  CNT-ERR-IN             PIC 9(7).                           
+         02  CNT-MATCH              PIC 9(7).                           
+       01  REC-SWITCH.                                                  
+           02  FILE-EOF-SWITCH-1       PIC X(3)  VALUE  'NO '.          
+               88  FILE-EOF-1                    VALUE  'YES'.          
+           02  FILE-EOF-SWITCH-2       PIC X(3)  VALUE  'NO '.          
+               88  FILE-EOF-2                    VALUE  'YES'.          
+       EJECT                                                            
+      *=================================*                               
+       PROCEDURE               DIVISION.                                
+      *=================================*                               
+      *---------*                                                       
+       000-BODY.                                                        
+      *---------*                                                       
+           OPEN            INPUT         FILE-IN1     FILE-IN2          
+                           OUTPUT        FILE-OUT.                      
+           MOVE  ZERO  TO  WORK-SPACE.                                  
+           PERFORM         110-READ-FILEIN-1.                           
+           PERFORM         120-READ-FILEIN-2.                           
+           PERFORM         100-PG-CONTROL       UNTIL  (FILE-EOF-1      
+                                                OR      FILE-EOF-2).    
+           PERFORM         200-PG-CONTROL       UNTIL   FILE-EOF-1.     
+           PERFORM         300-PG-CONTROL       UNTIL   FILE-EOF-2.     
+           DISPLAY    '*===========================================*'.  
+           DISPLAY    '      CNT-IN1   TOTAL  =  '  CNT-IN1.            
+           DISPLAY    '      CNT-IN2   TOTAL  =  '  CNT-IN2.            
+           DISPLAY    '      CNT-MATCH TOTAL  =  '  CNT-MATCH.          
+           DISPLAY    '      CNT-ERR          =  '  CNT-ERR-IN.         
+           DISPLAY    '      CNT-OUT   TOTAL  =  '  CNT-OUT1.           
+           DISPLAY    '*===========================================*'.  
+           CLOSE           FILE-IN1   FILE-IN2  FILE-OUT.               
+           STOP RUN.                                                    
+       EJECT                                                            
+      *---------------*                                                 
+       100-PG-CONTROL.                                                  
+      *---------------*                                                 
+           IF  IN1-KEY  =  IN2-KEY                                      
+                        PERFORM          130-MATCH-CHEORI               
+                        PERFORM          101-MOVE-WRITE                 
+                        PERFORM          110-READ-FILEIN-1              
+                        PERFORM          120-READ-FILEIN-2              
+           ELSE                                                         
+           IF  IN1-KEY   >  IN2-KEY                                     
+                        PERFORM          140-I2-ERR-CHEORI              
+                        PERFORM          120-READ-FILEIN-2              
+           ELSE                                                         
+                        PERFORM          101-MOVE-WRITE                 
+                        PERFORM          110-READ-FILEIN-1.             
+      *---------------*                                                 
+       200-PG-CONTROL.                                                  
+      *---------------*                                                 
+           PERFORM          101-MOVE-WRITE.                             
+           PERFORM          110-READ-FILEIN-1.                          
+      *---------------*                                                 
+       300-PG-CONTROL.                                                  
+      *---------------*                                                 
+           PERFORM          140-I2-ERR-CHEORI.                          
+           PERFORM          120-READ-FILEIN-2.                          
+      *------------------*                                              
+       110-READ-FILEIN-1.                                               
+      *------------------*                                              
+           READ    FILE-IN1  END   MOVE  'YES'  TO  FILE-EOF-SWITCH-1.  
+           IF  NOT FILE-EOF-1    ADD     1           TO  CNT-IN1        
+                                 MOVE  K4-JEUNGBEON  TO  WK1-JEUNGBEON  
+                                 MOVE  K4-BOJONG-T   TO  WK1-BOJONG-T.  
+      *-----------------*                                               
+       120-READ-FILEIN-2.                                               
+      *-----------------*                                               
+           READ  FILE-IN2    END   MOVE  'YES'  TO  FILE-EOF-SWITCH-2.  
+           IF  NOT  FILE-EOF-2   ADD     1           TO  CNT-IN2        
+              IF  IN2-BOJONG > 7999      GO  TO  120-READ-FILEIN-2      
+              ELSE               MOVE IN2-JEUNGBEON  TO  WK2-JEUNGBEON  
+                                 MOVE IN2-BOJONG-T   TO  WK2-BOJONG-T.  
+      *----------------*                                                
+       130-MATCH-CHEORI.                                                
+      *----------------*                                                
+             ADD    1             TO      CNT-MATCH.                    
+             MOVE   IN2-VT-KEY    TO      K4-VT-KEY1.                   
+             MOVE   IN2-VT        TO      K4-VT(2).                     
+             MOVE   IN2-VT1       TO      K4-VT1(2).                    
+             MOVE   IN2-VT-PB     TO      K4-VT-PB.                     
+             MOVE   IN2-ALPHA     TO      K4-ALPHA.                     
+             MOVE   IN2-GNGWA-YM  TO      K4-GNGWA-YM.                  
+             MOVE   8             TO      K4-0-9.                       
+             MOVE  IN2-PURE-YY      TO   K4-PURE-YY.                    
+             MOVE  IN2-PURE-MM      TO   K4-PURE-MM.                    
+             MOVE  IN2-HAIYAG-YY    TO   K4-HAIYAG-YY.                  
+             MOVE  IN2-HAIYAG-MM    TO   K4-HAIYAG-MM.                  
+             MOVE  ZERO             TO   K4-MI-SEON-GEUM                
+                                         K4-SEONSU-IJA  K4-IJA          
+                                         K4-SEON-HOISU.                 
+             MOVE  IN2-CODE         TO   K4-GUBUN1-CODE.                
+      *-----------------*                                               
+       140-I2-ERR-CHEORI.                                               
+      *-----------------*                                               
+           ADD    1    TO      CNT-ERR-IN.                              
+           DISPLAY   '  ERROR  KEY  ==>   '  IN2-KEY '  ' IN1-KEY.      
+      *--------------*                                                  
+       101-MOVE-WRITE.                                                  
+      *--------------*                                                  
+           WRITE      REC-OUT       FROM    REC-K4.                     
+           ADD           1          TO      CNT-OUT1.                   

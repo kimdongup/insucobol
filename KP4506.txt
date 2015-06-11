@@ -1,0 +1,918 @@
+//KERP4506 JOB (KER),'KER06',CLASS=G,MSGCLASS=X,MSGLEVEL=(1,1)
+//STEP1 EXEC YCOBBAT,MBR=K11P4506
+//COB.SYSIN DD *
+PROCESS TEST(NONE,SYM)
+      *================================================================*
+      *=   CREATION  :  1999. 6. 11
+      *================================================================*
+       IDENTIFICATION          DIVISION.
+       PROGRAM-ID.             K11P4506.
+       ENVIRONMENT             DIVISION.
+       CONFIGURATION           SECTION.
+       SPECIAL-NAMES.          C01  IS   PGSK
+                               CSP  IS   DUP.
+       INPUT-OUTPUT            SECTION.
+      *--------------------------------*
+       FILE-CONTROL.
+           SELECT  FILE-IN     ASSIGN    TO  FILEIN.
+           SELECT  FILE-PRINT  ASSIGN    TO  PRINT.
+           SELECT  FILE-OUT1   ASSIGN    TO  FILOUT1.
+           SELECT  FILE-OUT2   ASSIGN    TO  FILOUT2.
+           SELECT  FILE-OUT3   ASSIGN    TO  FILOUT3.
+      *=================================*
+       DATA                    DIVISION.
+      *=================================*
+       FILE                    SECTION.
+      *--------------------------------*
+       FD  FILE-IN     RECORDING   MODE       IS    F
+                       LABEL       RECORD           STANDARD
+                       BLOCK       CONTAINS   100   RECORDS
+                       RECORD      CONTAINS   202   CHARACTERS.
+       01  REC-IN.     COPY        K11B9303.
+
+
+       FD  FILE-PRINT      RECORDING   MODE   IS    F
+                           LABEL       RECORD       OMITTED.
+       01  REC-PRINT            PIC  X(200).
+       FD  FILE-OUT1   RECORDING   MODE       IS    F
+                       LABEL       RECORD           OMITTED.
+       01  REC-OUT1           PIC X(132).
+       FD  FILE-OUT2   RECORDING   MODE       IS    F
+                       LABEL       RECORD           OMITTED.
+       01  REC-OUT2           PIC X(132).
+       FD  FILE-OUT3   RECORDING   MODE       IS    F
+                       LABEL       RECORD           OMITTED.
+       01  REC-OUT3           PIC X(132).
+      *================================*
+       WORKING-STORAGE         SECTION.
+      *================================*
+      **********************
+      *   MEMORY   GROUP   *
+      **********************
+       77  FIELD-GUBUN             PIC  X(1)  VALUE ';'.
+       01  REC-WORK.
+         02  CURRENT-CYMD.                                              
+             03  CURRENT-CY            PIC 9(4).                        
+             03  CURRENT-MM            PIC 9(2).                        
+             03  CURRENT-DD            PIC 9(2).                        
+         02  CNT-IN              PIC   9(08).
+         02  I                   PIC   9(03).
+         02  J                   PIC   9(03).
+         02  K                   PIC   9(03).
+         02  T                   PIC   9(03).
+         02  W                   PIC   9(03).
+         02  ZERO-B              PIC   9(01).
+       01  REC-BOJONG.
+              COPY     KBBOJ88.
+      *==============================================================*
+       01  BOJ-TABLE.
+           03  BOJ-TAB              OCCURS  210.
+               04  BOJ-T            OCCURS   8.
+                   05  BO-G            PIC S9(9).
+                   05  BO-P            PIC S9(13).
+       01  NAB-TABLE.
+           03  NAB-TA               OCCURS  210.
+               04  NA-T             OCCURS   6.
+                   05  NA-G            PIC S9(9).
+                   05  NA-P            PIC S9(13).
+       01  CHO-TABLE.
+           03  CHO-TA               OCCURS  210.
+               04  CHO-T            OCCURS   6.
+                   05  CHO-G           PIC S9(9).
+                   05  CHO-P           PIC S9(13).
+      **********************
+      *   PRINT    GROUP   *
+      **********************
+       01  REC-HEAD.
+           03  FILLER                  PIC X(6).
+981012     03  P-YY                    PIC 9(4).
+           03  FILLER                  PIC X(4) VALUE '년'.
+           03  P-MM                    PIC 9(2).
+           03  FILLER                  PIC X(4) VALUE '월'.
+           03  P-HG-SSY                PIC X(10).
+           03  FILLER                  PIC X(19).
+           03  P-HG-JEMOK              PIC X(45).
+           03  FILLER                  PIC X(35).
+           03  P-HG-DANWI              PIC X(16) VALUE '（건，원）'.
+       01  REC-TITLE.
+         02  P-TITLE-1.
+           03  T-200                   PIC X(200).
+         02  P-TITLE-2.
+           03  FILLER                  PIC X(20).
+           03  T-90                    PIC X(90).
+           03  FILLER                  PIC X(22).
+       01  P-BOLYO-ABC.
+         02  P-BO-SAUP              OCCURS   2.
+           03  L-9                     PIC X(20).
+           03  L-91                    PIC ZZ9.
+           03  L-P-CHOHOI              PIC ----,---,---,--9.
+           03  L-P-CHOYEON             PIC ----,---,---,--9.
+           03  L-P-GYEONG              PIC ----,---,---,--9.
+           03  L-P-TOTAL               PIC ----,---,---,--9.
+           03  L-ALPHA                 PIC ---,---,---,--9.
+           03  L-BETA                  PIC ---,---,---,--9.
+           03  L-GAMMA                 PIC ---,---,---,--9.
+           03  L-ABC-TOT               PIC ----,---,---,--9.
+       01  P-NABBANG.
+         02  P-REC-NB               OCCURS   2.
+           03  L1-9                    PIC X(20).
+           03  L1-91                   PIC ZZZ.
+           03  L-P-1                   PIC ----,---,---,---,--9.
+           03  L-P-3                   PIC ---,---,---,---,--9.
+           03  L-P-6                   PIC ---,---,---,---,--9.
+           03  L-P-8                   PIC ---,---,---,---,--9.
+           03  L-P-9                   PIC ----,---,---,---,--9.
+           03  L-P-T                   PIC ----,---,---,---,--9.
+       01  P-CHOHOI.
+         02  P-REC-CHO              OCCURS   2.
+           03  C1-9                    PIC X(20).
+           03  C1-91                   PIC ZZZ.
+           03  C-P-1                   PIC ----,---,---,---,--9.
+           03  C-P-3                   PIC ---,---,---,---,--9.
+           03  C-P-6                   PIC ---,---,---,---,--9.
+           03  C-P-8                   PIC ---,---,---,---,--9.
+           03  C-P-9                   PIC ----,---,---,---,--9.
+           03  C-P-T                   PIC ----,---,---,---,--9.
+       01  LP-BOLYO.
+           03  FILLER                   PIC X(1)  VALUE  SPACE.
+           03  LP-GUBUN                 PIC ZZ9.
+           03  FILLER                   PIC X(1)  VALUE ';'.
+           03  LP-CHOHOI                PIC ------------9.
+           03  FILLER                   PIC X(1)  VALUE ';'.
+           03  LP-CHOYEON               PIC ------------9.
+           03  FILLER                   PIC X(1)  VALUE ';'.
+           03  LP-GYEONG                PIC ------------9.
+           03  FILLER                   PIC X(1)  VALUE ';'.
+           03  LP-TOTAL                 PIC ------------9.
+           03  FILLER                   PIC X(1)  VALUE ';'.
+           03  LP-ALPHA                 PIC ------------9.
+           03  FILLER                   PIC X(1)  VALUE ';'.
+           03  LP-BETA                  PIC ----------9.
+           03  FILLER                   PIC X(1)  VALUE ';'.
+           03  LP-GAMMA                 PIC ----------9.
+           03  FILLER                   PIC X(1)  VALUE ';'.
+           03  LP-ABC-TOT               PIC ------------9.
+           03  FILLER                   PIC X(1) VALUE SPACE.
+           03  LP-9                     PIC X(20).
+       01  LN-NABBANG.
+           03  FILLER                   PIC X(2) VALUE SPACE.
+           03  LN-GUBUN                 PIC ZZ9.
+           03  FILLER                   PIC X(1) VALUE ';'.
+           03  LN-P-1                   PIC ---------------9.
+           03  FILLER                   PIC X(1) VALUE ';'.
+           03  LN-P-3                   PIC ---------------9.
+           03  FILLER                   PIC X(1) VALUE ';'.
+           03  LN-P-6                   PIC ---------------9.
+           03  FILLER                   PIC X(1) VALUE ';'.
+           03  LN-P-8                   PIC ---------------9.
+           03  FILLER                   PIC X(1) VALUE ';'.
+           03  LN-P-9                   PIC ---------------9.
+           03  FILLER                   PIC X(1) VALUE ';'.
+           03  LN-P-T                   PIC ---------------9.
+           03  FILLER                   PIC X(1) VALUE ';'.
+           03  FILLER                   PIC X(3) VALUE SPACE.
+           03  LN-9                    PIC X(20).
+           03  FILLER                   PIC X(1) VALUE SPACE.
+       01  CL-CHOHOI.
+           03  FILLER                   PIC X(2) VALUE  SPACE.
+           03  CL-GUBUN                 PIC ZZ9.
+           03  FILLER                   PIC X(1) VALUE ';'.
+           03  CL-P-1                   PIC ---------------9.
+           03  FILLER                   PIC X(1) VALUE ';'.
+           03  CL-P-3                   PIC ---------------9.
+           03  FILLER                   PIC X(1) VALUE ';'.
+           03  CL-P-6                   PIC ---------------9.
+           03  FILLER                   PIC X(1) VALUE ';'.
+           03  CL-P-8                   PIC ---------------9.
+           03  FILLER                   PIC X(1) VALUE ';'.
+           03  CL-P-9                   PIC ---------------9.
+           03  FILLER                   PIC X(1) VALUE ';'.
+           03  CL-P-T                   PIC ---------------9.
+           03  FILLER                   PIC X(1) VALUE ';'.
+           03  FILLER                   PIC X(2) VALUE  SPACE.
+           03  CL1-9                    PIC X(20).
+           03  FILLER                   PIC X(1) VALUE  SPACE.
+      **********************
+      *   REMARKS  GROUP   *
+      **********************
+       01  REC-BOJONG-SOURCE.
+          COPY  K11BNAM2   SUPPRESS.
+
+          02  JEMOK-SOURCE.
+           03  FILLER                  PIC X(45)   VALUE
+                '    보종별수보　및　예정사업비　　'.
+           03  FILLER                  PIC X(45)   VALUE
+                '　　　납방별　수입보험료'.
+           03  FILLER                  PIC X(45)   VALUE
+                '　　　납방별　초회보험료'.
+          02  JEMOK-SOURCE-RE       REDEFINES  JEMOK-SOURCE.
+            03  JEMOK-SOUR          OCCURS   3.
+               04  JEMOK-SO            PIC X(45).
+          02  JEMOK-SOURCE2.
+           03  FILLER                  PIC X(45)   VALUE
+                '     BOJONG BYUL BOLYO  &  SAUBBI   '.
+           03  FILLER                  PIC X(45)   VALUE
+                '     NABBANG  HAB-BOLYO '.
+           03  FILLER                  PIC X(45)   VALUE
+                '     NABBANG  CHOHOI-RYO  '.
+          02  JEMOK-SOURCE2-RE       REDEFINES  JEMOK-SOURCE2.
+            03  JEMOK-SOUR2         OCCURS   3.
+               04  JEMOK-SO2           PIC X(45).
+       01  DANWI-2     PIC X(24)   VALUE  '(단위:  건, 원)  '.
+       01  TITLE-1.
+         02  FILLER                  PIC X(20)   VALUE
+             '　보　　　　종　　'.
+         02  FILLER                  PIC X(89)   VALUE
+             '　　초회보험료　　초년도보험료　　경과년도보험료'.
+         02  FILLER                  PIC X(46)   VALUE
+             '　합　　　계　　　　신계약비　　　　　유지비'.
+         02  FILLER                  PIC X(38)   VALUE
+             '　　　　수금비　　　합　　　　계'.
+       01  TITLE-2.
+         02  FILLER                  PIC X(57)   VALUE
+            '보　　　　　종　　　　　　　월　　　납　　　　　３　월'.
+         02  FILLER                  PIC X(57)   VALUE
+            '납　　　６　　월　　납　　　　　연　　　납　　　　일　'.
+         02  FILLER                  PIC X(52)   VALUE
+            '시　납　　　　합　　　　계'.
+
+       01  PRINT-DATE.                                                  
+           02  FILLER          PIC X(178)  VALUE  SPACE.                
+           02  FILLER          PIC X(022)  VALUE                        
+                    ' ***   PRINT-DATE  :  '.                           
+           02  PRINT-D         PIC X(08).                               
+           02  FILLER          PIC X(06)  VALUE '  *** '.               
+       01  REC-YANGSIK.
+           02  YA-SPACE        PIC X(150)  VALUE   SPACE.
+           02  YA-TITLE        PIC X(150)  VALUE   ALL  '='.
+           02  YA-HEAD.
+               03  FILLER      PIC X(49)   VALUE   SPACE.
+               03  FILLER      PIC X(35)   VALUE   ALL  '*'.
+               03  FILLER      PIC X(89)   VALUE   SPACE.
+           02  YA-DATA         PIC X(150)  VALUE   ALL  '-'.
+       01  REC-SWITCH.
+           02  FILE-EOF-SW     PIC X(3)    VALUE   'NO '.
+               88  FILE-EOF                VALUE   'YES'.
+           02  FIRST-DATA-SW   PIC X(3)    VALUE   'YES'.
+               88  FIRST-DATA              VALUE   'YES'.
+       EJECT
+      *=============================*
+       PROCEDURE           DIVISION.
+      *=============================*
+       000-BODY.
+           OPEN        INPUT  FILE-IN
+                       OUTPUT FILE-PRINT  FILE-OUT1  FILE-OUT2
+                       OUTPUT FILE-OUT3.
+           INITIALIZE  BOJ-TABLE   NAB-TABLE  CHO-TABLE
+                       REC-WORK    REC-TITLE  REC-HEAD
+                       P-BOLYO-ABC P-NABBANG  P-CHOHOI.
+           MOVE   FUNCTION CURRENT-DATE(1:8)  TO   PRINT-D.             
+           WRITE       REC-PRINT     FROM    PRINT-DATE.                
+           PERFORM     110-READ-SELECT.
+           PERFORM     100-PG-CONTROL  UNTIL   FILE-EOF.
+           PERFORM     200-DATA-PRINT-CONTROL.
+           WRITE       REC-PRINT   FROM   YA-SPACE    AFTER  PGSK.
+           WRITE       REC-PRINT   FROM   YA-SPACE    AFTER  2 LINE.
+           CLOSE       FILE-IN     FILE-PRINT.
+           CLOSE       FILE-OUT1   FILE-OUT2   FILE-OUT3.
+           DISPLAY     '  **************************'.
+           DISPLAY     '  CNT-IN   =   '   CNT-IN.
+           DISPLAY     '  **************************'.
+           STOP        RUN.
+
+       100-PG-CONTROL.
+           PERFORM          120-BOJONG-DATA-CHORI  THRU 129-EXIT.
+           PERFORM          110-READ-SELECT.
+       110-READ-SELECT.
+           READ     FILE-IN   END    MOVE 'YES'  TO   FILE-EOF-SW.
+           IF  NOT  FILE-EOF
+                        ADD    1                 TO   CNT-IN.
+           IF  FIRST-DATA
+                        MOVE   KS-JOSA-YY  TO   P-YY
+                        MOVE   KS-JOSA-MM  TO   P-MM
+                        MOVE   'NO '       TO   FIRST-DATA-SW.
+       120-BOJONG-DATA-CHORI.
+           IF  KS-NABBANG  =  3        MOVE     2   TO   I    ELSE
+           IF  KS-NABBANG  =  6        MOVE     3   TO   I    ELSE
+           IF  KS-NABBANG  =  8        MOVE     4   TO   I    ELSE
+           IF  KS-NABBANG  =  9        MOVE     5   TO   I    ELSE
+                                       MOVE     1   TO   I.
+           PERFORM             121-BOJONG-CONVERSION.
+           MOVE   KS-IDONG-B   TO   K.
+           ADD    KS-GUNSU     TO   BO-G(J   K)     BO-G(J   4)
+                                    BO-G(210 K)     BO-G(210 4)
+                                    NA-G(J   I)     NA-G(J   6)
+                                    NA-G(210 I)     NA-G(210 6).
+           ADD    KS-HABBOLYO  TO   BO-P(J   K)     BO-P(J   4)
+                                    BO-P(210 K)     BO-P(210 4)
+                                    NA-P(J   I)     NA-P(J   6)
+                                    NA-P(210 I)     NA-P(210 6).
+           ADD    KS-ALPHA    TO    BO-P(J   5)     BO-P(J   8)
+                                    BO-P(210 5)     BO-P(210 8).
+           ADD    KS-BETA     TO    BO-P(J   6)     BO-P(J   8)
+                                    BO-P(210 6)     BO-P(210 8).
+           ADD    KS-GAMMA    TO    BO-P(J   7)     BO-P(J   8)
+                                    BO-P(210 7)     BO-P(210 8).
+           IF  KS-SSY   =  1
+               IF  GYOYUK-BOJ
+                    ADD   KS-GUNSU     TO  BO-G(9   K)   BO-G(9   4)
+                                           BO-G(49  K)   BO-G(49  4)
+                                           BO-G(69  K)   BO-G(69  4)
+                                           BO-G(179 K)   BO-G(179 4)
+                                           NA-G(9   I)   NA-G(9   6)
+                                           NA-G(49  I)   NA-G(49  6)
+                                           NA-G(69  I)   NA-G(69  6)
+                                           NA-G(179 I)   NA-G(179 6)
+                    ADD   KS-HABBOLYO  TO  BO-P(9   K)   BO-P(9   4)
+                                           BO-P(49  K)   BO-P(49  4)
+                                           BO-P(69  K)   BO-P(69  4)
+                                           BO-P(179 K)   BO-P(179 4)
+                                           NA-P(9   I)   NA-P(9   6)
+                                           NA-P(49  I)   NA-P(49  6)
+                                           NA-P(69  I)   NA-P(69  6)
+                                           NA-P(179 I)   NA-P(179 6)
+                    ADD   KS-ALPHA     TO  BO-P(9   5)   BO-P(9   8)
+                                           BO-P(49  5)   BO-P(49  8)
+                                           BO-P(69  5)   BO-P(69  8)
+                                           BO-P(179 5)   BO-P(179 8)
+                    ADD   KS-BETA      TO  BO-P(9   6)   BO-P(9   8)
+                                           BO-P(49  6)   BO-P(49  8)
+                                           BO-P(69  6)   BO-P(69  8)
+                                           BO-P(179 6)   BO-P(179 8)
+                    ADD   KS-GAMMA     TO  BO-P(9   7)   BO-P(9   8)
+                                           BO-P(49  7)   BO-P(49  8)
+                                           BO-P(69  7)   BO-P(69  8)
+                                           BO-P(179 7)   BO-P(179 8)
+               ELSE IF  J < 49
+                    ADD   KS-GUNSU     TO  BO-G(49  K)   BO-G(49  4)
+                                           BO-G(69  K)   BO-G(69  4)
+                                           BO-G(179 K)   BO-G(179 4)
+                                           NA-G(49  I)   NA-G(49  6)
+                                           NA-G(69  I)   NA-G(69  6)
+                                           NA-G(179 I)   NA-G(179 6)
+                    ADD   KS-HABBOLYO  TO  BO-P(49  K)   BO-P(49  4)
+                                           BO-P(69  K)   BO-P(69  4)
+                                           BO-P(179 K)   BO-P(179 4)
+                                           NA-P(49  I)   NA-P(49  6)
+                                           NA-P(69  I)   NA-P(69  6)
+                                           NA-P(179 I)   NA-P(179 6)
+                    ADD   KS-ALPHA     TO  BO-P(49  5)   BO-P(49  8)
+                                           BO-P(69  5)   BO-P(69  8)
+                                           BO-P(179 5)   BO-P(179 8)
+                    ADD   KS-BETA      TO  BO-P(49  6)   BO-P(49  8)
+                                           BO-P(69  6)   BO-P(69  8)
+                                           BO-P(179 6)   BO-P(179 8)
+                    ADD   KS-GAMMA     TO  BO-P(49  7)   BO-P(49  8)
+                                           BO-P(69  7)   BO-P(69  8)
+                                           BO-P(179 7)   BO-P(179 8)
+               ELSE IF  J < 59
+                    ADD   KS-GUNSU     TO  BO-G(59  K)   BO-G(59  4)
+                                           BO-G(69  K)   BO-G(69  4)
+                                           BO-G(179 K)   BO-G(179 4)
+                                           NA-G(59  I)   NA-G(59  6)
+                                           NA-G(69  I)   NA-G(69  6)
+                                           NA-G(179 I)   NA-G(179 6)
+                    ADD   KS-HABBOLYO  TO  BO-P(59  K)   BO-P(59  4)
+                                           BO-P(69  K)   BO-P(69  4)
+                                           BO-P(179 K)   BO-P(179 4)
+                                           NA-P(59  I)   NA-P(59  6)
+                                           NA-P(69  I)   NA-P(69  6)
+                                           NA-P(179 I)   NA-P(179 6)
+                    ADD   KS-ALPHA     TO  BO-P(59  5)   BO-P(59  8)
+                                           BO-P(69  5)   BO-P(69  8)
+                                           BO-P(179 5)   BO-P(179 8)
+                    ADD   KS-BETA      TO  BO-P(59  6)   BO-P(59  8)
+                                           BO-P(69  6)   BO-P(69  8)
+                                           BO-P(179 6)   BO-P(179 8)
+                    ADD   KS-GAMMA     TO  BO-P(59  7)   BO-P(59  8)
+                                           BO-P(69  7)   BO-P(69  8)
+                                           BO-P(179 7)   BO-P(179 8)
+               ELSE IF  J < 68
+                    ADD   KS-GUNSU     TO  BO-G(68  K)   BO-G(68  4)
+                                           BO-G(69  K)   BO-G(69  4)
+                                           BO-G(179 K)   BO-G(179 4)
+                                           NA-G(68  I)   NA-G(68  6)
+                                           NA-G(69  I)   NA-G(69  6)
+                                           NA-G(179 I)   NA-G(179 6)
+                    ADD   KS-HABBOLYO  TO  BO-P(68  K)   BO-P(68  4)
+                                           BO-P(69  K)   BO-P(69  4)
+                                           BO-P(179 K)   BO-P(179 4)
+                                           NA-P(68  I)   NA-P(68  6)
+                                           NA-P(69  I)   NA-P(69  6)
+                                           NA-P(179 I)   NA-P(179 6)
+                    ADD   KS-ALPHA     TO  BO-P(68  5)   BO-P(68  8)
+                                           BO-P(69  5)   BO-P(69  8)
+                                           BO-P(179 5)   BO-P(179 8)
+                    ADD   KS-BETA      TO  BO-P(68  6)   BO-P(68  8)
+                                           BO-P(69  6)   BO-P(69  8)
+                                           BO-P(179 6)   BO-P(179 8)
+                       ADD   KS-GAMMA  TO  BO-P(68  7)   BO-P(68  8)
+                                           BO-P(69  7)   BO-P(69  8)
+                                           BO-P(179 7)   BO-P(179 8)
+                    ELSE
+                       DISPLAY ' 1. 생존코드  에러 = ' J      ELSE
+
+           IF  KS-SSY   =  2
+               IF  J < 89
+                    ADD   KS-GUNSU     TO  BO-G(89  K)   BO-G(89  4)
+                                           BO-G(129 K)   BO-G(129 4)
+                                           BO-G(179 K)   BO-G(179 4)
+                                           NA-G(89  I)   NA-G(89  6)
+                                           NA-G(129 I)   NA-G(129 6)
+                                           NA-G(179 I)   NA-G(179 6)
+                    ADD   KS-HABBOLYO  TO  BO-P(89  K)   BO-P(89  4)
+                                           BO-P(129 K)   BO-P(129 4)
+                                           BO-P(179 K)   BO-P(179 4)
+                                           NA-P(89  I)   NA-P(89  6)
+                                           NA-P(129 I)   NA-P(129 6)
+                                           NA-P(179 I)   NA-P(179 6)
+                    ADD   KS-ALPHA     TO  BO-P(89  5)   BO-P(89  8)
+                                           BO-P(129 5)   BO-P(129 8)
+                                           BO-P(179 5)   BO-P(179 8)
+                    ADD   KS-BETA      TO  BO-P(89  6)   BO-P(89  8)
+                                           BO-P(129 6)   BO-P(129 8)
+                                           BO-P(179 6)   BO-P(179 8)
+                    ADD   KS-GAMMA     TO  BO-P(89  7)   BO-P(89  8)
+                                           BO-P(129 7)   BO-P(129 8)
+                                           BO-P(179 7)   BO-P(179 8)
+               ELSE IF  J < 128
+                    ADD   KS-GUNSU     TO  BO-G(128 K)   BO-G(128 4)
+                                           BO-G(129 K)   BO-G(129 4)
+                                           BO-G(179 K)   BO-G(179 4)
+                                           NA-G(128 I)   NA-G(128 6)
+                                           NA-G(129 I)   NA-G(129 6)
+                                           NA-G(179 I)   NA-G(179 6)
+                 ADD   KS-HABBOLYO     TO  BO-P(128 K)   BO-P(128 4)
+                                           BO-P(129 K)   BO-P(129 4)
+                                           BO-P(179 K)   BO-P(179 4)
+                                           NA-P(128 I)   NA-P(128 6)
+                                           NA-P(129 I)   NA-P(129 6)
+                                           NA-P(179 I)   NA-P(179 6)
+                    ADD   KS-ALPHA     TO  BO-P(128 5)   BO-P(128 8)
+                                           BO-P(129 5)   BO-P(129 8)
+                                           BO-P(179 5)   BO-P(179 8)
+                    ADD   KS-BETA      TO  BO-P(128 6)   BO-P(128 8)
+                                           BO-P(129 6)   BO-P(129 8)
+                                           BO-P(179 6)   BO-P(179 8)
+                    ADD   KS-GAMMA     TO  BO-P(128 7)   BO-P(128 8)
+                                           BO-P(129 7)   BO-P(129 8)
+                                           BO-P(179 7)   BO-P(179 8)
+                    ELSE
+                       DISPLAY ' 2. 사망코드  에러 = ' J   ELSE
+
+           IF  KS-SSY   =  3
+               IF  J < 169
+                    ADD   KS-GUNSU     TO  BO-G(169 K)   BO-G(169 4)
+                                           BO-G(178 K)   BO-G(178 4)
+                                           BO-G(179 K)   BO-G(179 4)
+                                           NA-G(169 I)   NA-G(169 6)
+                                           NA-G(178 I)   NA-G(178 6)
+                                           NA-G(179 I)   NA-G(179 6)
+                    ADD   KS-HABBOLYO  TO  BO-P(169 K)   BO-P(169 4)
+                                           BO-P(178 K)   BO-P(178 4)
+                                           BO-P(179 K)   BO-P(179 4)
+                                           NA-P(169 I)   NA-P(169 6)
+                                           NA-P(178 I)   NA-P(178 6)
+                                           NA-P(179 I)   NA-P(179 6)
+                    ADD   KS-ALPHA     TO  BO-P(169 5)   BO-P(169 8)
+                                           BO-P(178 5)   BO-P(178 8)
+                                           BO-P(179 5)   BO-P(179 8)
+                    ADD   KS-BETA      TO  BO-P(169 6)   BO-P(169 8)
+                                           BO-P(178 6)   BO-P(178 8)
+                                           BO-P(179 6)   BO-P(179 8)
+                    ADD   KS-GAMMA     TO  BO-P(169 7)   BO-P(169 8)
+                                           BO-P(178 7)   BO-P(178 8)
+                                           BO-P(179 7)   BO-P(179 8)
+               ELSE IF    J < 177
+                    ADD   KS-GUNSU     TO  BO-G(177 K)   BO-G(177 4)
+                                           BO-G(178 K)   BO-G(178 4)
+                                           BO-G(179 K)   BO-G(179 4)
+                                           NA-G(177 I)   NA-G(177 6)
+                                           NA-G(178 I)   NA-G(178 6)
+                                           NA-G(179 I)   NA-G(179 6)
+                    ADD   KS-HABBOLYO  TO  BO-P(177 K)   BO-P(177 4)
+                                           BO-P(178 K)   BO-P(178 4)
+                                           BO-P(179 K)   BO-P(179 4)
+                                           NA-P(177 I)   NA-P(177 6)
+                                           NA-P(178 I)   NA-P(178 6)
+                                           NA-P(179 I)   NA-P(179 6)
+                    ADD   KS-ALPHA     TO  BO-P(177 5)   BO-P(177 8)
+                                           BO-P(178 5)   BO-P(178 8)
+                                           BO-P(179 5)   BO-P(179 8)
+                    ADD   KS-BETA      TO  BO-P(177 6)   BO-P(177 8)
+                                           BO-P(178 6)   BO-P(178 8)
+                                           BO-P(179 6)   BO-P(179 8)
+                    ADD   KS-GAMMA     TO  BO-P(177 7)   BO-P(177 8)
+                                           BO-P(178 7)   BO-P(178 8)
+                                           BO-P(179 7)   BO-P(179 8)
+                    ELSE
+                       DISPLAY ' 3. 양로코드  에러 = ' J    ELSE
+
+           IF  KS-SSY   =  4
+               IF  J < 199
+                    ADD   KS-GUNSU     TO  BO-G(199 K)   BO-G(199 4)
+                                           BO-G(209 K)   BO-G(209 4)
+                                           NA-G(199 I)   NA-G(199 6)
+                                           NA-G(209 I)   NA-G(209 6)
+                    ADD   KS-HABBOLYO  TO  BO-P(199 K)   BO-P(199 4)
+                                           BO-P(209 K)   BO-P(209 4)
+                                           NA-P(199 I)   NA-P(199 6)
+                                           NA-P(209 I)   NA-P(209 6)
+                    ADD   KS-ALPHA     TO  BO-P(199 5)   BO-P(199 8)
+                                           BO-P(209 5)   BO-P(209 8)
+                    ADD   KS-BETA      TO  BO-P(199 6)   BO-P(199 8)
+                                           BO-P(209 6)   BO-P(209 8)
+                    ADD   KS-GAMMA     TO  BO-P(199 7)   BO-P(199 8)
+                                           BO-P(209 7)   BO-P(209 8)
+               ELSE IF   J < 208
+                    ADD   KS-GUNSU     TO  BO-G(208 K)   BO-G(208 4)
+                                           BO-G(209 K)   BO-G(209 4)
+                                           NA-G(208 I)   NA-G(208 6)
+                                           NA-G(209 I)   NA-G(209 6)
+                    ADD   KS-HABBOLYO  TO  BO-P(208 K)   BO-P(208 4)
+                                           BO-P(209 K)   BO-P(209 4)
+                                           NA-P(208 I)   NA-P(208 6)
+                                           NA-P(209 I)   NA-P(209 6)
+                    ADD   KS-ALPHA     TO  BO-P(208 5)   BO-P(208 8)
+                                           BO-P(209 5)   BO-P(209 8)
+                    ADD   KS-BETA      TO  BO-P(208 6)   BO-P(208 8)
+                                           BO-P(209 6)   BO-P(209 8)
+                    ADD   KS-GAMMA     TO  BO-P(208 7)   BO-P(208 8)
+                                           BO-P(209 7)   BO-P(209 8)
+                    ELSE
+                       DISPLAY ' 4. 사망코드  에러 = ' J.
+
+
+      ********  BOJONG BYEL  NABBANG BYEL  CHOHOI-BOLYO  ********
+           IF  KS-IDONG-B  >  1     GO  TO  129-EXIT.
+
+           ADD    KS-GUNSU     TO   CHO-G  (J   I)  CHO-G  (J   6)
+                                    CHO-G  (210 I)  CHO-G  (210 6).
+           ADD    KS-HABBOLYO  TO   CHO-P  (J   I)  CHO-P  (J   6)
+                                    CHO-P  (210 I)  CHO-P  (210 6).
+           IF  KS-SSY   =  1
+               IF  GYOYUK-BOJ
+                    ADD   KS-GUNSU     TO  CHO-G (9   I)  CHO-G (9   6)
+                                           CHO-G (49  I)  CHO-G (49  6)
+                                           CHO-G (69  I)  CHO-G (69  6)
+                                           CHO-G (179 I)  CHO-G (179 6)
+                    ADD   KS-HABBOLYO  TO  CHO-P (9   I)  CHO-P (9   6)
+                                           CHO-P (49  I)  CHO-P (49  6)
+                                           CHO-P (69  I)  CHO-P (69  6)
+                                           CHO-P (179 I)  CHO-P (179 6)
+               ELSE IF  J < 49
+                    ADD   KS-GUNSU     TO  CHO-G (49  I)  CHO-G (49  6)
+                                           CHO-G (69  I)  CHO-G (69  6)
+                                           CHO-G (179 I)  CHO-G (179 6)
+                    ADD   KS-HABBOLYO  TO  CHO-P (49  I)  CHO-P (49  6)
+                                           CHO-P (69  I)  CHO-P (69  6)
+                                           CHO-P (179 I)  CHO-P (179 6)
+               ELSE IF  J < 59
+                    ADD   KS-GUNSU     TO  CHO-G (59  I)  CHO-G (59  6)
+                                           CHO-G (69  I)  CHO-G (69  6)
+                                           CHO-G (179 I)  CHO-G (179 6)
+                    ADD   KS-HABBOLYO  TO  CHO-P (59  I)  CHO-P (59  6)
+                                           CHO-P (69  I)  CHO-P (69  6)
+                                           CHO-P (179 I)  CHO-P (179 6)
+               ELSE IF  J < 68
+                    ADD   KS-GUNSU     TO  CHO-G (68  I)  CHO-G (68  6)
+                                           CHO-G (69  I)  CHO-G (69  6)
+                                           CHO-G (179 I)  CHO-G (179 6)
+                    ADD   KS-HABBOLYO  TO  CHO-P (68  I)  CHO-P (68  6)
+                                           CHO-P (69  I)  CHO-P (69  6)
+                                           CHO-P (179 I)  CHO-P (179 6)
+           ELSE
+           IF  KS-SSY   =  2
+               IF   J < 89
+                    ADD   KS-GUNSU     TO  CHO-G (89  I)  CHO-G (89  6)
+                                           CHO-G (129 I)  CHO-G (129 6)
+                                           CHO-G (179 I)  CHO-G (179 6)
+                    ADD   KS-HABBOLYO  TO  CHO-P (89  I)  CHO-P (89  6)
+                                           CHO-P (129 I)  CHO-P (129 6)
+                                           CHO-P (179 I)  CHO-P (179 6)
+               ELSE IF  J < 128
+                    ADD   KS-GUNSU     TO  CHO-G (128 I)  CHO-G (128 6)
+                                           CHO-G (129 I)  CHO-G (129 6)
+                                           CHO-G (179 I)  CHO-G (179 6)
+                    ADD   KS-HABBOLYO  TO  CHO-P (128 I)  CHO-P (128 6)
+                                           CHO-P (129 I)  CHO-P (129 6)
+                                           CHO-P (179 I)  CHO-P (179 6)
+           ELSE
+           IF  KS-SSY   =  3
+               IF  J < 169
+                    ADD   KS-GUNSU     TO  CHO-G (169 I)  CHO-G (169 6)
+                                           CHO-G (178 I)  CHO-G (178 6)
+                                           CHO-G (179 I)  CHO-G (179 6)
+                    ADD   KS-HABBOLYO  TO  CHO-P (169 I)  CHO-P (169 6)
+                                           CHO-P (178 I)  CHO-P (178 6)
+                                           CHO-P (179 I)  CHO-P (179 6)
+               ELSE IF  J < 177
+                       ADD   KS-GUNSU  TO  CHO-G (177 I)  CHO-G (177 6)
+                                           CHO-G (178 I)  CHO-G (178 6)
+                                           CHO-G (179 I)  CHO-G (179 6)
+                    ADD   KS-HABBOLYO  TO  CHO-P (177 I)  CHO-P (177 6)
+                                           CHO-P (178 I)  CHO-P (178 6)
+                                           CHO-P (179 I)  CHO-P (179 6)
+           ELSE
+           IF  KS-SSY   =  4
+               IF  J < 199
+                    ADD   KS-GUNSU     TO  CHO-G (199 I) CHO-G (199 6)
+                                           CHO-G (209 I) CHO-G (209 6)
+                    ADD   KS-HABBOLYO  TO  CHO-P (199 I) CHO-P (199 6)
+                                           CHO-P (209 I) CHO-P (209 6)
+               ELSE IF  J < 208
+                    ADD   KS-GUNSU     TO  CHO-G (208 I) CHO-G (208 6)
+                                           CHO-G (209 I) CHO-G (209 6)
+                    ADD   KS-HABBOLYO  TO  CHO-P (208 I) CHO-P (208 6)
+                                           CHO-P (209 I) CHO-P (209 6).
+
+       129-EXIT.   EXIT.
+       121-BOJONG-CONVERSION.
+           MOVE   KS-BOJONG    TO    WK-BOJONG.
+           MOVE   ZERO         TO    J.
+           IF   KS-SSY  =   1
+              IF   JANGHAK                MOVE   1   TO   J     ELSE
+              IF   NEW-GYOYUK             MOVE   2   TO   J     ELSE
+              IF   EXCELLENT              MOVE   3   TO   J     ELSE
+              IF   AGA-SALANG             MOVE   4   TO   J     ELSE
+
+              IF   NO-SEOL                MOVE  10   TO   J     ELSE
+              IF   NO-BOK                 MOVE  11   TO   J     ELSE
+              IF   NEW-LIFE               MOVE  12   TO   J     ELSE
+              IF   JANGSU-SEOLGYE         MOVE  13   TO   J     ELSE
+              IF   GAJOK-SALANG           MOVE  14   TO   J     ELSE
+              IF   SIN-GAJOK-B            MOVE  15   TO   J     ELSE
+              IF   ABBA-YEONGEUM-B        MOVE  16   TO   J     ELSE
+              IF   URI-SALANG-B           MOVE  17   TO   J     ELSE
+              IF   N-URI-SALANG           MOVE  18   TO   J     ELSE
+
+              IF   NO-JEOK                MOVE  31   TO   J     ELSE
+              IF   SIN-GAJOK-J            MOVE  32   TO   J     ELSE
+              IF   HAN-SALANG             MOVE  33   TO   J     ELSE
+              IF   JIG-UDAE               MOVE  34   TO   J     ELSE
+              IF   URI-SALANG-J           MOVE  35   TO   J     ELSE
+              IF   ABBA-YEONGEUM-J        MOVE  36   TO   J.
+
+      *--------( 개인연금전환  )               -------*
+           IF  KS-SSY   =   1
+              IF   KS-YUN-CODE  > 5
+                 IF   NO-SEOL             MOVE  50   TO   J     ELSE
+                 IF   NO-BOK              MOVE  51   TO   J     ELSE
+                 IF   NEW-LIFE            MOVE  52   TO   J     ELSE
+                 IF   JANGSU-SEOLGYE      MOVE  53   TO   J     ELSE
+                 IF   GAJOK-SALANG        MOVE  54   TO   J.
+
+      *--------( 금리연동형 상품의 거치전환 (98.1월판매) -----*
+           IF  KS-SSY   =   1
+              IF   GEOCHI
+                 IF   GEOCHI-NO-SEOL      MOVE  60   TO   J     ELSE
+                 IF   GEOCHI-NO-BOK       MOVE  61   TO   J     ELSE
+
+                  DISPLAY 'BOJ-ERROR-1 = ' KS-JEUNGBEON
+                            '   BOJONG = ' KS-BOJONG.
+
+           IF  KS-SSY   =   2
+              IF   21C-AM1                MOVE  70   TO   J     ELSE
+              IF   AMCHIRYO-1J            MOVE  71   TO   J     ELSE
+              IF   MU-CHILD1              MOVE  72   TO   J     ELSE
+              IF   MU-ANSIM               MOVE  73   TO   J     ELSE
+              IF   MU-JONGSIN             MOVE  74   TO   J     ELSE
+              IF   MU-ANSIM-SALANG        MOVE  75   TO   J     ELSE
+
+              IF   MUJIGAI                MOVE  90   TO   J     ELSE
+              IF   21C-AM2                MOVE  91   TO   J     ELSE
+              IF   AMCHIRYO-2J            MOVE  92   TO   J     ELSE
+              IF   BIG-MAEUM              MOVE  93   TO   J     ELSE
+              IF   WOMAN-2J               MOVE  94   TO   J     ELSE
+              IF   SP                     MOVE  95   TO   J     ELSE
+              IF   GEONGANG-LIFE          MOVE  96   TO   J     ELSE
+              IF   SIN-GEONGANG           MOVE  97   TO   J     ELSE
+              IF   ABBA-SALANG            MOVE  98   TO   J     ELSE
+              IF   MUBAEDANG-AM           MOVE  99   TO   J     ELSE
+              IF   ROAD-FRIEND            MOVE  100  TO   J     ELSE
+              IF   MIZ-AM                 MOVE  101  TO   J     ELSE
+              IF   MISTER-AM              MOVE  102  TO   J     ELSE
+              IF   MU-ALPHA               MOVE  103  TO   J     ELSE
+              IF   MU-CHILD2              MOVE  104  TO   J     ELSE
+              IF   MU-POWER-DRIVER        MOVE  105  TO   J     ELSE
+              IF   MU-SUPER-NUGUNA        MOVE  106  TO   J     ELSE
+              IF   MU-SINBARAM            MOVE  107  TO   J     ELSE
+              IF   MU-PACIFIC-NUGUNA      MOVE  108  TO   J     ELSE
+              IF   MU-MIZ-AM              MOVE  109  TO   J     ELSE
+              IF   MU-MISTER-AM           MOVE  110  TO   J     ELSE
+              IF   MU-NEW-MILLENIUM-GEONGANG
+                                          MOVE  111  TO   J     ELSE
+                  DISPLAY 'BOJ-ERROR-2 = ' KS-JEUNGBEON
+                            '   BOJONG = ' KS-BOJONG.
+
+           IF  KS-SSY   =   3
+              IF   TEUG-JEOG              MOVE  130  TO   J     ELSE
+              IF   GABOK                  MOVE  131  TO   J     ELSE
+              IF   NON-TAX                MOVE  132  TO   J     ELSE
+              IF   NON-UDAEJEOCHUK        MOVE  133  TO   J     ELSE
+              IF   JAETECH                MOVE  134  TO   J     ELSE
+              IF   JAETECH-II             MOVE  135  TO   J     ELSE
+              IF   NEW-JAETECH            MOVE  136  TO   J     ELSE
+              IF   HANARO                 MOVE  137  TO   J     ELSE
+
+              IF   MU-URIJIB              MOVE  150  TO   J     ELSE
+              IF   MU-N-URIJIB            MOVE  151  TO   J     ELSE
+              IF   WON-BUBU               MOVE  152  TO   J     ELSE
+              IF   FREE-YUHAENG           MOVE  153  TO   J     ELSE
+              IF   WOMAN-1J               MOVE  154  TO   J     ELSE
+              IF   HAENG-SEOL             MOVE  155  TO   J     ELSE
+                  DISPLAY 'BOJ-ERROR-3 = ' KS-JEUNGBEON
+                            '   BOJONG = ' KS-BOJONG.
+
+           IF  KS-SSY   =   3
+                 IF   GEOCHI-GABOK            MOVE  170  TO   J  ELSE
+                 IF   GEOCHI-NON-TAX          MOVE  171  TO   J  ELSE
+                 IF   GEOCHI-NON-UDAEJEOCHUK  MOVE  172  TO   J.
+
+
+           IF  KS-SSY   =   4
+              IF   DAN-JEONGGI            MOVE  180  TO   J     ELSE
+              IF   N-DAN-JEONGGI          MOVE  181  TO   J     ELSE
+              IF   DAN-SINYONG            MOVE  182  TO   J     ELSE
+              IF   JIG-BOJANG             MOVE  183  TO   J     ELSE
+              IF   21C-BOJANG             MOVE  184  TO   J     ELSE
+              IF   MIRAERO-BOJANG         MOVE  185  TO   J     ELSE
+              IF   DAEHYUNG-BOJANG        MOVE  186  TO   J     ELSE
+              IF   N-DAEHYUNG-BOJANG      MOVE  187  TO   J     ELSE
+              IF   MU-DAN-SANGHAE         MOVE  188  TO   J     ELSE
+
+              IF   JONGTOI                MOVE  200  TO   J     ELSE
+              IF   DAN-YANGRO             MOVE  201  TO   J     ELSE
+              IF   JIG-JEOCHUK            MOVE  202  TO   J     ELSE
+              IF   JIG-UDAESEOLGYE        MOVE  203  TO   J     ELSE
+
+                  DISPLAY 'BOJ-ERROR-4 = ' KS-JEUNGBEON
+                            '   BOJONG = ' KS-BOJONG.
+
+       200-DATA-PRINT-CONTROL.
+           MOVE     1   TO       T   K   W.
+           PERFORM      900-HEAD-TITLE.
+           PERFORM   210-BO-PRINT                                       
+                           VARYING J FROM 1 BY 1 UNTIL J > 210.         
+
+           ADD      1   TO       K   W.
+           PERFORM  900-HEAD-TITLE.
+           PERFORM  220-NAB-PRINT                                       
+                           VARYING J FROM  1 BY 1 UNTIL J > 210.        
+
+           ADD      1   TO       K   W.
+           PERFORM 900-HEAD-TITLE.
+           PERFORM 230-CHO-PRINT                                        
+                           VARYING J FROM  1 BY 1 UNTIL J > 210.        
+
+
+       210-BO-PRINT.
+           MOVE   BO-SO(J)        TO    L-9(1).
+           MOVE   BO-G  (J  1)    TO    L-P-CHOHOI (1).
+           MOVE   BO-G  (J  2)    TO    L-P-CHOYEON(1).
+           MOVE   BO-G  (J  3)    TO    L-P-GYEONG (1).
+           MOVE   BO-G  (J  4)    TO    L-P-TOTAL  (1).
+           MOVE   BO-P  (J  1)    TO    L-P-CHOHOI (2)  LP-CHOHOI.
+           MOVE   BO-P  (J  2)    TO    L-P-CHOYEON(2)  LP-CHOYEON.
+           MOVE   BO-P  (J  3)    TO    L-P-GYEONG (2)  LP-GYEONG.
+           MOVE   BO-P  (J  4)    TO    L-P-TOTAL  (2)  LP-TOTAL.
+           MOVE   BO-P  (J  5)    TO    L-ALPHA    (2)  LP-ALPHA.
+           MOVE   BO-P  (J  6)    TO    L-BETA     (2)  LP-BETA.
+           MOVE   BO-P  (J  7)    TO    L-GAMMA    (2)  LP-GAMMA.
+           MOVE   BO-P  (J  8)    TO    L-ABC-TOT  (2)  LP-ABC-TOT.
+           MOVE   J               TO    L-91(1)         LP-GUBUN.
+           IF  (BO-P(J 4) NOT = ZERO)  OR (BO-P(J 8) NOT = ZERO)
+                  WRITE   REC-PRINT   FROM  P-BO-SAUP(1)
+                  WRITE   REC-PRINT   FROM  P-BO-SAUP(2)
+                  WRITE   REC-OUT1    FROM  LP-BOLYO.
+           IF  J  =  9   OR 49 OR  59  OR  68  OR  69  OR  89  OR
+                     128 OR 129 OR  169 OR  177 OR  178  OR  179  OR
+                     199 OR 208  OR 209 OR 210
+                     WRITE   REC-PRINT   FROM  YA-TITLE    AFTER 1
+           ELSE
+           IF  (BO-P(J 4) NOT = ZERO)  OR (BO-P(J 8) NOT = ZERO)
+                     WRITE   REC-PRINT   FROM  YA-DATA     AFTER 1.
+
+           IF  J  = 69  OR  129 OR  179
+                     ADD      1   TO    T
+                     PERFORM      900-HEAD-TITLE.
+           MOVE      SPACE        TO    P-BOLYO-ABC.
+       220-NAB-PRINT.
+
+           MOVE   NA-G  (J  1)   TO        L-P-1(1) .
+           MOVE   NA-G  (J  2)   TO        L-P-3(1) .
+           MOVE   NA-G  (J  3)   TO        L-P-6(1) .
+           MOVE   NA-G  (J  4)   TO        L-P-8(1) .
+           MOVE   NA-G  (J  5)   TO        L-P-9(1) .
+           MOVE   NA-G  (J  6)   TO        L-P-T(1) .
+           MOVE   NA-P  (J  1)   TO        L-P-1(2)  LN-P-1.
+           MOVE   NA-P  (J  2)   TO        L-P-3(2)  LN-P-3.
+           MOVE   NA-P  (J  3)   TO        L-P-6(2)  LN-P-6.
+           MOVE   NA-P  (J  4)   TO        L-P-8(2)  LN-P-8.
+           MOVE   NA-P  (J  5)   TO        L-P-9(2)  LN-P-9.
+           MOVE   NA-P  (J  6)   TO        L-P-T(2)  LN-P-T.
+           MOVE   BO-SO(J)       TO        L1-9(1)   LN-9.
+           MOVE   J              TO        L1-91(1)  LN-GUBUN.
+
+           IF   NOT  NA-P(J 6) = ZERO
+                  WRITE   REC-PRINT   FROM  P-REC-NB(1)
+                  WRITE   REC-PRINT   FROM  P-REC-NB(2)
+                  WRITE   REC-OUT1    FROM  LN-NABBANG.
+           IF  J  =  9   OR 49 OR  59  OR  68  OR  69  OR  89  OR
+                     128 OR 129 OR  169 OR  177 OR  178  OR  179  OR
+                     199 OR 208  OR 209 OR 210
+                     WRITE   REC-PRINT   FROM  YA-TITLE    AFTER 1
+           ELSE
+           IF   NOT  NA-P(J 6) = ZERO
+                     WRITE   REC-PRINT   FROM  YA-DATA     AFTER 1.
+
+           IF  J  = 69  OR  129 OR  179
+                     ADD      1   TO    T
+                     PERFORM      900-HEAD-TITLE.
+           MOVE      SPACE        TO    P-BOLYO-ABC.
+       230-CHO-PRINT.
+           MOVE   BO-SO(J)        TO       C1-9(1)     CL1-9.
+           MOVE   CHO-G  (J  1)   TO       C-P-1 (1).
+           MOVE   CHO-G  (J  2)   TO       C-P-3 (1).
+           MOVE   CHO-G  (J  3)   TO       C-P-6 (1).
+           MOVE   CHO-G  (J  4)   TO       C-P-8 (1).
+           MOVE   CHO-G  (J  5)   TO       C-P-9 (1).
+           MOVE   CHO-G  (J  6)   TO       C-P-T (1).
+           MOVE   CHO-P  (J  1)   TO       C-P-1 (2)  CL-P-1.
+           MOVE   CHO-P  (J  2)   TO       C-P-3 (2)  CL-P-3.
+           MOVE   CHO-P  (J  3)   TO       C-P-6 (2)  CL-P-6.
+           MOVE   CHO-P  (J  4)   TO       C-P-8 (2)  CL-P-8.
+           MOVE   CHO-P  (J  5)   TO       C-P-9 (2)  CL-P-9.
+           MOVE   CHO-P  (J  6)   TO       C-P-T (2)  CL-P-T.
+           MOVE   J               TO       C1-91 (1)  CL-GUBUN.
+           IF  NOT CHO-P(J 6) = ZERO
+                  WRITE   REC-PRINT   FROM  P-REC-CHO(1)
+                  WRITE   REC-PRINT   FROM  P-REC-CHO(2)
+                  WRITE   REC-OUT3    FROM  CL-CHOHOI.
+
+           IF  J  =  9   OR 49 OR  59  OR  68  OR  69  OR  89  OR
+                     128 OR 129 OR  169 OR  177 OR  178  OR  179  OR
+                     199 OR 208  OR 209 OR 210
+                     WRITE   REC-PRINT   FROM  YA-TITLE    AFTER 1
+           ELSE IF  NOT CHO-P(J 6) = ZERO
+                     WRITE   REC-PRINT   FROM  YA-DATA     AFTER 1.
+
+           IF  J  = 69  OR  129 OR  179
+                     ADD      1   TO    T
+                     PERFORM      900-HEAD-TITLE.
+           MOVE      SPACE       TO   P-CHOHOI.
+
+       900-HEAD-TITLE.
+           IF   T  =  1    MOVE  '생　　존 '  TO P-HG-SSY  ELSE
+           IF   T  =  2    MOVE  '사　　망 '  TO P-HG-SSY  ELSE
+           IF   T  =  3    MOVE  '양　　로 '  TO P-HG-SSY  ELSE
+           IF   T  =  4    MOVE  '단　　체 '  TO P-HG-SSY
+      *                    MOVE    1            TO  T       ELSE
+           ELSE            MOVE  '             '  TO P-HG-SSY.
+           MOVE            JEMOK-SOUR(W) TO     P-HG-JEMOK.
+           WRITE    REC-PRINT   FROM   YA-SPACE    AFTER  PGSK.
+           WRITE    REC-PRINT   FROM   YA-HEAD     AFTER  1.
+           WRITE    REC-PRINT   FROM   REC-HEAD .
+           WRITE    REC-PRINT   FROM   YA-HEAD     AFTER  1.
+19980      WRITE    REC-PRINT   FROM   YA-TITLE    AFTER  3.
+           IF  K  =  1
+               MOVE             TITLE-1    TO      T-200
+           ELSE
+               MOVE             TITLE-2    TO      T-200.
+           WRITE    REC-PRINT   FROM   P-TITLE-1.
+           WRITE    REC-PRINT   FROM   YA-TITLE       AFTER  1.
+      *    IF T = 1
+      *       IF K = 1
+      *           WRITE    REC-OUT1    FROM   YA-SPACE    AFTER  PGSK
+      *           WRITE    REC-OUT1    FROM   YA-HEAD     AFTER  1
+      *           WRITE    REC-OUT1    FROM   REC-HEAD
+      *           WRITE    REC-OUT1    FROM   YA-HEAD     AFTER  1
+      *           WRITE    REC-OUT1    FROM   YA-TITLE    AFTER  3
+      *           WRITE    REC-OUT1    FROM   P-TITLE-1
+      *           WRITE    REC-OUT1    FROM   YA-TITLE     AFTER  1.
+      *    IF T = 1
+      *       IF K = 2
+      *        WRITE    REC-OUT2    FROM   YA-SPACE    AFTER  PGSK
+      *        WRITE    REC-OUT2    FROM   YA-HEAD     AFTER  1
+      *        WRITE    REC-OUT2    FROM   REC-HEAD
+      *        WRITE    REC-OUT2    FROM   YA-HEAD     AFTER  1
+      *        WRITE    REC-OUT2    FROM   YA-TITLE    AFTER  3
+      *        WRITE    REC-OUT2    FROM   P-TITLE-1
+      *        WRITE    REC-OUT2    FROM   YA-TITLE     AFTER  1.
+      *    IF T = 1
+      *       IF K = 3
+      *        WRITE    REC-OUT3    FROM   YA-SPACE    AFTER  PGSK
+      *        WRITE    REC-OUT3    FROM   YA-HEAD     AFTER  1
+      *        WRITE    REC-OUT3    FROM   REC-HEAD
+     **        WRITE    REC-OUT3    FROM   YA-HEAD     AFTER  1
+      *        WRITE    REC-OUT3    FROM   YA-TITLE    AFTER  3
+      *        WRITE    REC-OUT3    FROM   P-TITLE-1
+      *        WRITE    REC-OUT3    FROM   YA-TITLE     AFTER  1.
+           IF   T  =  4    MOVE    1            TO  T.
+      *------------   END OF PROGRAM ----------------------------------
+      *               1         2         3         4         5
+      *      123456789012345678901234567890123456789012345678901234567
+      *        6         7         8         9        10        11
+      *      890123456789012345678901234567890123456789012345678901234
+      *           12        13        14        15        16       17
+      *      456789012345678901234567890123456789012345678901234567890

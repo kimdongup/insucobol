@@ -1,0 +1,558 @@
+//PRIBA8B3 JOB (PRI),'PRI00',CLASS=G,MSGCLASS=X,MSGLEVEL=(1,1)          
+//STEP1    EXEC DDBBAT,MBR=PKBA08B3                                     
+//COB.SYSIN DD *                                                        
+      *---------------------------------------------------------------* 
+      *  개인요금D B  SEG BACK-UP PROGRAM                             * 
+      *---------------------------------------------------------------* 
+       ID                         DIVISION.                             
+       PROGRAM-ID.                PKBA08B3.                             
+       ENVIRONMENT                DIVISION.                             
+       INPUT-OUTPUT               SECTION.                              
+       FILE-CONTROL.                                                    
+           SELECT  POUT           ASSIGN    TO   OUTDD.                 
+       DATA                       DIVISION.                             
+       FILE                       SECTION.                              
+       FD  POUT                   LABEL  RECORD   STANDARD              
+                                  BLOCK  CONTAINS 200 RECORDS           
+                                  RECORD CONTAINS 112 CHARACTERS.       
+       01  POUR                   PIC  X(112).                          
+       WORKING-STORAGE            SECTION.                              
+      *                                                                 
+       01  C-PGRMID               PIC  X(08)  VALUE 'PKBA08B3'.         
+       01  C-USER-ID              PIC  X(08)  VALUE 'PKBA08B3'.         
+      *                                                                 
+       01  WORK-ITEMS.                                                  
+           02  I                  PIC  9(02)  VALUE  0.                 
+           02  J                  PIC  9(02)  VALUE  0.                 
+           02  K                  PIC  9(02)  VALUE  0.                 
+           02  W-PNO              PIC  9(07)  VALUE  0.                 
+           02  T-CNT              PIC  9(09)  VALUE  0.                 
+           02  CNT-KC             PIC  9(09)  VALUE  0.                 
+           02  CNT-KD             PIC  9(09)  VALUE  0.                 
+           02  CNT-KJ             PIC  9(09)  VALUE  0.                 
+           02  CNT-A2             PIC  9(09)  VALUE  0.                 
+           02  CNT-B2             PIC  9(09)  VALUE  0.                 
+           02  CNT-C2             PIC  9(09)  VALUE  0.                 
+           02  CNT-D2             PIC  9(09)  VALUE  0.                 
+           02  CNT-E2             PIC  9(09)  VALUE  0.                 
+           02  CNT-KL             PIC  9(09)  VALUE  0.                 
+           02  MKB-CNT            PIC  9(09)  VALUE  0.                 
+      ***************************************************************** 
+      *    BUHAL        ( 70 BYTES )                                  * 
+      ***************************************************************** 
+       01  KC-REC.                                                      
+           02  KC-1               PIC  X(70).                           
+           02  KC1    REDEFINES   KC-1.                                 
+               03  KC-KEY         PIC  X(11).                           
+               03  KC  REDEFINES  KC-KEY.                               
+                   04  KC-PNO     PIC  9(07).                           
+                   04  KC-YM      PIC  X(04).                           
+               03  KC-FIL         PIC  X(59).                           
+      ***************************************************************** 
+      *    SUNNAP       ( 70 BYTES )                                  * 
+      ***************************************************************** 
+       01  KD-REC.                                                      
+           02  KD-1               PIC  X(70).                           
+           02  KD1    REDEFINES   KD-1.                                 
+               03  KD-KEY         PIC  X(13).                           
+               03  KD  REDEFINES  KD-KEY.                               
+                   04  KD-PNO     PIC  9(07).                           
+                   04  KD-YM      PIC  X(06).                           
+               03  KD-FIL         PIC  X(57).                           
+      ***************************************************************** 
+      *    KYEYEK-UPDATE ( 220 BYTES )                                * 
+      ***************************************************************** 
+       01  KJ-REC.                                                      
+           02  KJ-1               PIC  X(100).                          
+           02  KJ1    REDEFINES   KJ-1.                                 
+               03  KJ-KEY         PIC  X(14).                           
+               03  KJ  REDEFINES  KJ-KEY.                               
+                   04  KJ-PNO     PIC  9(07).                           
+                   04  KJ-IL      PIC  X(07).                           
+               03  KJ-FIL         PIC  X(86).                           
+           02  KJ-2               PIC  X(100).                          
+           02  KJ-3               PIC  X(20).                           
+      ***************************************************************** 
+      *    DEATH        ( 100 BYTES )                                 * 
+      ***************************************************************** 
+       01  A2-REC.                                                      
+           02  A2-1               PIC  X(100).                          
+           02  A21    REDEFINES   A2-1.                                 
+               03  A2-KEY         PIC  X(12).                           
+               03  A2  REDEFINES  A2-KEY.                               
+                   04  A2-PNO     PIC  9(07).                           
+                   04  A2-GB1     PIC  9(01).                           
+                   04  A2-GB2     PIC  9(01).                           
+                   04  A2-GB3     PIC  9(03).                           
+               03  A2-FIL         PIC  X(88).                           
+      ***************************************************************** 
+      *    JIKEUB       ( 300 BYTES )                                 * 
+      ***************************************************************** 
+       01  B2-REC.                                                      
+           02  B2-1               PIC  X(100).                          
+           02  B21    REDEFINES   B2-1.                                 
+               03  B2-KEY         PIC  X(17).                           
+               03  B2  REDEFINES  B2-KEY.                               
+                   04  B2-PNO     PIC  9(07).                           
+                   04  B2-IL      PIC  X(10).                           
+               03  B2-FIL         PIC  X(83).                           
+           02  B2-2               PIC  X(100).                          
+           02  B2-3               PIC  X(100).                          
+      ***************************************************************** 
+      *    AM-IBWON     ( 140 BYTES )                                 * 
+      ***************************************************************** 
+       01  C2-REC.                                                      
+           02  C2-1               PIC  X(100).                          
+           02  C21    REDEFINES   C2-1.                                 
+               03  C2-KEY         PIC  X(17).                           
+               03  C2  REDEFINES  C2-KEY.                               
+                   04  C2-PNO     PIC  9(07).                           
+                   04  C2-IL      PIC  X(10).                           
+               03  C2-FIL         PIC  X(83).                           
+           02  C2-2               PIC  X(40).                           
+      ***************************************************************** 
+      *    IBWON        ( 106 BYTES )                                 * 
+      ***************************************************************** 
+       01  D2-REC.                                                      
+           02  D2-1               PIC  X(100).                          
+           02  D21    REDEFINES   D2-1.                                 
+               03  D2-KEY         PIC  X(17).                           
+               03  D2  REDEFINES  D2-KEY.                               
+                   04  D2-PNO     PIC  9(07).                           
+                   04  D2-IL      PIC  X(10).                           
+               03  D2-FIL         PIC  X(83).                           
+           02  D2-2               PIC  X(06).                           
+      ***************************************************************** 
+      *    DGM          ( 80 BYTES )                                  * 
+      ***************************************************************** 
+       01  E2-REC.                                                      
+           02  E2-1               PIC  X(80).                           
+           02  E21    REDEFINES   E2-1.                                 
+               03  E2-KEY         PIC  X(11).                           
+               03  E2  REDEFINES  E2-KEY.                               
+                   04  E2-PNO     PIC  9(07).                           
+                   04  E2-YM      PIC  X(04).                           
+               03  E2-FIL         PIC  X(69).                           
+      ***************************************************************** 
+      *   자유납입보험료      ( 50 BYTES )                          * 00
+      ***************************************************************** 
+       01  KL-REC.                                                      
+           02  KL-1               PIC  X(50).                           
+           02  KL1    REDEFINES   KL-1.                                 
+               03  KL-KEY         PIC  X(10).                           
+               03  KL  REDEFINES  KL-KEY.                               
+                   04  KL-PNO     PIC  9(07).                           
+                   04  KL-SER     PIC  9(03).                           
+               03  KL-FIL         PIC  X(40).                           
+                                                                        
+       01  WDATA.                                                       
+           02  WDATA0             PIC  9(07).                           
+           02  WDATA1.                                                  
+               03  WDATA11        PIC  9(2).                            
+               03  WDATA12        PIC  9(3).                            
+           02  WDATA2             PIC  X(100).                          
+       01  A-DATA.                                                      
+           02  A-YM               PIC  9(04).                           
+           02  FILLER             PIC  X(76).                           
+       01  WWWW.                                                        
+           02  WWW      OCCURS    24.                                   
+               03  WW             PIC  X(100).                          
+      *---------------------------------------------------------------* 
+      ***  STANDARD-AREA          DEFINE                              * 
+      *---------------------------------------------------------------* 
+           COPY         PLISTDA   SUPPRESS.                             
+           COPY         PLIWCOM   SUPPRESS.                             
+      *-------------------------------*                                 
+      *USER    DB       DATA      VIEW*                                 
+      *-------------------------------*                                 
+-INC      DVMKC                                                         
+-INC      DVMKD                                                         
+-INC      DVMKJ                                                         
+-INC      DVM2A                                                         
+-INC      DVM2B                                                         
+-INC      DVM2C                                                         
+-INC      DVM2D                                                         
+-INC      DVM2E                                                         
+-INC      DVMKL                                                         
+      *                                                                 
+       01  ZZ-DLDB.                                                     
+           05  ZZ-DLDB-HW-DBID    PIC S9(04)  COMP.                     
+           05  FILLER   REDEFINES ZZ-DLDB-HW-DBID.                      
+               10  ZZ-DLDB-DBID   PIC  X(02).                           
+      *---------------------------------------------------------*       
+       PROCEDURE                  DIVISION.                             
+      *---------------------------------------------------------*       
+       OPEN-AND-CHECK.                                                  
+           ENTRY            'DBMSCBL'.                                  
+           OPEN   OUTPUT     POUT.                                      
+           ACCEPT  A-DATA.                                              
+           MOVE SPACE TO WWWW.                                          
+           PERFORM MKC-PROCESS  THRU  MKC-EXIT.                         
+           MOVE SPACE TO WWWW.                                          
+           PERFORM MKD-PROCESS  THRU  MKD-EXIT.                         
+           MOVE SPACE TO WWWW.                                          
+           PERFORM MKJ-PROCESS  THRU  MKJ-EXIT.                         
+           MOVE SPACE TO WWWW.                                          
+           PERFORM M2A-PROCESS  THRU  M2A-EXIT.                         
+           MOVE SPACE TO WWWW.                                          
+           PERFORM M2B-PROCESS  THRU  M2B-EXIT.                         
+           MOVE SPACE TO WWWW.                                          
+           PERFORM M2C-PROCESS  THRU  M2C-EXIT.                         
+           MOVE SPACE TO WWWW.                                          
+           PERFORM M2D-PROCESS  THRU  M2D-EXIT.                         
+           MOVE SPACE TO WWWW.                                          
+           PERFORM M2E-PROCESS  THRU  M2E-EXIT.                         
+           MOVE SPACE TO WWWW.                                          
+           PERFORM MKL-PROCESS  THRU  MKL-EXIT.                         
+           GO   TO END-PA.                                              
+      ***************************************************************** 
+      *    BUHAL        ( 70 BYTES )                                  * 
+      ***************************************************************** 
+       MKC-PROCESS.                                                     
+           MOVE    SPACE               TO        MKC-KEY.               
+           PERFORM S9000-MKCK2-READ-GE                                  
+              THRU S9000-MKCK2-READ-GE-EXIT.                            
+           IF      W-DB-STATUS = SPACE                                  
+                   MOVE  MKC-POLNO     TO        W-PNO                  
+           ELSE    GO   TO   MKC-EXIT.                                  
+       MKC-READNEXT.                                                    
+           ADD 1 TO CNT-KC.                                             
+           MOVE    MKC-REC     TO KC-REC.                               
+           MOVE    KC-PNO      TO WDATA0.                               
+           PERFORM MOVE-RTN VARYING I FROM 1 BY 1 UNTIL I > 23.         
+           MOVE    KC-1        TO WW (1).                               
+           PERFORM S9000-MKCK2-READNEXT                                 
+              THRU S9000-MKCK2-READNEXT-EXIT.                           
+           IF      W-DB-STATUS = SPACE                                  
+             IF    MKC-POLNO = W-PNO                                    
+                   GO   TO      MKC-READNEXT                            
+             ELSE  MOVE 03 TO WDATA11                                   
+                   MOVE 0  TO J K                                       
+                   PERFORM WRITE-RTN VARYING I FROM 1 BY 1 UNTIL I > 24 
+                   MOVE SPACE TO WWWW                                   
+                   MOVE MKC-POLNO TO W-PNO                              
+                   GO   TO      MKC-READNEXT                            
+           ELSE    DISPLAY '**  MKC : ' W-DB-STATUS.                    
+       MKC-EXIT.                                                        
+           EXIT.                                                        
+      ***************************************************************** 
+      *    SUNNAP       ( 70 BYTES )                                  * 
+      ***************************************************************** 
+       MKD-PROCESS.                                                     
+           MOVE    SPACE               TO        MKD-KEY.               
+           PERFORM S9000-MKDK2-READ-GE                                  
+              THRU S9000-MKDK2-READ-GE-EXIT.                            
+           IF      W-DB-STATUS = SPACE                                  
+                   MOVE  MKD-POLNO     TO        W-PNO                  
+           ELSE    GO   TO   MKD-EXIT.                                  
+       MKD-READNEXT.                                                    
+           ADD 1 TO CNT-KD.                                             
+           MOVE    MKD-REC     TO KD-REC.                               
+           MOVE    KD-PNO      TO WDATA0.                               
+           PERFORM MOVE-RTN VARYING I FROM 1 BY 1 UNTIL I > 23.         
+           MOVE    KD-1        TO WW (1).                               
+           PERFORM S9000-MKDK2-READNEXT                                 
+              THRU S9000-MKDK2-READNEXT-EXIT.                           
+           IF      W-DB-STATUS = SPACE                                  
+             IF    MKD-POLNO = W-PNO                                    
+                   GO   TO      MKD-READNEXT                            
+             ELSE  MOVE 04 TO WDATA11                                   
+                   MOVE 0  TO J K                                       
+                   PERFORM WRITE-RTN VARYING I FROM 1 BY 1 UNTIL I > 24 
+                   MOVE SPACE TO WWWW                                   
+                   MOVE MKD-POLNO TO W-PNO                              
+                   GO   TO      MKD-READNEXT                            
+           ELSE    DISPLAY '**  MKD : ' W-DB-STATUS.                    
+       MKD-EXIT.                                                        
+           EXIT.                                                        
+      ***************************************************************** 
+      *    KYEYEK-UPDATE ( 220 BYTES )                                * 
+      ***************************************************************** 
+       MKJ-PROCESS.                                                     
+           MOVE    SPACE               TO        MKJ-KEY.               
+           PERFORM S9000-MKJK2-READ-GE                                  
+              THRU S9000-MKJK2-READ-GE-EXIT.                            
+           IF      W-DB-STATUS = SPACE                                  
+                   MOVE  MKJ-POLICY-NO TO        W-PNO                  
+           ELSE    GO   TO   MKJ-EXIT.                                  
+       MKJ-READNEXT.                                                    
+           ADD 1 TO CNT-KJ.                                             
+           MOVE    MKJ-REC     TO KJ-REC.                               
+           MOVE    KJ-PNO      TO WDATA0.                               
+           PERFORM MOVE-RTN-1 VARYING I FROM 1 BY 1 UNTIL I > 21.       
+           MOVE    KJ-1        TO WW (1).                               
+           MOVE    KJ-2        TO WW (2).                               
+           MOVE    KJ-3        TO WW (3).                               
+           PERFORM S9000-MKJK2-READNEXT                                 
+              THRU S9000-MKJK2-READNEXT-EXIT.                           
+           IF      W-DB-STATUS = SPACE                                  
+             IF    MKJ-POLICY-NO = W-PNO                                
+                   GO   TO      MKJ-READNEXT                            
+             ELSE  MOVE 05 TO WDATA11                                   
+                   MOVE 0  TO J K                                       
+                 PERFORM WRITE-RTN-1 VARYING I FROM 1 BY 3 UNTIL I > 22 
+                   MOVE SPACE TO WWWW                                   
+                   MOVE MKJ-POLICY-NO TO W-PNO                          
+                   GO   TO      MKJ-READNEXT                            
+           ELSE    DISPLAY '**  MKJ : ' W-DB-STATUS.                    
+       MKJ-EXIT.                                                        
+           EXIT.                                                        
+      ***************************************************************** 
+      *    DEATH        ( 100 BYTES )                                 * 
+      ***************************************************************** 
+       M2A-PROCESS.                                                     
+           MOVE    SPACE               TO        M2A-KEY.               
+           PERFORM S9000-M2AK2-READ-GE                                  
+              THRU S9000-M2AK2-READ-GE-EXIT.                            
+       M2A-READNEXT.                                                    
+           IF      W-DB-STATUS = SPACE                                  
+                   MOVE  M2A-RECORD  TO   A2-REC                        
+                   MOVE  A2-PNO      TO   WDATA0                        
+                   MOVE  06010       TO   WDATA1                        
+                   MOVE  A2-1        TO   WDATA2                        
+                   WRITE POUR        FROM WDATA                         
+                   MOVE  SPACE       TO   WWWW                          
+                   ADD   1           TO   CNT-A2                        
+           ELSE    GO    TO          M2A-EXIT.                          
+           PERFORM S9000-M2AK2-READNEXT                                 
+              THRU S9000-M2AK2-READNEXT-EXIT.                           
+           GO      TO        M2A-READNEXT.                              
+       M2A-EXIT.                                                        
+           EXIT.                                                        
+      ***************************************************************** 
+      *    JIKEUB       ( 300 BYTES )                                 * 
+      ***************************************************************** 
+       M2B-PROCESS.                                                     
+           MOVE    SPACE               TO        M2B-KEY.               
+           PERFORM S9000-M2BK2-READ-GE                                  
+              THRU S9000-M2BK2-READ-GE-EXIT.                            
+           IF      W-DB-STATUS = SPACE                                  
+                   MOVE  M2B-POLNO     TO        W-PNO                  
+           ELSE    GO   TO   M2B-EXIT.                                  
+       M2B-READNEXT.                                                    
+           ADD 1 TO CNT-B2.                                             
+           MOVE    M2B-REC     TO B2-REC.                               
+           MOVE    B2-PNO      TO WDATA0.                               
+           PERFORM MOVE-RTN-1 VARYING I FROM 1 BY 1 UNTIL I > 21.       
+           MOVE    B2-1        TO WW (1).                               
+           MOVE    B2-2        TO WW (2).                               
+           MOVE    B2-3        TO WW (3).                               
+           PERFORM S9000-M2BK2-READNEXT                                 
+              THRU S9000-M2BK2-READNEXT-EXIT.                           
+           IF      W-DB-STATUS = SPACE                                  
+             IF    M2B-POLNO = W-PNO                                    
+                   GO   TO      M2B-READNEXT                            
+             ELSE  MOVE 07 TO WDATA11                                   
+                   MOVE 0  TO J K                                       
+                   PERFORM WRITE-RTM VARYING I FROM 1 BY 3 UNTIL I > 22 
+                   MOVE SPACE TO WWWW                                   
+                   MOVE M2B-POLNO TO W-PNO                              
+                   GO   TO      M2B-READNEXT                            
+           ELSE    DISPLAY '**  M2B : ' W-DB-STATUS.                    
+       M2B-EXIT.                                                        
+           EXIT.                                                        
+      ***************************************************************** 
+      *    AM-IBWON     ( 140 BYTES )                                 * 
+      ***************************************************************** 
+       M2C-PROCESS.                                                     
+           MOVE    SPACE               TO        M2C-KEY.               
+           PERFORM S9000-M2CK2-READ-GE                                  
+              THRU S9000-M2CK2-READ-GE-EXIT.                            
+           IF      W-DB-STATUS = SPACE                                  
+                   MOVE  M2C-POLNO     TO        W-PNO                  
+           ELSE    GO   TO   M2C-EXIT.                                  
+       M2C-READNEXT.                                                    
+           ADD 1 TO CNT-C2.                                             
+           MOVE    M2C-REC     TO C2-REC.                               
+           MOVE    C2-PNO      TO WDATA0.                               
+           PERFORM MOVE-RTM VARYING I FROM 1 BY 1 UNTIL I > 22.         
+           MOVE    C2-1        TO WW (1).                               
+           MOVE    C2-2        TO WW (2).                               
+           PERFORM S9000-M2CK2-READNEXT                                 
+              THRU S9000-M2CK2-READNEXT-EXIT.                           
+           IF      W-DB-STATUS = SPACE                                  
+             IF    M2C-POLNO = W-PNO                                    
+                   GO   TO      M2C-READNEXT                            
+             ELSE  MOVE 08 TO WDATA11                                   
+                   MOVE 0  TO J K                                       
+                   PERFORM WRITE-RTM VARYING I FROM 1 BY 2 UNTIL I > 23 
+                   MOVE SPACE TO WWWW                                   
+                   MOVE M2C-POLNO TO W-PNO                              
+                   GO   TO      M2C-READNEXT                            
+           ELSE    DISPLAY '**  M2C : ' W-DB-STATUS.                    
+       M2C-EXIT.                                                        
+           EXIT.                                                        
+      ***************************************************************** 
+      *    IBWON        ( 106 BYTES )                                 * 
+      ***************************************************************** 
+       M2D-PROCESS.                                                     
+           MOVE    SPACE               TO        M2D-KEY.               
+           PERFORM S9000-M2DK2-READ-GE                                  
+              THRU S9000-M2DK2-READ-GE-EXIT.                            
+           IF      W-DB-STATUS = SPACE                                  
+                   MOVE  M2D-POLNO     TO        W-PNO                  
+           ELSE    GO   TO   M2D-EXIT.                                  
+       M2D-READNEXT.                                                    
+           ADD 1 TO CNT-D2.                                             
+           MOVE    M2D-REC     TO D2-REC.                               
+           MOVE    D2-PNO      TO WDATA0.                               
+           PERFORM MOVE-RTM VARYING I FROM 1 BY 1 UNTIL I > 22.         
+           MOVE    D2-1        TO WW (1).                               
+           MOVE    D2-2        TO WW (2).                               
+           PERFORM S9000-M2DK2-READNEXT                                 
+              THRU S9000-M2DK2-READNEXT-EXIT.                           
+           IF      W-DB-STATUS = SPACE                                  
+             IF    M2D-POLNO = W-PNO                                    
+                   GO   TO      M2D-READNEXT                            
+             ELSE  MOVE 09 TO WDATA11                                   
+                   MOVE 0  TO J K                                       
+                   PERFORM WRITE-RTM VARYING I FROM 1 BY 2 UNTIL I > 23 
+                   MOVE SPACE TO WWWW                                   
+                   MOVE M2D-POLNO TO W-PNO                              
+                   GO   TO      M2D-READNEXT                            
+           ELSE    DISPLAY '**  M2D : ' W-DB-STATUS.                    
+       M2D-EXIT.                                                        
+           EXIT.                                                        
+      ***************************************************************** 
+      *    BAEDANGKEUM  ( 80 BYTES )                                  * 
+      ***************************************************************** 
+       M2E-PROCESS.                                                     
+           MOVE    SPACE               TO        M2E-KEY.               
+           PERFORM S9000-M2EK2-READ-GE                                  
+              THRU S9000-M2EK2-READ-GE-EXIT.                            
+           IF      W-DB-STATUS = SPACE                                  
+                   MOVE  M2E-POLNO     TO        W-PNO                  
+           ELSE    GO   TO   M2E-EXIT.                                  
+       M2E-READNEXT.                                                    
+           ADD 1 TO CNT-E2.                                             
+           MOVE    M2E-REC     TO E2-REC.                               
+           MOVE    E2-PNO      TO WDATA0.                               
+           PERFORM MOVE-RTN VARYING I FROM 1 BY 1 UNTIL I > 23.         
+           MOVE    E2-1        TO WW (1).                               
+           PERFORM S9000-M2EK2-READNEXT                                 
+              THRU S9000-M2EK2-READNEXT-EXIT.                           
+           IF      W-DB-STATUS = SPACE                                  
+             IF    M2E-POLNO = W-PNO                                    
+                   GO   TO      M2E-READNEXT                            
+             ELSE  MOVE 10 TO WDATA11                                   
+                   MOVE 0  TO J K                                       
+                   PERFORM WRITE-RTN VARYING I FROM 1 BY 1 UNTIL I > 24 
+                   MOVE SPACE TO WWWW                                   
+                   MOVE M2E-POLNO TO W-PNO                              
+                   GO   TO      M2E-READNEXT                            
+           ELSE    DISPLAY '**  M2E : ' W-DB-STATUS.                    
+       M2E-EXIT.                                                        
+           EXIT.                                                        
+      ***************************************************************** 
+      *   자유납입보험료     ( 50 BYTES )                           * 
+      ***************************************************************** 
+       MKL-PROCESS.                                                     
+           MOVE    SPACE               TO        MKL-KEY.               
+           PERFORM S9000-MKLK2-READ-GE                                  
+              THRU S9000-MKLK2-READ-GE-EXIT.                            
+       MKL-READNEXT.                                                    
+           IF      W-DB-STATUS = SPACE                                  
+                   MOVE  MKL-REC     TO   KL-REC                        
+                   MOVE  KL-PNO      TO   WDATA0                        
+                   MOVE  11010       TO   WDATA1                        
+                   MOVE  KL-1        TO   WDATA2                        
+                   WRITE POUR        FROM WDATA                         
+                   MOVE  SPACE       TO   WWWW                          
+                   ADD   1           TO   CNT-KL                        
+           ELSE    DISPLAY '**  MKL : ' W-DB-STATUS                     
+                   GO    TO          MKL-EXIT.                          
+           PERFORM S9000-MKLK2-READNEXT                                 
+              THRU S9000-MKLK2-READNEXT-EXIT.                           
+           GO      TO        MKL-READNEXT.                              
+       MKL-EXIT.                                                        
+           EXIT.                                                        
+      ***************************************************************** 
+      *    DATA MOVE & WRITE  ROUTINE                                 * 
+      ***************************************************************** 
+       MOVE-RTN.                                                        
+           COMPUTE  J = 24 - I.                                         
+           COMPUTE  K = J + 1.                                          
+           MOVE WW (J)      TO WW (K).                                  
+       MOVE-RTM.                                                        
+           COMPUTE  J = 23 - I.                                         
+           COMPUTE  K = J + 2.                                          
+           MOVE WW (J)      TO WW (K).                                  
+       MOVE-RTN-1.                                                      
+           COMPUTE  J = 22 - I.                                         
+           COMPUTE  K = J + 3.                                          
+           MOVE WW (J)      TO WW (K).                                  
+       WRITE-RTN.                                                       
+           IF WW (I) NOT = '     '  COMPUTE WDATA12 = I * 10            
+                                    MOVE WW (I)  TO WDATA2              
+                                    WRITE POUR FROM WDATA.              
+       WRITE-RTM.                                                       
+           IF WW (I) NOT = '     '  ADD   1      TO J                   
+                                    COMPUTE WDATA12 = J * 10 + 1        
+                                    MOVE WW (I)  TO WDATA2              
+                                    WRITE POUR FROM WDATA               
+                                    COMPUTE WDATA12 = J * 10 + 2        
+                                    COMPUTE K = I + 1                   
+                                    MOVE WW (K)  TO WDATA2              
+                                    WRITE POUR FROM WDATA.              
+       WRITE-RTN-1.                                                     
+           IF WW (I) NOT = '     '  ADD   1      TO J                   
+                                    COMPUTE WDATA12 = J * 10 + 1        
+                                    MOVE WW (I)  TO WDATA2              
+                                    WRITE POUR FROM WDATA               
+                                    COMPUTE WDATA12 = J * 10 + 2        
+                                    COMPUTE K = I + 1                   
+                                    MOVE WW (K)  TO WDATA2              
+                                    WRITE POUR FROM WDATA               
+                                    COMPUTE WDATA12 = J * 10 + 3        
+                                    COMPUTE K = I + 2                   
+                                    MOVE WW (K)  TO WDATA2              
+                                    WRITE POUR FROM WDATA.              
+      *-----------------------------------------------*                 
+      *    COPY     DATA-BASE     CALL    ROUTINE     *                 
+      *-----------------------------------------------*                 
+           COPY            DBMKC.                                       
+           COPY            DBMKCK2.                                     
+           COPY            DBMKD.                                       
+           COPY            DBMKDK2.                                     
+           COPY            DBMKJ.                                       
+           COPY            DBMKJK2.                                     
+           COPY            DBM2A.                                       
+           COPY            DBM2AK2.                                     
+           COPY            DBM2B.                                       
+           COPY            DBM2BK2.                                     
+           COPY            DBM2C.                                       
+           COPY            DBM2CK2.                                     
+           COPY            DBM2D.                                       
+           COPY            DBM2DK2.                                     
+           COPY            DBM2E.                                       
+           COPY            DBM2EK2.                                     
+           COPY            DBMKL.                                       
+           COPY            DBMKLK2.                                     
+-INC       MKCK1                                                        
+      *                                                                 
+       S0200-MSG-RTN.                                                   
+           DISPLAY '*S0200-MSG-RTN - STATUS = ', W-DB-STATUS.           
+       END-PA.                                                          
+           COMPUTE T-CNT = CNT-KC + CNT-KD + CNT-KJ + CNT-A2            
+                         + CNT-B2 + CNT-C2 + CNT-D2 + CNT-E2            
+                         + CNT-KL.                                      
+           DISPLAY '***************************'.                       
+           DISPLAY '* MKC-CNT    ---> ' CNT-KC.                         
+           DISPLAY '* MKD-CNT    ---> ' CNT-KD.                         
+           DISPLAY '* MKJ-CNT    ---> ' CNT-KJ.                         
+           DISPLAY '* MA2-CNT    ---> ' CNT-A2.                         
+           DISPLAY '* MB2-CNT    ---> ' CNT-B2.                         
+           DISPLAY '* MC2-CNT    ---> ' CNT-C2.                         
+           DISPLAY '* MD2-CNT    ---> ' CNT-D2.                         
+           DISPLAY '* ME2-CNT    ---> ' CNT-E2.                         
+           DISPLAY '* MKL-CNT    ---> ' CNT-KL.                         
+           DISPLAY '***************************'.                       
+           DISPLAY '*** TOT-CNT  ---> ' T-CNT.                          
+           DISPLAY '***************************'.                       
+           DISPLAY '* IKWOL-MKB  ---> ' MKB-CNT.                        
+           DISPLAY '***************************'.                       
+           CLOSE   POUT.                                                
+           GOBACK.                                                      
+      ***************************************************************** 
+      *    PROGRAM   END                                              * 
+      ***************************************************************** 
